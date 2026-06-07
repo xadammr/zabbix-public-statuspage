@@ -12,10 +12,11 @@
             <header>
                 <div>
                     <h1>Service Status</h1>
+                    @php($generatedAt = $statusPage['generated_at']->copy()->timezone(config('app.timezone')))
                     <p class="last-update muted">
                         Updated
-                        <time datetime="{{ $statusPage['generated_at']->toIso8601String() }}">
-                            {{ $statusPage['generated_at']->format('H:i:s') }}
+                        <time datetime="{{ $generatedAt->toIso8601String() }}">
+                            {{ $generatedAt->format('H:i:s') }}
                         </time>
                         @if (isset($statusPage['cache']['next_refresh_at']))
                             <span

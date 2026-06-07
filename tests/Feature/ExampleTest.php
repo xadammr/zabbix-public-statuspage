@@ -85,6 +85,26 @@ class ExampleTest extends TestCase
             ->assertSee('The status page is currently showing stale data');
     }
 
+    public function test_the_application_displays_updated_time_in_the_configured_timezone(): void
+    {
+        $this->withoutVite();
+        Config::set('app.timezone', 'Australia/Brisbane');
+
+        $this->mock(CachedStatusPage::class, function ($mock): void {
+            $payload = $this->statusPagePayload();
+            $payload['generated_at'] = Carbon::parse('2026-06-07 07:32:47', 'UTC');
+
+            $mock->shouldReceive('current')
+                ->once()
+                ->andReturn($payload);
+        });
+
+        $this->get('/')
+            ->assertStatus(200)
+            ->assertSee('17:32:47')
+            ->assertDontSee('07:32:47');
+    }
+
     public function test_available_items_are_hidden_in_production(): void
     {
         $this->withoutVite();

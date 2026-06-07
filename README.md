@@ -1,42 +1,246 @@
 # zabbix-public-statuspage
-Simple statuspage for services monitored by Zabbix.
+
+A Laravel status page backed by the Zabbix API.
+
+The app discovers hosts from Zabbix tags, renders their active trigger state, exposes selected item values, and caches the generated page data so normal page loads do not hit Zabbix directly.
+
+## Requirements
+
+- PHP 8.3+
+- Composer
+- Node.js and npm
+- A Zabbix API token with read access to hosts, triggers, items, macros, and history
 
 ## Setup
 
-Copy ```.env_example``` into ```.env``` and edit Zabbix API URL and API token.
+Install dependencies:
 
-Copy ```services-template.json``` into ```services.json``` and adjust to match your Zabbix installation.
+```bash
+composer install
+npm install
+```
 
-Then ```npm run start``` or ```npm run dev```.
+Create the local environment file:
 
-You can also make a Docker container, see the Dockerfile and docker-compose.yaml files.
+```bash
+cp .env.example .env
+php artisan key:generate
+```
 
-## Configuration
+Set the Zabbix API values:
 
-The file ```services.json``` contains ```zabbix_trigger_tags``` that filters triggers that only contain these tags. 
-Then there are segments, at least one segment must be configured. In each segment, there are services that point to
-different hostnames used in Zabbix. These hostnames can be changed in the web display by using ```zabbix_display_host```.
+```env
+ZABBIX_API_URL=https://zabbix.example.com/api_jsonrpc.php
+ZABBIX_API_TOKEN=your-token
+```
 
-For each service, or host, active triggers are displayed as problems and if the tags in ```zabbix_trigger_tags``` matches.
-This is for the convenience of not displaying all triggers as problems on a public webpage, for example templated triggers as 
-disk usage warnings or cpu warnings for a virtual machine host.
+If you use the default SQLite/database cache setup, create the database and run migrations:
 
-## Notes
+```bash
+touch database/database.sqlite
+php artisan migrate
+```
 
-There is also a list of past problems that are no longer active.
+## Local Development
 
-The upcoming events, planned service or maintenance is collected with maintenance.get and filtering of items that are "one time only".
-It might not be optimal, but a way to filter what is displayed since tags don't seem to work on queries here.
+Run the full development stack:
 
-The "external statuspages" section are hard-coded into ```views/index.ejs``` at the moment. 
+```bash
+composer run dev
+```
 
-There is a compact view of the web page (link in bottom) where services are not grouped into segments, usable for public displays that need
-to display more in one view.
+That starts:
 
-There is a micro view of the web page (link in bottom) where only service names and history is visible, usable for narrow displays or mobile phones.
+- Laravel dev server
+- Laravel scheduler worker
+- queue listener
+- Laravel Pail logs
+- Vite dev server
 
-This is a work in progress.
+Open the Laravel app, usually:
 
-## Example screenshot
+```text
+http://127.0.0.1:8000
+```
 
-![Example image](/status-example.png)
+Do not browse directly to the Vite URL; Vite only serves frontend assets.
+
+## Build And Test
+
+```bash
+php artisan test
+npm run build
+./vendor/bin/pint
+```
+
+## Cached Polling
+
+The web page reads from a cached status snapshot. Zabbix polling is handled by:
+
+```bash
+php artisan statuspage:poll
+```
+
+Force a refresh:
+
+```bash
+php artisan statuspage:poll --force
+```
+
+The scheduler runs the poll command every 10 seconds and the cache service decides whether a real Zabbix refresh is due. In local development the scheduled poll logs its summary; in non-local environments it runs quietly.
+
+Relevant environment values:
+
+```env
+STATUSPAGE_CACHE_KEY=statuspage.snapshot
+STATUSPAGE_POLL_INTERVAL=60
+STATUSPAGE_STALE_AFTER=120
+```
+
+If cached data is older than `STATUSPAGE_STALE_AFTER`, the page shows a stale-data warning. This lets the status page keep serving the last known state while making it obvious that Zabbix polling may be broken.
+
+## Zabbix Host Discovery
+
+Hosts appear on the status page when they have a `statuspage` host tag matching a configured section:
+
+```text
+statuspage=public
+statuspage=internal
+statuspage=infrastructure
+```
+
+The default sections are configured in [config/zabbix.php](config/zabbix.php):
+
+- `public`: external/customer-facing services
+- `internal`: internal application services
+- `infrastructure`: supporting infrastructure dependencies
+
+## Service Health
+
+The app fetches active triggers for each discovered host. A card's status is the highest-priority active trigger:
+
+- OK
+- Not classified
+- Information
+- Warning
+- Average
+- High
+- Disaster
+
+Active trigger descriptions and priorities are shown inside each expanded service card.
+
+## Display Names
+
+By default, cards use the Zabbix host name. You can override the public display name with a host macro:
+
+```text
+{$PUBLIC_DN}=Friendly service name
+```
+
+## Response Time
+
+Response time is shown for sections listed in `latency_sections`, currently:
+
+```php
+['public', 'internal']
+```
+
+The preferred item key is:
+
+```env
+ZABBIX_LATENCY_ITEM_KEY=statuspage.web.latency
+```
+
+If that item is not present, the app falls back to recent numeric web-scenario history.
+
+Response-time chart thresholds are controlled per host with macros:
+
+```text
+{$PUBLIC_HTTP_RESPONSE_WARN}=200
+{$PUBLIC_HTTP_RESPONSE_HIGH}=1000
+```
+
+The graph shades:
+
+- below warning: clear
+- warning to high: orange
+- above high: red
+
+## API Health
+
+The app can show an API health item using:
+
+```env
+ZABBIX_API_HEALTH_ITEM_KEY=api.health.status
+ZABBIX_API_HEALTH_SUCCESS_VALUE=1
+```
+
+If the item has a Zabbix value map, the status page displays the mapped value instead of the raw value.
+
+## Selected Metrics
+
+Use host macros to choose which item values should be shown on the public card:
+
+```text
+{$PUBLIC_METRICS}=item.key.one,item.key.two,service.info["MSSQLSERVER",state]
+{$PUBLIC_METRIC_MAP}=Label one,Label two,Service status
+```
+
+Notes:
+
+- The macro name is historical; it applies to `public`, `internal`, and `infrastructure` hosts.
+- Keys are matched exactly against Zabbix item keys.
+- Commas inside item key brackets are supported.
+- Floating-point values are shown with two decimals.
+- Byte values with unit `B` are scaled to KB, MB, GB, TB, and so on.
+- Zabbix value maps are respected when available.
+
+## Available Items
+
+Each card includes a disclosure section listing every available item and key for that host. This is intended to make it easier to choose values for `{$PUBLIC_METRICS}`.
+
+## Frontend
+
+The frontend is plain Blade, CSS, and a small JavaScript file:
+
+- [resources/views/status](resources/views/status)
+- [resources/css/app.css](resources/css/app.css)
+- [resources/js/app.js](resources/js/app.js)
+
+CSS and JS are built with Vite:
+
+```bash
+npm run dev
+npm run build
+```
+
+The stylesheet imports local standard layout CSS from:
+
+```css
+@import url("https://spd.ltd/global_assets/css/fortress.css");
+@import url("https://spd.ltd/global_assets/css/spd.css");
+```
+
+Remove or replace these imports if you are deploying this outside that environment.
+
+## Deployment Notes
+
+In production, run a scheduler process so cached data keeps refreshing:
+
+```bash
+php artisan schedule:work
+```
+
+or use cron:
+
+```cron
+* * * * * cd /path/to/app && php artisan schedule:run >> /dev/null 2>&1
+```
+
+Build frontend assets before deploying:
+
+```bash
+npm run build
+```
+
+Never commit `.env`; use `.env.example` for documentation only.

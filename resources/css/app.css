@@ -516,6 +516,7 @@ h1 {
     justify-content: flex-start;
     list-style: none;
     margin-bottom: 0;
+    transition: margin-bottom 0.18s ease;
 }
 
 .service-details > summary.card-header > div {
@@ -524,6 +525,7 @@ h1 {
 
 .service-details > summary.card-header .state {
     margin-left: auto;
+    transition: opacity 0.16s ease, transform 0.16s ease;
 }
 
 .service-details[open] > summary.card-header {
@@ -531,7 +533,9 @@ h1 {
 }
 
 .service-details[open][data-has-active-triggers] > summary.card-header .state {
-    display: none;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateX(4px);
 }
 
 .service-details > summary.card-header::-webkit-details-marker {
@@ -550,6 +554,28 @@ h1 {
 
 .service-details[open] > summary.card-header::before {
     transform: rotate(90deg);
+}
+
+.service-details {
+    transition: border-color 0.18s ease, background-color 0.18s ease;
+}
+
+.service-details[open] {
+    border-color: rgba(255, 255, 255, 0.18);
+    background: color-mix(in srgb, var(--panel) 92%, white);
+}
+
+.service-details-body {
+    overflow: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .service-details,
+    .service-details > summary.card-header,
+    .service-details > summary.card-header .state,
+    .service-details > summary.card-header::before {
+        transition: none;
+    }
 }
 
 .items summary {

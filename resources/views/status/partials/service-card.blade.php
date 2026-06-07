@@ -7,8 +7,12 @@
         @include('status.partials.service-card-header', ['service' => $service])
     </summary>
 
-    @include('status.partials.service-card-body', [
-        'activeTriggers' => $activeTriggers,
-        'service' => $service,
-    ])
+    <div class="service-details-body" data-details-body>
+        <div>
+            @include('status.partials.service-card-body', [
+                'activeTriggers' => $activeTriggers,
+                'service' => $service,
+            ])
+        </div>
+    </div>
 </details>

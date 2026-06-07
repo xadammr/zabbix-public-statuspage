@@ -85,6 +85,22 @@ class ExampleTest extends TestCase
             ->assertSee('The status page is currently showing stale data');
     }
 
+    public function test_available_items_are_hidden_in_production(): void
+    {
+        $this->withoutVite();
+        Config::set('app.env', 'production');
+
+        $this->mock(CachedStatusPage::class, function ($mock): void {
+            $mock->shouldReceive('current')
+                ->once()
+                ->andReturn($this->statusPagePayload());
+        });
+
+        $this->get('/')
+            ->assertStatus(200)
+            ->assertDontSee('Available items:');
+    }
+
     private function statusPagePayload(bool $withCache = true): array
     {
         $generatedAt = Carbon::parse('2026-06-07 07:32:47');

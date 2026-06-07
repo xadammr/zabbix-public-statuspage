@@ -18,6 +18,6 @@
     @include('status.partials.selected-metrics', ['metrics' => $service['public_metrics']])
 @endif
 
-@if (count($service['available_items']) > 0)
+@if (config('app.env') !== 'production' && count($service['available_items']) > 0)
     @include('status.partials.available-items', ['items' => $service['available_items']])
 @endif

@@ -530,6 +530,10 @@ h1 {
     margin-bottom: 10px;
 }
 
+.service-details[open][data-has-active-triggers] > summary.card-header .state {
+    display: none;
+}
+
 .service-details > summary.card-header::-webkit-details-marker {
     display: none;
 }

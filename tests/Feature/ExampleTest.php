@@ -37,6 +37,7 @@ class ExampleTest extends TestCase
         $response->assertSee('example.item');
         $response->assertSee('1.23');
         $response->assertSee('High');
+        $response->assertSee('data-has-active-triggers', false);
         $response->assertSee('data-page-refresh-progress', false);
         $response->assertDontSee('Next pull in');
     }

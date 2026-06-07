@@ -12,20 +12,38 @@
             <header>
                 <div>
                     <h1>Service Status</h1>
-                    @php($generatedAt = $statusPage['generated_at']->copy()->timezone(config('app.timezone')))
+                    @php
+                        $generatedAt = $statusPage['generated_at']->copy()->timezone(config('app.timezone'));
+                        $updatedAge = preg_replace_callback('/^([1-9])\b/', fn (array $matches) => [
+                            '1' => 'one',
+                            '2' => 'two',
+                            '3' => 'three',
+                            '4' => 'four',
+                            '5' => 'five',
+                            '6' => 'six',
+                            '7' => 'seven',
+                            '8' => 'eight',
+                            '9' => 'nine',
+                        ][$matches[1]], $generatedAt->diffForHumans(['parts' => 1]));
+                    @endphp
                     <p class="last-update muted">
-                        Updated
-                        <time datetime="{{ $generatedAt->toIso8601String() }}">
-                            {{ $generatedAt->format('H:i:s') }}
+                        <span
+                            class="refresh-progress"
+                            data-page-refresh-progress
+                            role="progressbar"
+                            aria-label="Page refresh progress"
+                            aria-valuemin="0"
+                            aria-valuemax="60"
+                            aria-valuenow="0"
+                            title="Page refresh progress"
+                        ></span>
+                        Last updated:
+                        <time
+                            datetime="{{ $generatedAt->toIso8601String() }}"
+                            title="{{ $generatedAt->format('Y-m-d H:i:s') }}"
+                        >
+                            {{ $updatedAge }}
                         </time>
-                        @if (isset($statusPage['cache']['next_refresh_at']))
-                            <span
-                                class="next-refresh"
-                                data-next-refresh-at="{{ $statusPage['cache']['next_refresh_at']->toIso8601String() }}"
-                            >
-                                Next pull in <span data-countdown>...</span>
-                            </span>
-                        @endif
                     </p>
                 </div>
 

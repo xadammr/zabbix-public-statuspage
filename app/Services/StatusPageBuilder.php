@@ -24,8 +24,11 @@ class StatusPageBuilder
             ->values();
         $hostIds = $hosts->pluck('hostid')->values()->all();
         $triggers = collect($this->fetchTriggers($hostIds));
-        $availableItems = collect($this->fetchAvailableItems($hostIds));
         $macros = collect($this->fetchMacros($hostIds));
+        $availableItems = collect($this->shouldFetchAvailableItems() ? $this->fetchAvailableItems($hostIds) : []);
+        $publicMetricItems = $availableItems->isNotEmpty()
+            ? $availableItems
+            : collect($this->fetchPublicMetricItems($hostIds, $macros));
         $latencyItems = collect($this->fetchItems($hostIds, config('zabbix.latency_item_key')));
         $apiHealthItems = collect($this->fetchItems($hostIds, config('zabbix.api_health_item_key')));
         $latencyHistory = collect($this->fetchLatencyHistory($hostIds, 60));
@@ -35,6 +38,7 @@ class StatusPageBuilder
                 $host,
                 $triggers,
                 $availableItems,
+                $publicMetricItems,
                 $macros,
                 $latencyItems,
                 $latencyHistory,
@@ -187,6 +191,44 @@ class StatusPageBuilder
         ]);
     }
 
+    protected function fetchPublicMetricItems(array $hostIds, Collection $macros): array
+    {
+        $metricKeys = $macros
+            ->where('macro', '{$PUBLIC_METRICS}')
+            ->flatMap(fn (array $macro) => $this->parseMetricKeys($macro['value'] ?? ''))
+            ->unique()
+            ->values()
+            ->all();
+
+        if ($hostIds === [] || $metricKeys === []) {
+            return [];
+        }
+
+        return $this->zabbix->request('item.get', [
+            'hostids' => $hostIds,
+            'output' => [
+                'itemid',
+                'hostid',
+                'name',
+                'key_',
+                'lastvalue',
+                'lastclock',
+                'status',
+                'state',
+                'value_type',
+                'units',
+            ],
+            'filter' => [
+                'key_' => $metricKeys,
+            ],
+            'sortfield' => [
+                'name',
+                'key_',
+            ],
+            'selectValueMap' => 'extend',
+        ]);
+    }
+
     protected function fetchMacros(array $hostIds): array
     {
         if ($hostIds === []) {
@@ -299,6 +341,7 @@ class StatusPageBuilder
         array $host,
         Collection $triggers,
         Collection $availableItems,
+        Collection $publicMetricItems,
         Collection $macros,
         Collection $latencyItems,
         Collection $latencyHistory,
@@ -327,6 +370,7 @@ class StatusPageBuilder
         $hasProblem = $hostTriggers->contains(fn (array $trigger) => $trigger['value'] === '1');
         $thresholds = $this->formatLatencyThresholds($hostMacros);
         $hostAvailableItems = $availableItems->where('hostid', $host['hostid']);
+        $hostPublicMetricItems = $publicMetricItems->where('hostid', $host['hostid']);
         $severity = $this->formatServiceSeverity($hostTriggers);
 
         return [
@@ -342,12 +386,17 @@ class StatusPageBuilder
                 ->all(),
             'latency' => $this->formatLatency($latencyItem, $historyLatencyItem, $thresholds),
             'api_health' => $this->formatApiHealth($apiHealthItem),
-            'public_metrics' => $this->formatPublicMetrics($hostMacros, $hostAvailableItems),
+            'public_metrics' => $this->formatPublicMetrics($hostMacros, $hostPublicMetricItems),
             'available_items' => $hostAvailableItems
                 ->map(fn (array $item) => $this->formatAvailableItem($item))
                 ->values()
                 ->all(),
         ];
+    }
+
+    protected function shouldFetchAvailableItems(): bool
+    {
+        return config('app.env') !== 'production';
     }
 
     protected function sectionShowsLatency(string $section): bool

@@ -480,9 +480,8 @@ h1 {
     background: rgba(255, 255, 255, 0.65);
     padding: 2px 8px;
     font-size: 0.72rem;
-    font-weight: 750;
     white-space: nowrap;
-    color: black;
+    color: inherit;
 }
 
 .problem-row.not-classified,
@@ -492,6 +491,7 @@ h1 {
     color: var(--muted);
 }
 
+.problem-row.warning,
 .problem-row.average {
     background: var(--warn-bg);
     color: var(--warn);

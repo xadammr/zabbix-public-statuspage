@@ -59,6 +59,27 @@ h1 {
     width: fit-content;
 }
 
+.last-update.is-fresh {
+    animation: last-update-fresh 900ms ease-out;
+}
+
+@keyframes last-update-fresh {
+    0% {
+        border-color: rgba(255, 255, 255, 0.55);
+        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.24);
+    }
+
+    45% {
+        border-color: rgba(255, 255, 255, 0.34);
+        box-shadow: 0 0 0 6px rgba(255, 255, 255, 0.08);
+    }
+
+    100% {
+        border-color: rgba(255, 255, 255, 0.12);
+        box-shadow: 0 0 0 12px rgba(255, 255, 255, 0);
+    }
+}
+
 .refresh-progress {
     --reload-progress: 0deg;
     background:
@@ -613,7 +634,9 @@ h1 {
     .service-details,
     .service-details > summary.card-header,
     .service-details > summary.card-header .state,
-    .service-details > summary.card-header::before {
+    .service-details > summary.card-header::before,
+    .last-update.is-fresh {
+        animation: none;
         transition: none;
     }
 }

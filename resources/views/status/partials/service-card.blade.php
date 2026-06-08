@@ -4,6 +4,7 @@
 
 <details
     class="card service-details"
+    data-service-id="{{ $service['hostid'] }}"
     @if ($activeTriggers->isNotEmpty()) data-has-active-triggers @endif
 >
     <summary class="card-header">

@@ -5,7 +5,7 @@ use App\Services\StatusPageVisibility;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function (CachedStatusPage $statusPage, StatusPageVisibility $visibility, Request $request) {
+$statusPageViewData = function (CachedStatusPage $statusPage, StatusPageVisibility $visibility, Request $request): array {
     $snapshot = $statusPage->current();
     $clientIps = $visibility->candidateIps(
         $request->ip(),
@@ -15,7 +15,7 @@ Route::get('/', function (CachedStatusPage $statusPage, StatusPageVisibility $vi
     );
     $visibleStatusPage = $visibility->filter($snapshot, $clientIps);
 
-    return view('status.index', [
+    return [
         'statusPage' => $visibleStatusPage,
         'statusDebug' => $visibility->debug(
             $snapshot,
@@ -25,5 +25,13 @@ Route::get('/', function (CachedStatusPage $statusPage, StatusPageVisibility $vi
             $request->headers->get('CF-Connecting-IP'),
             $request->headers->get('X-Forwarded-For'),
         ),
-    ]);
+    ];
+};
+
+Route::get('/', function (CachedStatusPage $statusPage, StatusPageVisibility $visibility, Request $request) use ($statusPageViewData) {
+    return view('status.index', $statusPageViewData($statusPage, $visibility, $request));
+});
+
+Route::get('/status-fragment', function (CachedStatusPage $statusPage, StatusPageVisibility $visibility, Request $request) use ($statusPageViewData) {
+    return view('status.partials.page-content', $statusPageViewData($statusPage, $visibility, $request));
 });

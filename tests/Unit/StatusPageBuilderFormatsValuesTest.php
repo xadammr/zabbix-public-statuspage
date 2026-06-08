@@ -7,7 +7,7 @@ use App\Services\ZabbixClient;
 use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
 
-class ExampleTest extends TestCase
+class StatusPageBuilderFormatsValuesTest extends TestCase
 {
     public function test_byte_values_are_scaled_like_zabbix_units(): void
     {

@@ -666,6 +666,36 @@ footer {
     font-size: 0.7rem;
 }
 
+.footer-debug {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem 0.65rem;
+    justify-content: center;
+    margin-top: 0.35rem;
+    opacity: 0.72;
+    text-align: center;
+}
+
+.footer-debug-item {
+    align-items: center;
+    display: inline-flex;
+    gap: 0.25rem;
+    line-height: 1.2;
+}
+
+.footer-debug-item svg {
+    fill: none;
+    height: 0.85rem;
+    flex: 0 0 auto;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 2;
+    transform: translateY(0.02em);
+    width: 0.85rem;
+}
+
 @media (min-width: 780px) {
     header {
         grid-template-columns: 1fr 1.1fr;

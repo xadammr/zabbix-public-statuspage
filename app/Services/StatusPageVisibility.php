@@ -33,6 +33,27 @@ class StatusPageVisibility
         return $statusPage;
     }
 
+    public function debug(array $originalStatusPage, array $visibleStatusPage, ?string $clientIp): array
+    {
+        $originalSections = collect($originalStatusPage['sections'] ?? [])
+            ->pluck('key')
+            ->filter()
+            ->values();
+        $visibleSections = collect($visibleStatusPage['sections'] ?? [])
+            ->pluck('key')
+            ->filter()
+            ->values();
+
+        return [
+            'client_ip' => $clientIp ?: 'unknown',
+            'shown_sections' => $visibleSections->all(),
+            'hidden_sections' => $originalSections
+                ->diff($visibleSections)
+                ->values()
+                ->all(),
+        ];
+    }
+
     protected function canSeePrivateSections(?string $clientIp): bool
     {
         $allowedIps = $this->privateAllowedIps();

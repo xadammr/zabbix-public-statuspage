@@ -190,6 +190,12 @@ class ExampleTest extends TestCase
             ->get('/')
             ->assertStatus(200)
             ->assertSee('Public services')
+            ->assertSee('aria-label="Client IP address"', false)
+            ->assertSee('aria-label="Shown sections"', false)
+            ->assertSee('aria-label="Hidden sections"', false)
+            ->assertSee('198.51.100.25')
+            ->assertSee('public')
+            ->assertSee('internal')
             ->assertDontSee('Internal Services')
             ->assertDontSee('Internal Example');
     }
@@ -210,6 +216,12 @@ class ExampleTest extends TestCase
             ->get('/')
             ->assertStatus(200)
             ->assertSee('Public services')
+            ->assertSee('aria-label="Client IP address"', false)
+            ->assertSee('aria-label="Shown sections"', false)
+            ->assertSee('aria-label="Hidden sections"', false)
+            ->assertSee('203.0.113.10')
+            ->assertSee('public, internal')
+            ->assertSee('none')
             ->assertSee('Internal Services')
             ->assertSee('Internal Example');
     }

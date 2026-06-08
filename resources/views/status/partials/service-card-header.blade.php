@@ -6,6 +6,10 @@
 </div>
 
 <div class="service-actions">
+    <span class="state {{ $service['severity']['class'] }}">
+        {{ $service['severity']['label'] }}
+    </span>
+
     @if ($service['public_url'] ?? null)
         <a
             class="service-link"
@@ -23,8 +27,4 @@
             </svg>
         </a>
     @endif
-
-    <span class="state {{ $service['severity']['class'] }}">
-        {{ $service['severity']['label'] }}
-    </span>
 </div>

@@ -12,8 +12,14 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $trustedProxies = env('TRUSTED_PROXIES');
+
+        if (strtolower((string) $trustedProxies) === 'cloudflare') {
+            $trustedProxies = null;
+        }
+
         $middleware->trustProxies(
-            at: env('TRUSTED_PROXIES'),
+            at: $trustedProxies,
             headers: Request::HEADER_X_FORWARDED_FOR
                 | Request::HEADER_X_FORWARDED_HOST
                 | Request::HEADER_X_FORWARDED_PORT

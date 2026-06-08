@@ -12,6 +12,7 @@ $statusPageViewData = function (CachedStatusPage $statusPage, StatusPageVisibili
         $request->headers->get('X-Real-IP'),
         $request->headers->get('CF-Connecting-IP'),
         $request->headers->get('X-Forwarded-For'),
+        $request->server('REMOTE_ADDR'),
     );
     $visibleStatusPage = $visibility->filter($snapshot, $clientIps);
 

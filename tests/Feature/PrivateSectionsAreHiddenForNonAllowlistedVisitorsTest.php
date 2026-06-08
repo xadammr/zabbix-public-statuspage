@@ -15,7 +15,8 @@ class PrivateSectionsAreHiddenForNonAllowlistedVisitorsTest extends TestCase
     {
         $this->withoutVite();
         Config::set('zabbix.statuspage_private_sections', ['internal']);
-        Config::set('zabbix.statuspage_private_ips', ['203.0.113.10']);
+        Config::set('zabbix.statuspage_private_ips', ['100.64.0.0/10']);
+        Config::set('zabbix.trusted_proxies', []);
 
         $this->mock(CachedStatusPage::class, function ($mock): void {
             $mock->shouldReceive('current')

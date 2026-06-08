@@ -6,6 +6,10 @@ use Symfony\Component\HttpFoundation\IpUtils;
 
 class StatusPageVisibility
 {
+    public function __construct(
+        protected TrustedProxyRanges $trustedProxyRanges,
+    ) {}
+
     public function filter(array $statusPage, string|array|null $clientIps): array
     {
         if ($this->canSeePrivateSections($clientIps)) {
@@ -75,17 +79,40 @@ class StatusPageVisibility
         ?string $realIp = null,
         ?string $cloudflareIp = null,
         ?string $forwardedFor = null,
+        ?string $proxyIp = null,
     ): array {
-        return collect([
-            $requestIp,
-            $realIp,
-            $cloudflareIp,
-            $this->firstForwardedIp($forwardedFor),
-        ])
+        $ips = [$requestIp];
+
+        if ($this->trustsForwardedHeaders($proxyIp)) {
+            $ips[] = $realIp;
+            $ips[] = $cloudflareIp;
+            $ips[] = $this->firstForwardedIp($forwardedFor);
+        }
+
+        return collect($ips)
             ->filter()
             ->unique()
             ->values()
             ->all();
+    }
+
+    protected function trustsForwardedHeaders(?string $proxyIp): bool
+    {
+        $trustedProxies = $this->trustedProxies();
+
+        if (! $proxyIp || $trustedProxies === []) {
+            return false;
+        }
+
+        if (
+            in_array('*', $trustedProxies, true)
+            || in_array('**', $trustedProxies, true)
+            || in_array('REMOTE_ADDR', $trustedProxies, true)
+        ) {
+            return true;
+        }
+
+        return IpUtils::checkIp($proxyIp, $trustedProxies);
     }
 
     protected function canSeePrivateSections(string|array|null $clientIps): bool
@@ -118,6 +145,16 @@ class StatusPageVisibility
             ->filter()
             ->values()
             ->all();
+    }
+
+    protected function trustedProxies(): array
+    {
+        $configuredProxies = collect(config('zabbix.trusted_proxies', []))
+            ->filter()
+            ->values()
+            ->all();
+
+        return $this->trustedProxyRanges->resolve($configuredProxies);
     }
 
     protected function summaryForServices(array $services): array

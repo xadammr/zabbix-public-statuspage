@@ -142,6 +142,26 @@ TRUSTED_PROXIES=REMOTE_ADDR
 
 `REMOTE_ADDR` tells Laravel to trust the proxy currently connecting to the app and use forwarded client IP headers such as `X-Forwarded-For`. This is suitable when the app is only reachable through that proxy. If the app is directly reachable from the internet, use explicit proxy IPs or CIDR ranges instead.
 
+For Cloudflare, the app can fetch and cache Cloudflare's published proxy ranges automatically:
+
+```env
+TRUSTED_PROXIES=cloudflare
+```
+
+The ranges are pulled from Cloudflare's API and cached for 24 hours by default. The source endpoints are:
+
+- IPv4: <https://www.cloudflare.com/ips-v4>
+- IPv6: <https://www.cloudflare.com/ips-v6>
+- API: <https://api.cloudflare.com/client/v4/ips>
+
+You can still copy the current CIDR ranges into `TRUSTED_PROXIES` manually as a comma-separated list:
+
+```env
+TRUSTED_PROXIES=173.245.48.0/20,103.21.244.0/22,103.22.200.0/22,103.31.4.0/22,141.101.64.0/18,108.162.192.0/18,190.93.240.0/20,188.114.96.0/20,197.234.240.0/22,198.41.128.0/17,162.158.0.0/15,104.16.0.0/13,104.24.0.0/14,172.64.0.0/13,131.0.72.0/22,2400:cb00::/32,2606:4700::/32,2803:f800::/32,2405:b500::/32,2405:8100::/32,2a06:98c0::/29,2c0f:f248::/32
+```
+
+Forwarded headers are only used for private-section access when the immediate connecting IP is one of the trusted proxies.
+
 ## Service Health
 
 The app fetches active triggers for each discovered host. A card's status is the highest-priority active trigger:

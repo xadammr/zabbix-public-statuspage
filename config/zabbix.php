@@ -28,4 +28,8 @@ return [
     'statuspage_stale_after' => env('STATUSPAGE_STALE_AFTER', 120),
     'statuspage_private_sections' => array_filter(array_map('trim', explode(',', env('STATUSPAGE_PRIVATE_SECTIONS', 'internal,infrastructure')))),
     'statuspage_private_ips' => array_filter(array_map('trim', explode(',', env('STATUSPAGE_PRIVATE_IPS', '')))),
+    'trusted_proxies' => array_filter(array_map('trim', explode(',', env('TRUSTED_PROXIES', '')))),
+    'cloudflare_ip_ranges_url' => env('CLOUDFLARE_IP_RANGES_URL', 'https://api.cloudflare.com/client/v4/ips'),
+    'cloudflare_ip_ranges_cache_key' => env('CLOUDFLARE_IP_RANGES_CACHE_KEY', 'statuspage.cloudflare_ip_ranges'),
+    'cloudflare_ip_ranges_cache_ttl' => env('CLOUDFLARE_IP_RANGES_CACHE_TTL', 86400),
 ];

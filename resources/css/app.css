@@ -661,7 +661,7 @@ h1 {
 
 footer {
     position: relative;
-    margin: 4rem 0;
+    margin: 14rem 0 0rem;
     color: var(--muted);
     font-size: 0.7rem;
 }

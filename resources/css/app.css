@@ -286,6 +286,42 @@ h1 {
     white-space: nowrap;
 }
 
+.service-actions {
+    align-items: center;
+    display: flex;
+    flex: 0 0 auto;
+    gap: 0.45rem;
+    margin-left: auto;
+}
+
+.service-link {
+    align-items: center;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 999px;
+    color: var(--muted);
+    display: inline-flex;
+    height: 1.55rem;
+    justify-content: center;
+    transition: border-color 0.15s ease, color 0.15s ease, background-color 0.15s ease;
+    width: 1.55rem;
+}
+
+.service-link:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.24);
+    color: var(--text);
+}
+
+.service-link svg {
+    fill: none;
+    height: 0.9rem;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 2;
+    width: 0.9rem;
+}
+
 .state.ok {
     background: var(--ok-bg);
     color: var(--ok);
@@ -523,8 +559,12 @@ h1 {
     flex: 1 1 auto;
 }
 
+.service-details > summary.card-header > .service-actions {
+    flex: 0 0 auto;
+    justify-content: flex-end;
+}
+
 .service-details > summary.card-header .state {
-    margin-left: auto;
     transition: opacity 0.16s ease, transform 0.16s ease;
 }
 

@@ -53,6 +53,10 @@ const setServiceDetailsOpen = (details, shouldOpen) => {
 
 document.querySelectorAll('.service-details > summary').forEach((summary) => {
     summary.addEventListener('click', (event) => {
+        if (event.target.closest('a')) {
+            return;
+        }
+
         event.preventDefault();
         setServiceDetailsOpen(summary.parentElement, ! summary.parentElement.open);
     });

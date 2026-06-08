@@ -367,6 +367,7 @@ class StatusPageBuilder
             ?: ($host['name'] && $host['name'] !== $host['host']
             ? $host['name']
             : $host['host']);
+        $publicUrl = $this->publicUrlValue($hostMacros);
         $hasProblem = $hostTriggers->contains(fn (array $trigger) => $trigger['value'] === '1');
         $thresholds = $this->formatLatencyThresholds($hostMacros);
         $hostAvailableItems = $availableItems->where('hostid', $host['hostid']);
@@ -379,6 +380,7 @@ class StatusPageBuilder
             'section' => $host['statuspage_section'],
             'name' => $displayName,
             'description' => $host['description'] ?? '',
+            'public_url' => $publicUrl,
             'status' => $hasProblem ? 'problem' : 'ok',
             'severity' => $severity,
             'triggers' => $hostTriggers
@@ -397,6 +399,19 @@ class StatusPageBuilder
     protected function shouldFetchAvailableItems(): bool
     {
         return config('app.env') !== 'production';
+    }
+
+    protected function publicUrlValue(Collection $macros): ?string
+    {
+        $url = $this->macroStringValue($macros, '{$PUBLIC_URL}');
+
+        if (! $url || ! filter_var($url, FILTER_VALIDATE_URL)) {
+            return null;
+        }
+
+        $scheme = parse_url($url, PHP_URL_SCHEME);
+
+        return in_array($scheme, ['http', 'https'], true) ? $url : null;
     }
 
     protected function sectionShowsLatency(string $section): bool

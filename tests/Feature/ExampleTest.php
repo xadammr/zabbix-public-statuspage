@@ -33,12 +33,14 @@ class ExampleTest extends TestCase
         $response->assertSee('Alert Level: High');
         $response->assertSee('Public services');
         $response->assertSee('Example');
+        $response->assertSee('href="https://example.com"', false);
         $response->assertSee('123 ms');
         $response->assertSee('example.item');
         $response->assertSee('1.23');
         $response->assertSee('High');
         $response->assertSee('data-has-active-triggers', false);
         $response->assertSee('data-page-refresh-progress', false);
+        $response->assertSeeInOrder(['Example trigger', 'Response time']);
         $response->assertDontSee('Next pull in');
     }
 
@@ -215,6 +217,11 @@ class ExampleTest extends TestCase
                             'macro' => '{$PUBLIC_METRIC_MAP}',
                             'value' => 'Example metric',
                         ],
+                        [
+                            'hostid' => '1',
+                            'macro' => '{$PUBLIC_URL}',
+                            'value' => 'https://example.com',
+                        ],
                     ];
                 }
 
@@ -244,6 +251,7 @@ class ExampleTest extends TestCase
         $statusPage = (new StatusPageBuilder($zabbix))->build();
 
         $this->assertSame([], $statusPage['services'][0]['available_items']);
+        $this->assertSame('https://example.com', $statusPage['services'][0]['public_url']);
         $this->assertSame('Example metric', $statusPage['services'][0]['public_metrics'][0]['name']);
         $this->assertFalse(collect($zabbix->calls)->contains(
             fn (array $call) => $call['method'] === 'item.get' && ! isset($call['params']['filter'])
@@ -311,6 +319,7 @@ class ExampleTest extends TestCase
             'host' => 'public-example',
             'name' => 'Example',
             'description' => '',
+            'public_url' => 'https://example.com',
             'status' => 'ok',
             'severity' => [
                 'label' => 'High',

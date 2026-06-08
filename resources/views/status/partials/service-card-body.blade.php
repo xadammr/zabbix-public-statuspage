@@ -1,3 +1,7 @@
+@if ($activeTriggers->isNotEmpty())
+    @include('status.partials.active-triggers', ['triggers' => $activeTriggers])
+@endif
+
 @if ($service['latency'] || $service['api_health'])
     <div class="metrics">
         @if ($service['latency'])
@@ -8,10 +12,6 @@
             @include('status.partials.api-health', ['apiHealth' => $service['api_health']])
         @endif
     </div>
-@endif
-
-@if ($activeTriggers->isNotEmpty())
-    @include('status.partials.active-triggers', ['triggers' => $activeTriggers])
 @endif
 
 @if (count($service['public_metrics']) > 0)

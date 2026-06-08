@@ -6,9 +6,9 @@ use Symfony\Component\HttpFoundation\IpUtils;
 
 class StatusPageVisibility
 {
-    public function filter(array $statusPage, ?string $clientIp): array
+    public function filter(array $statusPage, string|array|null $clientIps): array
     {
-        if ($this->canSeePrivateSections($clientIp)) {
+        if ($this->canSeePrivateSections($clientIps)) {
             return $statusPage;
         }
 
@@ -70,15 +70,38 @@ class StatusPageVisibility
         return trim(explode(',', $forwardedFor)[0]) ?: null;
     }
 
-    protected function canSeePrivateSections(?string $clientIp): bool
+    public function candidateIps(
+        ?string $requestIp,
+        ?string $realIp = null,
+        ?string $cloudflareIp = null,
+        ?string $forwardedFor = null,
+    ): array {
+        return collect([
+            $requestIp,
+            $realIp,
+            $cloudflareIp,
+            $this->firstForwardedIp($forwardedFor),
+        ])
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+    }
+
+    protected function canSeePrivateSections(string|array|null $clientIps): bool
     {
         $allowedIps = $this->privateAllowedIps();
+        $clientIps = collect(is_array($clientIps) ? $clientIps : [$clientIps])
+            ->filter()
+            ->values()
+            ->all();
 
-        if (! $clientIp || $allowedIps === []) {
+        if ($clientIps === [] || $allowedIps === []) {
             return false;
         }
 
-        return IpUtils::checkIp($clientIp, $allowedIps);
+        return collect($clientIps)
+            ->contains(fn (string $clientIp) => IpUtils::checkIp($clientIp, $allowedIps));
     }
 
     protected function privateSections(): array

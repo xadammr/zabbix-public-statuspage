@@ -7,7 +7,13 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function (CachedStatusPage $statusPage, StatusPageVisibility $visibility, Request $request) {
     $snapshot = $statusPage->current();
-    $visibleStatusPage = $visibility->filter($snapshot, $request->ip());
+    $clientIps = $visibility->candidateIps(
+        $request->ip(),
+        $request->headers->get('X-Real-IP'),
+        $request->headers->get('CF-Connecting-IP'),
+        $request->headers->get('X-Forwarded-For'),
+    );
+    $visibleStatusPage = $visibility->filter($snapshot, $clientIps);
 
     return view('status.index', [
         'statusPage' => $visibleStatusPage,

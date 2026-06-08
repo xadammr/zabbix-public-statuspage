@@ -403,7 +403,8 @@ class StatusPageBuilder
 
     protected function publicUrlValue(Collection $macros): ?string
     {
-        $url = $this->macroStringValue($macros, '{$PUBLIC_URL}');
+        $url = $this->macroStringValue($macros, '{$PUBLIC_URL_OVERRIDE}')
+            ?: $this->macroStringValue($macros, '{$PUBLIC_URL}');
 
         if (! $url || ! filter_var($url, FILTER_VALIDATE_URL)) {
             return null;

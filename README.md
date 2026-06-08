@@ -170,6 +170,12 @@ You can also add a service link to the card header with:
 {$PUBLIC_URL}=https://service.example.com
 ```
 
+If `{$PUBLIC_URL_OVERRIDE}` is set, it is used for the card header link instead of `{$PUBLIC_URL}`:
+
+```text
+{$PUBLIC_URL_OVERRIDE}=https://alternate.example.com
+```
+
 Only valid `http` and `https` URLs are shown.
 
 ## Response Time

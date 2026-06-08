@@ -3,17 +3,7 @@
         <h1>Service Status</h1>
         @php
             $generatedAt = $statusPage['generated_at']->copy()->timezone(config('app.timezone'));
-            $updatedAge = preg_replace_callback('/^([1-9])\b/', fn (array $matches) => [
-                '1' => 'one',
-                '2' => 'two',
-                '3' => 'three',
-                '4' => 'four',
-                '5' => 'five',
-                '6' => 'six',
-                '7' => 'seven',
-                '8' => 'eight',
-                '9' => 'nine',
-            ][$matches[1]], $generatedAt->diffForHumans(['parts' => 1]));
+            $generatedAtIso = $generatedAt->toIso8601String();
         @endphp
         <p class="last-update muted" data-refresh-highlight>
             <span
@@ -26,13 +16,12 @@
                 aria-valuenow="0"
                 title="Status refresh progress"
             ></span>
-            Last updated:
             <time
-                data-last-updated-at="{{ $generatedAt->toIso8601String() }}"
-                datetime="{{ $generatedAt->toIso8601String() }}"
+                data-last-updated-at="{{ $generatedAtIso }}"
+                datetime="{{ $generatedAtIso }}"
                 title="{{ $generatedAt->format('Y-m-d H:i:s') }}"
             >
-                {{ $updatedAge }}
+                Polling...
             </time>
         </p>
     </div>

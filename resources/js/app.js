@@ -156,7 +156,7 @@ const updateLastUpdatedAges = () => {
             return;
         }
 
-        element.textContent = relativeTime(updatedAt);
+        element.textContent = `Last updated: ${relativeTime(updatedAt)}`;
     });
 };
 

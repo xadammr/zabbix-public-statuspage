@@ -5,6 +5,13 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="robots" content="noindex, nofollow">
         <title>spd.ltd - service status</title>
+        @if (config('services.plausible.domain'))
+            <script
+                defer
+                data-domain="{{ config('services.plausible.domain') }}"
+                src="{{ config('services.plausible.script_url') }}"
+            ></script>
+        @endif
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body>

@@ -250,6 +250,17 @@ The stylesheet imports local standard layout CSS from:
 
 Remove or replace these imports if you are deploying this outside that environment.
 
+## Analytics
+
+Plausible analytics can be enabled with:
+
+```env
+PLAUSIBLE_DOMAIN=status.example.com
+PLAUSIBLE_SCRIPT_URL=https://plausible.io/js/script.js
+```
+
+The script is only rendered when `PLAUSIBLE_DOMAIN` is set. If you self-host Plausible, set `PLAUSIBLE_SCRIPT_URL` to your own script URL.
+
 ## Deployment Notes
 
 In production, run a scheduler process so cached data keeps refreshing:

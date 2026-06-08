@@ -42,6 +42,25 @@ class ExampleTest extends TestCase
         $response->assertSee('data-page-refresh-progress', false);
         $response->assertSeeInOrder(['Example trigger', 'Response time']);
         $response->assertDontSee('Next pull in');
+        $response->assertDontSee('data-domain=', false);
+    }
+
+    public function test_plausible_analytics_script_renders_when_configured(): void
+    {
+        $this->withoutVite();
+        Config::set('services.plausible.domain', 'status.example.com');
+        Config::set('services.plausible.script_url', 'https://plausible.example.com/js/script.js');
+
+        $this->mock(CachedStatusPage::class, function ($mock): void {
+            $mock->shouldReceive('current')
+                ->once()
+                ->andReturn($this->statusPagePayload());
+        });
+
+        $this->get('/')
+            ->assertStatus(200)
+            ->assertSee('data-domain="status.example.com"', false)
+            ->assertSee('src="https://plausible.example.com/js/script.js"', false);
     }
 
     public function test_status_page_poll_refreshes_the_cached_snapshot(): void

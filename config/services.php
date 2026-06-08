@@ -35,4 +35,9 @@ return [
         ],
     ],
 
+    'plausible' => [
+        'domain' => env('PLAUSIBLE_DOMAIN'),
+        'script_url' => env('PLAUSIBLE_SCRIPT_URL', 'https://plausible.io/js/script.js'),
+    ],
+
 ];

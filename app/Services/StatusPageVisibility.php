@@ -33,8 +33,14 @@ class StatusPageVisibility
         return $statusPage;
     }
 
-    public function debug(array $originalStatusPage, array $visibleStatusPage, ?string $requestIp, ?string $realIp = null): array
-    {
+    public function debug(
+        array $originalStatusPage,
+        array $visibleStatusPage,
+        ?string $requestIp,
+        ?string $realIp = null,
+        ?string $cloudflareIp = null,
+        ?string $forwardedFor = null,
+    ): array {
         $originalSections = collect($originalStatusPage['sections'] ?? [])
             ->pluck('key')
             ->filter()
@@ -46,13 +52,22 @@ class StatusPageVisibility
 
         return [
             'request_ip' => $requestIp ?: 'unknown',
-            'real_ip' => $realIp ?: 'unknown',
+            'real_ip' => $realIp ?: $cloudflareIp ?: $this->firstForwardedIp($forwardedFor) ?: 'unknown',
             'shown_sections' => $visibleSections->all(),
             'hidden_sections' => $originalSections
                 ->diff($visibleSections)
                 ->values()
                 ->all(),
         ];
+    }
+
+    protected function firstForwardedIp(?string $forwardedFor): ?string
+    {
+        if (! $forwardedFor) {
+            return null;
+        }
+
+        return trim(explode(',', $forwardedFor)[0]) ?: null;
     }
 
     protected function canSeePrivateSections(?string $clientIp): bool

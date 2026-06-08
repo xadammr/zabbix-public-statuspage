@@ -16,6 +16,8 @@ Route::get('/', function (CachedStatusPage $statusPage, StatusPageVisibility $vi
             $visibleStatusPage,
             $request->ip(),
             $request->headers->get('X-Real-IP'),
+            $request->headers->get('CF-Connecting-IP'),
+            $request->headers->get('X-Forwarded-For'),
         ),
     ]);
 });

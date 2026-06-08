@@ -250,6 +250,27 @@ class ExampleTest extends TestCase
             ->assertSee('Internal Example');
     }
 
+    public function test_footer_debug_uses_cloudflare_or_forwarded_ip_when_real_ip_header_is_missing(): void
+    {
+        $this->withoutVite();
+        Config::set('zabbix.statuspage_private_sections', []);
+
+        $this->mock(CachedStatusPage::class, function ($mock): void {
+            $mock->shouldReceive('current')
+                ->once()
+                ->andReturn($this->statusPagePayload());
+        });
+
+        $this->withServerVariables(['REMOTE_ADDR' => '172.68.84.175'])
+            ->withHeader('CF-Connecting-IP', '100.64.0.42')
+            ->withHeader('X-Forwarded-For', '100.64.0.43, 172.68.84.175')
+            ->get('/')
+            ->assertStatus(200)
+            ->assertSee('172.68.84.175')
+            ->assertSee('100.64.0.42')
+            ->assertDontSee('100.64.0.43');
+    }
+
     public function test_production_status_page_does_not_fetch_all_available_items(): void
     {
         Config::set('app.env', 'production');

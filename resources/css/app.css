@@ -660,7 +660,8 @@ h1 {
 }
 
 footer {
-    margin: 28px 0;
+    position: relative;
+    margin: 4rem 0;
     color: var(--muted);
     font-size: 0.7rem;
 }

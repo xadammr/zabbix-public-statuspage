@@ -174,6 +174,46 @@ class ExampleTest extends TestCase
             ->assertDontSee('Available items:');
     }
 
+    public function test_private_sections_are_hidden_for_non_allowlisted_visitors(): void
+    {
+        $this->withoutVite();
+        Config::set('zabbix.statuspage_private_sections', ['internal']);
+        Config::set('zabbix.statuspage_private_ips', ['203.0.113.10']);
+
+        $this->mock(CachedStatusPage::class, function ($mock): void {
+            $mock->shouldReceive('current')
+                ->once()
+                ->andReturn($this->statusPagePayloadWithPrivateSection());
+        });
+
+        $this->withServerVariables(['REMOTE_ADDR' => '198.51.100.25'])
+            ->get('/')
+            ->assertStatus(200)
+            ->assertSee('Public services')
+            ->assertDontSee('Internal Services')
+            ->assertDontSee('Internal Example');
+    }
+
+    public function test_private_sections_are_visible_for_allowlisted_visitors(): void
+    {
+        $this->withoutVite();
+        Config::set('zabbix.statuspage_private_sections', ['internal']);
+        Config::set('zabbix.statuspage_private_ips', ['203.0.113.0/24']);
+
+        $this->mock(CachedStatusPage::class, function ($mock): void {
+            $mock->shouldReceive('current')
+                ->once()
+                ->andReturn($this->statusPagePayloadWithPrivateSection());
+        });
+
+        $this->withServerVariables(['REMOTE_ADDR' => '203.0.113.10'])
+            ->get('/')
+            ->assertStatus(200)
+            ->assertSee('Public services')
+            ->assertSee('Internal Services')
+            ->assertSee('Internal Example');
+    }
+
     public function test_production_status_page_does_not_fetch_all_available_items(): void
     {
         Config::set('app.env', 'production');
@@ -308,6 +348,35 @@ class ExampleTest extends TestCase
                 'age_seconds' => 0,
             ];
         }
+
+        return $payload;
+    }
+
+    private function statusPagePayloadWithPrivateSection(): array
+    {
+        $payload = $this->statusPagePayload();
+        $internalService = [
+            ...$this->servicePayload(),
+            'hostid' => '2',
+            'host' => 'internal-example',
+            'name' => 'Internal Example',
+            'section' => 'internal',
+            'severity' => [
+                'label' => 'OK',
+                'class' => 'ok',
+            ],
+            'triggers' => [],
+        ];
+
+        $payload['services'][] = $internalService;
+        $payload['sections'][] = [
+            'key' => 'internal',
+            'title' => 'Internal Services',
+            'description' => 'Internal services monitored by Zabbix.',
+            'services' => [$internalService],
+        ];
+        $payload['summary']['total'] = 2;
+        $payload['summary']['ok'] = 1;
 
         return $payload;
     }

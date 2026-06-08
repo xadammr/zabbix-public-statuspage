@@ -115,6 +115,25 @@ The default sections are configured in [config/zabbix.php](config/zabbix.php):
 - `internal`: internal application services
 - `infrastructure`: supporting infrastructure dependencies
 
+## Private Sections
+
+By default, `internal` and `infrastructure` are treated as private sections. Public visitors only see non-private sections, and the status summary is recalculated from the sections they are allowed to see.
+
+Private sections are controlled with:
+
+```env
+STATUSPAGE_PRIVATE_SECTIONS=internal,infrastructure
+STATUSPAGE_PRIVATE_IPS=203.0.113.10,198.51.100.0/24
+```
+
+`STATUSPAGE_PRIVATE_IPS` accepts exact IPs and CIDR ranges. For Tailscale clients, allow the Tailscale CGNAT range:
+
+```env
+STATUSPAGE_PRIVATE_IPS=100.64.0.0/10
+```
+
+If the app is behind Cloudflare, nginx, a load balancer, or another proxy, make sure Laravel sees the real client IP. Otherwise the allowlist may check the proxy IP instead of the visitor's IP.
+
 ## Service Health
 
 The app fetches active triggers for each discovered host. A card's status is the highest-priority active trigger:
@@ -136,6 +155,14 @@ By default, cards use the Zabbix host name. You can override the public display 
 ```text
 {$PUBLIC_DN}=Friendly service name
 ```
+
+You can also add a service link to the card header with:
+
+```text
+{$PUBLIC_URL}=https://service.example.com
+```
+
+Only valid `http` and `https` URLs are shown.
 
 ## Response Time
 

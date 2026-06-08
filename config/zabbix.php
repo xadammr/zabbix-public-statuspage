@@ -26,4 +26,6 @@ return [
     'statuspage_cache_key' => env('STATUSPAGE_CACHE_KEY', 'statuspage.snapshot'),
     'statuspage_poll_interval' => env('STATUSPAGE_POLL_INTERVAL', 60),
     'statuspage_stale_after' => env('STATUSPAGE_STALE_AFTER', 120),
+    'statuspage_private_sections' => array_filter(array_map('trim', explode(',', env('STATUSPAGE_PRIVATE_SECTIONS', 'internal,infrastructure')))),
+    'statuspage_private_ips' => array_filter(array_map('trim', explode(',', env('STATUSPAGE_PRIVATE_IPS', '')))),
 ];

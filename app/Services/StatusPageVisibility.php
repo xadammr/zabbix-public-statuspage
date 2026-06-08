@@ -8,6 +8,7 @@ class StatusPageVisibility
 {
     public function __construct(
         protected TrustedProxyRanges $trustedProxyRanges,
+        protected StatusPageSummary $summary,
     ) {}
 
     public function filter(array $statusPage, string|array|null $clientIps): array
@@ -32,7 +33,7 @@ class StatusPageVisibility
             ->values()
             ->all();
 
-        $statusPage['summary'] = $this->summaryForServices($statusPage['services']);
+        $statusPage['summary'] = $this->summary->build($statusPage['services']);
 
         return $statusPage;
     }
@@ -155,45 +156,5 @@ class StatusPageVisibility
             ->all();
 
         return $this->trustedProxyRanges->resolve($configuredProxies);
-    }
-
-    protected function summaryForServices(array $services): array
-    {
-        $services = collect($services);
-        $severityOrder = ['disaster', 'high', 'average', 'warning', 'information', 'not-classified', 'ok'];
-        $highest = collect($severityOrder)
-            ->first(fn (string $class) => $services->contains(fn (array $service) => $service['severity']['class'] === $class)) ?? 'ok';
-
-        return [
-            'total' => $services->count(),
-            'ok' => $services->where('severity.class', 'ok')->count(),
-            'problem' => $services->where('severity.class', '!=', 'ok')->count(),
-            'highest' => $this->severityForClass($highest),
-            'severity_counts' => collect($severityOrder)
-                ->map(fn (string $class) => [
-                    ...$this->severityForClass($class),
-                    'count' => $services->where('severity.class', $class)->count(),
-                ])
-                ->filter(fn (array $severity) => $severity['count'] > 0)
-                ->values()
-                ->all(),
-        ];
-    }
-
-    protected function severityForClass(string $class): array
-    {
-        return [
-            'label' => match ($class) {
-                'ok' => 'OK',
-                'not-classified' => 'Not classified',
-                'information' => 'Information',
-                'warning' => 'Warning',
-                'average' => 'Average',
-                'high' => 'High',
-                'disaster' => 'Disaster',
-                default => 'Unknown',
-            },
-            'class' => $class,
-        ];
     }
 }

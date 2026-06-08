@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Services\StatusPageBuilder;
+use App\Services\StatusPageSummary;
 use App\Services\ZabbixClient;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Config;
@@ -84,7 +85,7 @@ class ProductionStatusPageDoesNotFetchAllAvailableItemsTest extends TestCase
             }
         };
 
-        $statusPage = (new StatusPageBuilder($zabbix))->build();
+        $statusPage = (new StatusPageBuilder($zabbix, new StatusPageSummary))->build();
 
         $this->assertSame([], $statusPage['services'][0]['available_items']);
         $this->assertSame('https://example.com', $statusPage['services'][0]['public_url']);

@@ -8,6 +8,7 @@ class StatusPageBuilder
 {
     public function __construct(
         protected ZabbixClient $zabbix,
+        protected StatusPageSummary $summary,
     ) {}
 
     public function build(): array
@@ -60,31 +61,9 @@ class StatusPageBuilder
 
         return [
             'generated_at' => now(),
-            'summary' => $this->buildSummary($services),
+            'summary' => $this->summary->build($services),
             'services' => $services->all(),
             'sections' => $serviceSections->all(),
-        ];
-    }
-
-    protected function buildSummary(Collection $services): array
-    {
-        $severityOrder = ['disaster', 'high', 'average', 'warning', 'information', 'not-classified', 'ok'];
-        $highest = collect($severityOrder)
-            ->first(fn (string $class) => $services->contains(fn (array $service) => $service['severity']['class'] === $class)) ?? 'ok';
-
-        return [
-            'total' => $services->count(),
-            'ok' => $services->where('severity.class', 'ok')->count(),
-            'problem' => $services->where('severity.class', '!=', 'ok')->count(),
-            'highest' => $this->severityForClass($highest),
-            'severity_counts' => collect($severityOrder)
-                ->map(fn (string $class) => [
-                    ...$this->severityForClass($class),
-                    'count' => $services->where('severity.class', $class)->count(),
-                ])
-                ->filter(fn (array $severity) => $severity['count'] > 0)
-                ->values()
-                ->all(),
         ];
     }
 
@@ -441,7 +420,7 @@ class StatusPageBuilder
     protected function formatTrigger(array $trigger): array
     {
         $priority = (int) $trigger['priority'];
-        $severity = $this->severityForPriority($priority);
+        $severity = $this->summary->forPriority($priority);
 
         return [
             ...$trigger,
@@ -455,43 +434,10 @@ class StatusPageBuilder
         $activeTriggers = $hostTriggers->where('value', '1');
 
         if ($activeTriggers->isEmpty()) {
-            return $this->severityForClass('ok');
+            return $this->summary->forClass('ok');
         }
 
-        return $this->severityForPriority((int) $activeTriggers->max('priority'));
-    }
-
-    protected function severityForPriority(int $priority): array
-    {
-        return match ($priority) {
-            0 => $this->severityForClass('not-classified'),
-            1 => $this->severityForClass('information'),
-            2 => $this->severityForClass('warning'),
-            3 => $this->severityForClass('average'),
-            4 => $this->severityForClass('high'),
-            5 => $this->severityForClass('disaster'),
-            default => [
-                'label' => 'Unknown',
-                'class' => 'unknown',
-            ],
-        };
-    }
-
-    protected function severityForClass(string $class): array
-    {
-        return [
-            'label' => match ($class) {
-                'ok' => 'OK',
-                'not-classified' => 'Not classified',
-                'information' => 'Information',
-                'warning' => 'Warning',
-                'average' => 'Average',
-                'high' => 'High',
-                'disaster' => 'Disaster',
-                default => 'Unknown',
-            },
-            'class' => $class,
-        ];
+        return $this->summary->forPriority((int) $activeTriggers->max('priority'));
     }
 
     protected function formatLatencyChart(array $series, array $thresholds): ?array

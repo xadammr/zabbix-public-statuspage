@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Services\StatusPageBuilder;
+use App\Services\StatusPageSummary;
 use App\Services\ZabbixClient;
 use Illuminate\Support\Facades\Config;
 use Tests\TestCase;
@@ -50,7 +51,7 @@ class PublicUrlOverrideTakesPrecedenceTest extends TestCase
             }
         };
 
-        $statusPage = (new StatusPageBuilder($zabbix))->build();
+        $statusPage = (new StatusPageBuilder($zabbix, new StatusPageSummary))->build();
 
         $this->assertSame('https://override.example.com', $statusPage['services'][0]['public_url']);
     }

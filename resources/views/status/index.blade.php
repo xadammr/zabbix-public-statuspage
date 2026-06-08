@@ -71,14 +71,21 @@
                 </p>
                 @isset($statusDebug)
                     <p class="footer-debug muted">
-                        <span class="footer-debug-item" aria-label="Client IP address">
+                        <span class="footer-debug-item" aria-label="Request IP address">
                             <svg aria-hidden="true" viewBox="0 0 24 24">
                                 <path d="M12 20h.01"></path>
                                 <path d="M8 16.5a6 6 0 0 1 8 0"></path>
                                 <path d="M4.5 12a11 11 0 0 1 15 0"></path>
                                 <path d="M2 8a16 16 0 0 1 20 0"></path>
                             </svg>
-                            <span>{{ $statusDebug['client_ip'] }}</span>
+                            <span>{{ $statusDebug['request_ip'] }}</span>
+                        </span>
+                        <span class="footer-debug-item" aria-label="Real IP header">
+                            <svg aria-hidden="true" viewBox="0 0 24 24">
+                                <path d="M20 10c0 4.8-8 12-8 12S4 14.8 4 10a8 8 0 1 1 16 0Z"></path>
+                                <circle cx="12" cy="10" r="3"></circle>
+                            </svg>
+                            <span>{{ $statusDebug['real_ip'] }}</span>
                         </span>
                         <span class="footer-debug-item" aria-label="Shown sections">
                             <svg aria-hidden="true" viewBox="0 0 24 24">

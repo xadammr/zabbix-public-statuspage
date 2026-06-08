@@ -11,6 +11,11 @@ Route::get('/', function (CachedStatusPage $statusPage, StatusPageVisibility $vi
 
     return view('status.index', [
         'statusPage' => $visibleStatusPage,
-        'statusDebug' => $visibility->debug($snapshot, $visibleStatusPage, $request->ip()),
+        'statusDebug' => $visibility->debug(
+            $snapshot,
+            $visibleStatusPage,
+            $request->ip(),
+            $request->headers->get('X-Real-IP'),
+        ),
     ]);
 });

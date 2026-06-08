@@ -134,6 +134,14 @@ STATUSPAGE_PRIVATE_IPS=100.64.0.0/10
 
 If the app is behind Cloudflare, nginx, a load balancer, or another proxy, make sure Laravel sees the real client IP. Otherwise the allowlist may check the proxy IP instead of the visitor's IP.
 
+For proxy deployments, configure trusted proxies:
+
+```env
+TRUSTED_PROXIES=REMOTE_ADDR
+```
+
+`REMOTE_ADDR` tells Laravel to trust the proxy currently connecting to the app and use forwarded client IP headers such as `X-Forwarded-For`. This is suitable when the app is only reachable through that proxy. If the app is directly reachable from the internet, use explicit proxy IPs or CIDR ranges instead.
+
 ## Service Health
 
 The app fetches active triggers for each discovered host. A card's status is the highest-priority active trigger:

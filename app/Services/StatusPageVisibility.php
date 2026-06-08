@@ -33,7 +33,7 @@ class StatusPageVisibility
         return $statusPage;
     }
 
-    public function debug(array $originalStatusPage, array $visibleStatusPage, ?string $clientIp): array
+    public function debug(array $originalStatusPage, array $visibleStatusPage, ?string $requestIp, ?string $realIp = null): array
     {
         $originalSections = collect($originalStatusPage['sections'] ?? [])
             ->pluck('key')
@@ -45,7 +45,8 @@ class StatusPageVisibility
             ->values();
 
         return [
-            'client_ip' => $clientIp ?: 'unknown',
+            'request_ip' => $requestIp ?: 'unknown',
+            'real_ip' => $realIp ?: 'unknown',
             'shown_sections' => $visibleSections->all(),
             'hidden_sections' => $originalSections
                 ->diff($visibleSections)

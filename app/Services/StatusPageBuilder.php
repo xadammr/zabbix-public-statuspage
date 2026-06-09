@@ -3,11 +3,16 @@
 namespace App\Services;
 
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class StatusPageBuilder
 {
     protected const LATENCY_HISTORY_MINUTES = 60;
     protected const LATENCY_HISTORY_LIMIT = 60;
+
+    protected array $profileEvents = [];
+    protected int $profileStartedAt = 0;
 
     public function __construct(
         protected ZabbixClient $zabbix,
@@ -16,63 +21,191 @@ class StatusPageBuilder
 
     public function build(): array
     {
+        $this->startProfile();
         $sections = collect(config('zabbix.statuspage_sections'));
-        $hosts = $sections
+        $hosts = $this->timed('statuspage.hosts', fn () => $sections
             ->keys()
-            ->flatMap(fn (string $section) => collect($this->fetchStatuspageHosts($section))
+            ->flatMap(fn (string $section) => collect($this->timed(
+                'zabbix.host.get',
+                fn () => $this->fetchStatuspageHosts($section),
+                ['section' => $section],
+            ))
                 ->map(fn (array $host) => [
                     ...$host,
                     'statuspage_section' => $section,
                 ]))
             ->unique('hostid')
-            ->values();
+            ->values());
         $hostIds = $hosts->pluck('hostid')->values()->all();
-        $triggers = collect($this->fetchTriggers($hostIds));
-        $macros = collect($this->fetchMacros($hostIds));
-        $availableItems = collect($this->shouldFetchAvailableItems() ? $this->fetchAvailableItems($hostIds) : []);
+        $triggers = collect($this->timed(
+            'zabbix.trigger.get',
+            fn () => $this->fetchTriggers($hostIds),
+            ['hosts' => count($hostIds)],
+        ));
+        $macros = collect($this->timed(
+            'zabbix.usermacro.get',
+            fn () => $this->fetchMacros($hostIds),
+            ['hosts' => count($hostIds)],
+        ));
+        $availableItems = collect($this->timed(
+            'zabbix.item.get.available',
+            fn () => $this->shouldFetchAvailableItems() ? $this->fetchAvailableItems($hostIds) : [],
+            ['hosts' => count($hostIds), 'enabled' => $this->shouldFetchAvailableItems()],
+        ));
         $publicMetricItems = $availableItems->isNotEmpty()
             ? $availableItems
-            : collect($this->fetchPublicMetricItems($hostIds, $macros));
-        $latencyItems = collect($this->fetchItems($hostIds, config('zabbix.latency_item_key')));
-        $apiHealthItems = collect($this->fetchItems($hostIds, config('zabbix.api_health_item_key')));
+            : collect($this->timed(
+                'zabbix.item.get.public_metrics',
+                fn () => $this->fetchPublicMetricItems($hostIds, $macros),
+                ['hosts' => count($hostIds)],
+            ));
+        $latencyItems = collect($this->timed(
+            'zabbix.item.get.latency',
+            fn () => $this->fetchItems($hostIds, config('zabbix.latency_item_key')),
+            ['hosts' => count($hostIds), 'key' => config('zabbix.latency_item_key')],
+        ));
+        $apiHealthItems = collect($this->timed(
+            'zabbix.item.get.api_health',
+            fn () => $this->fetchItems($hostIds, config('zabbix.api_health_item_key')),
+            ['hosts' => count($hostIds), 'key' => config('zabbix.api_health_item_key')],
+        ));
         $latencyHostIds = $hosts
             ->filter(fn (array $host) => $this->sectionShowsLatency($host['statuspage_section']))
             ->pluck('hostid')
             ->values()
             ->all();
-        $latencyHistory = collect($this->fetchLatencyHistory($latencyHostIds, self::LATENCY_HISTORY_MINUTES));
+        $latencyHistory = collect($this->timed(
+            'zabbix.history.get.latency_total',
+            fn () => $this->fetchLatencyHistory($latencyHostIds, self::LATENCY_HISTORY_MINUTES),
+            [
+                'hosts' => count($latencyHostIds),
+                'minutes' => self::LATENCY_HISTORY_MINUTES,
+                'limit' => self::LATENCY_HISTORY_LIMIT,
+            ],
+        ));
 
-        $services = $hosts
-            ->map(fn (array $host) => $this->buildService(
-                $host,
-                $triggers,
-                $availableItems,
-                $publicMetricItems,
-                $macros,
-                $latencyItems,
-                $latencyHistory,
-                $apiHealthItems,
-            ))
-            ->values();
-        $serviceSections = $sections
-            ->map(fn (array $sectionConfig, string $section) => [
-                'key' => $section,
-                'title' => $sectionConfig['title'],
-                'description' => $sectionConfig['description'],
-                'services' => $services
-                    ->where('section', $section)
-                    ->values()
-                    ->all(),
-            ])
-            ->filter(fn (array $section) => count($section['services']) > 0)
-            ->values();
+        $services = $this->timed(
+            'statuspage.services',
+            fn () => $hosts
+                ->map(fn (array $host) => $this->buildService(
+                    $host,
+                    $triggers,
+                    $availableItems,
+                    $publicMetricItems,
+                    $macros,
+                    $latencyItems,
+                    $latencyHistory,
+                    $apiHealthItems,
+                ))
+                ->values(),
+            ['hosts' => $hosts->count()],
+        );
+        $serviceSections = $this->timed(
+            'statuspage.sections',
+            fn () => $sections
+                ->map(fn (array $sectionConfig, string $section) => [
+                    'key' => $section,
+                    'title' => $sectionConfig['title'],
+                    'description' => $sectionConfig['description'],
+                    'services' => $services
+                        ->where('section', $section)
+                        ->values()
+                        ->all(),
+                ])
+                ->filter(fn (array $section) => count($section['services']) > 0)
+                ->values(),
+            ['sections' => $sections->count()],
+        );
 
-        return [
+        $statusPage = [
             'generated_at' => now(),
             'summary' => $this->summary->build($services),
             'services' => $services->all(),
             'sections' => $serviceSections->all(),
         ];
+
+        $this->logProfile($statusPage);
+
+        return $statusPage;
+    }
+
+    protected function startProfile(): void
+    {
+        $this->profileEvents = [];
+        $this->profileStartedAt = hrtime(true);
+    }
+
+    protected function timed(string $label, callable $callback, array $context = []): mixed
+    {
+        $startedAt = hrtime(true);
+
+        try {
+            $result = $callback();
+        } catch (Throwable $exception) {
+            $this->profileEvents[] = [
+                'label' => $label,
+                'ms' => $this->elapsedMilliseconds($startedAt),
+                'failed' => true,
+                ...$context,
+            ];
+
+            throw $exception;
+        }
+
+        $event = [
+            'label' => $label,
+            'ms' => $this->elapsedMilliseconds($startedAt),
+            ...$context,
+        ];
+
+        if (is_countable($result)) {
+            $event['count'] = count($result);
+        }
+
+        $this->profileEvents[] = $event;
+
+        return $result;
+    }
+
+    protected function logProfile(array $statusPage): void
+    {
+        if (! config('zabbix.statuspage_profile_log')) {
+            return;
+        }
+
+        $events = collect($this->profileEvents);
+
+        Log::info('statuspage:build_profile', [
+            'total_ms' => $this->elapsedMilliseconds($this->profileStartedAt),
+            'services' => count($statusPage['services'] ?? []),
+            'sections' => count($statusPage['sections'] ?? []),
+            'events' => $events
+                ->groupBy('label')
+                ->map(fn (Collection $group, string $label) => [
+                    'label' => $label,
+                    'calls' => $group->count(),
+                    'total_ms' => round($group->sum('ms'), 2),
+                    'max_ms' => round($group->max('ms'), 2),
+                    'count' => $group->sum('count'),
+                ])
+                ->sortByDesc('total_ms')
+                ->values()
+                ->all(),
+            'slowest' => $events
+                ->sortByDesc('ms')
+                ->take(10)
+                ->map(fn (array $event) => [
+                    ...$event,
+                    'ms' => round($event['ms'], 2),
+                ])
+                ->values()
+                ->all(),
+        ]);
+    }
+
+    protected function elapsedMilliseconds(int $startedAt): float
+    {
+        return (hrtime(true) - $startedAt) / 1_000_000;
     }
 
     protected function fetchStatuspageHosts(string $section): array
@@ -240,14 +373,18 @@ class StatusPageBuilder
         $timeFrom = now()->subMinutes($minutes)->timestamp;
 
         foreach ($hostIds as $hostId) {
-            $values = $this->zabbix->request('history.get', [
-                'hostids' => [$hostId],
-                'history' => 0,
-                'time_from' => $timeFrom,
-                'sortfield' => 'clock',
-                'sortorder' => 'DESC',
-                'limit' => self::LATENCY_HISTORY_LIMIT,
-            ]);
+            $values = $this->timed(
+                'zabbix.history.get.latency_host',
+                fn () => $this->zabbix->request('history.get', [
+                    'hostids' => [$hostId],
+                    'history' => 0,
+                    'time_from' => $timeFrom,
+                    'sortfield' => 'clock',
+                    'sortorder' => 'DESC',
+                    'limit' => self::LATENCY_HISTORY_LIMIT,
+                ]),
+                ['hostid' => $hostId, 'limit' => self::LATENCY_HISTORY_LIMIT],
+            );
 
             $items = collect($values)
                 ->filter(function (array $value): bool {
@@ -296,14 +433,18 @@ class StatusPageBuilder
 
     protected function fetchLatencySeriesForItem(string $itemId, int $minutes): array
     {
-        $values = $this->zabbix->request('history.get', [
-            'itemids' => [$itemId],
-            'history' => 0,
-            'time_from' => now()->subMinutes($minutes)->timestamp,
-            'sortfield' => 'clock',
-            'sortorder' => 'ASC',
-            'limit' => self::LATENCY_HISTORY_LIMIT,
-        ]);
+        $values = $this->timed(
+            'zabbix.history.get.latency_item',
+            fn () => $this->zabbix->request('history.get', [
+                'itemids' => [$itemId],
+                'history' => 0,
+                'time_from' => now()->subMinutes($minutes)->timestamp,
+                'sortfield' => 'clock',
+                'sortorder' => 'ASC',
+                'limit' => self::LATENCY_HISTORY_LIMIT,
+            ]),
+            ['itemid' => $itemId, 'limit' => self::LATENCY_HISTORY_LIMIT],
+        );
 
         return collect($values)
             ->filter(function (array $value): bool {

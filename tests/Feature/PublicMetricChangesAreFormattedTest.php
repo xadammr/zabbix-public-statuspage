@@ -9,12 +9,10 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Config;
 use Tests\TestCase;
 
-class ProductionStatusPageDoesNotFetchAllAvailableItemsTest extends TestCase
+class PublicMetricChangesAreFormattedTest extends TestCase
 {
-    public function test_available_items_fetch_can_be_disabled_outside_production(): void
+    public function test_public_metric_changes_are_formatted_from_previous_item_value(): void
     {
-        Config::set('app.env', 'local');
-        Config::set('zabbix.statuspage_fetch_available_items', false);
         Config::set('zabbix.statuspage_sections', [
             'public' => [
                 'title' => 'Public services',
@@ -40,82 +38,24 @@ class ProductionStatusPageDoesNotFetchAllAvailableItemsTest extends TestCase
                             ['tag' => 'statuspage', 'value' => 'public'],
                         ],
                     ]];
-                }
-
-                return [];
-            }
-        };
-
-        $statusPage = (new StatusPageBuilder($zabbix, new StatusPageSummary))->build();
-
-        $this->assertSame([], $statusPage['services'][0]['available_items']);
-        $this->assertFalse(collect($zabbix->calls)->contains(
-            fn (array $call) => $call['method'] === 'item.get' && ! isset($call['params']['filter'])
-        ));
-    }
-
-    public function test_production_status_page_does_not_fetch_all_available_items(): void
-    {
-        Config::set('app.env', 'production');
-        Config::set('zabbix.statuspage_fetch_available_items', false);
-        Config::set('zabbix.statuspage_sections', [
-            'public' => [
-                'title' => 'Public services',
-                'description' => 'Customer-facing services monitored by Zabbix.',
-            ],
-        ]);
-
-        $zabbix = new class extends ZabbixClient
-        {
-            public array $calls = [];
-
-            public function request(string $method, array $params = []): array
-            {
-                $this->calls[] = compact('method', 'params');
-
-                if ($method === 'host.get') {
-                    return [[
-                        'hostid' => '1',
-                        'host' => 'public-example',
-                        'name' => 'Example',
-                        'description' => '',
-                        'tags' => [
-                            ['tag' => 'statuspage', 'value' => 'public'],
-                        ],
-                    ]];
-                }
-
-                if ($method === 'trigger.get' || $method === 'history.get') {
-                    return [];
                 }
 
                 if ($method === 'usermacro.get') {
-                    return [
-                        [
-                            'hostid' => '1',
-                            'macro' => '{$PUBLIC_METRICS}',
-                            'value' => 'example.item',
-                        ],
-                        [
-                            'hostid' => '1',
-                            'macro' => '{$PUBLIC_METRIC_MAP}',
-                            'value' => 'Example metric',
-                        ],
-                        [
-                            'hostid' => '1',
-                            'macro' => '{$PUBLIC_URL}',
-                            'value' => 'https://example.com',
-                        ],
-                    ];
+                    return [[
+                        'hostid' => '1',
+                        'macro' => '{$PUBLIC_METRICS}',
+                        'value' => 'example.item',
+                    ]];
                 }
 
                 if ($method === 'item.get' && ($params['filter']['key_'] ?? null) === ['example.item']) {
                     return [[
-                        'itemid' => '1',
+                        'itemid' => 'metric-1',
                         'hostid' => '1',
                         'name' => 'Example item',
                         'key_' => 'example.item',
-                        'lastvalue' => '1.23456',
+                        'lastvalue' => '2.5',
+                        'prevvalue' => '1.5',
                         'lastclock' => Carbon::parse('2026-06-07 07:32:47')->timestamp,
                         'status' => '0',
                         'state' => '0',
@@ -124,8 +64,73 @@ class ProductionStatusPageDoesNotFetchAllAvailableItemsTest extends TestCase
                     ]];
                 }
 
-                if ($method === 'item.get') {
-                    return [];
+                return [];
+            }
+        };
+
+        $statusPage = (new StatusPageBuilder($zabbix, new StatusPageSummary))->build();
+
+        $change = $statusPage['services'][0]['public_metrics'][0]['change'];
+
+        $this->assertSame('up', $change['direction']);
+        $this->assertSame('1.5', $change['previous_value']);
+        $this->assertSame(1.0, $change['delta']);
+        $this->assertFalse(collect($zabbix->calls)->contains(
+            fn (array $call) => $call['method'] === 'history.get'
+        ));
+    }
+
+    public function test_public_metric_changes_are_omitted_without_previous_item_value(): void
+    {
+        Config::set('zabbix.statuspage_sections', [
+            'public' => [
+                'title' => 'Public services',
+                'description' => 'Customer-facing services monitored by Zabbix.',
+            ],
+        ]);
+
+        $zabbix = new class extends ZabbixClient
+        {
+            public array $calls = [];
+
+            public function request(string $method, array $params = []): array
+            {
+                $this->calls[] = compact('method', 'params');
+
+                if ($method === 'host.get') {
+                    return [[
+                        'hostid' => '1',
+                        'host' => 'public-example',
+                        'name' => 'Example',
+                        'description' => '',
+                        'tags' => [
+                            ['tag' => 'statuspage', 'value' => 'public'],
+                        ],
+                    ]];
+                }
+
+                if ($method === 'usermacro.get') {
+                    return [[
+                        'hostid' => '1',
+                        'macro' => '{$PUBLIC_METRICS}',
+                        'value' => 'example.item',
+                    ]];
+                }
+
+                if ($method === 'item.get' && ($params['filter']['key_'] ?? null) === ['example.item']) {
+                    return [[
+                        'itemid' => 'metric-1',
+                        'hostid' => '1',
+                        'name' => 'Example item',
+                        'key_' => 'example.item',
+                        'lastvalue' => '2.5',
+                        'prevvalue' => '',
+                        'lastclock' => Carbon::parse('2026-06-07 07:32:47')->timestamp,
+                        'status' => '0',
+                        'state' => '0',
+                        'value_type' => '0',
+                        'units' => '',
+                    ]];
                 }
 
                 return [];
@@ -134,11 +139,13 @@ class ProductionStatusPageDoesNotFetchAllAvailableItemsTest extends TestCase
 
         $statusPage = (new StatusPageBuilder($zabbix, new StatusPageSummary))->build();
 
-        $this->assertSame([], $statusPage['services'][0]['available_items']);
-        $this->assertSame('https://example.com', $statusPage['services'][0]['public_url']);
-        $this->assertSame('Example metric', $statusPage['services'][0]['public_metrics'][0]['name']);
+        $this->assertArrayNotHasKey('change', array_filter(
+            $statusPage['services'][0]['public_metrics'][0],
+            fn ($value) => $value !== null,
+        ));
+        $this->assertSame('2.50', $statusPage['services'][0]['public_metrics'][0]['display_value']);
         $this->assertFalse(collect($zabbix->calls)->contains(
-            fn (array $call) => $call['method'] === 'item.get' && ! isset($call['params']['filter'])
+            fn (array $call) => $call['method'] === 'history.get'
         ));
     }
 }

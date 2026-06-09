@@ -15,6 +15,13 @@
                     <td><code>{{ $item['key'] }}</code></td>
                     <td class="item-value">
                         @if ($item['lastvalue'] !== '')
+                            @if (($item['change']['direction'] ?? 'same') !== 'same')
+                                <span
+                                    class="metric-change {{ $item['change']['direction'] }}"
+                                    aria-label="{{ $item['change']['direction'] === 'up' ? 'Increased' : 'Decreased' }}"
+                                    title="{{ $item['change']['direction'] === 'up' ? 'Increased' : 'Decreased' }}"
+                                >@if ($item['change']['direction'] === 'up')&uarr;@else&darr;@endif</span>
+                            @endif
                             {{ $item['display_value'] }}{{ $item['units'] }}
                         @else
                             <span class="muted">No value</span>

@@ -57,6 +57,8 @@ class StatusPageBuilder
                 fn () => $this->fetchPublicMetricItems($hostIds, $macros),
                 ['hosts' => count($hostIds)],
             ));
+        $publicMetricItems = $this->withPublicMetricChanges($publicMetricItems, $macros);
+        $availableItems = $this->mergePublicMetricChanges($availableItems, $publicMetricItems);
         $apiHealthItems = collect($this->timed(
             'zabbix.item.get.api_health',
             fn () => $this->fetchItems($hostIds, config('zabbix.api_health_item_key')),
@@ -292,6 +294,7 @@ class StatusPageBuilder
                 'name',
                 'key_',
                 'lastvalue',
+                'prevvalue',
                 'lastclock',
                 'status',
                 'state',
@@ -318,6 +321,7 @@ class StatusPageBuilder
                 'name',
                 'key_',
                 'lastvalue',
+                'prevvalue',
                 'lastclock',
                 'status',
                 'state',
@@ -353,6 +357,7 @@ class StatusPageBuilder
                 'name',
                 'key_',
                 'lastvalue',
+                'prevvalue',
                 'lastclock',
                 'status',
                 'state',
@@ -571,7 +576,7 @@ class StatusPageBuilder
 
     protected function shouldFetchAvailableItems(): bool
     {
-        return config('app.env') !== 'production';
+        return (bool) config('zabbix.statuspage_fetch_available_items');
     }
 
     protected function publicUrlValue(Collection $macros): ?string
@@ -778,6 +783,93 @@ class StatusPageBuilder
             ->all();
     }
 
+    protected function withPublicMetricChanges(Collection $items, Collection $macros): Collection
+    {
+        $publicMetricItems = $this->publicMetricItems($items, $macros)
+            ->filter(fn (array $item) => $this->canShowMetricChange($item))
+            ->keyBy('itemid');
+
+        return $items->map(function (array $item) use ($publicMetricItems): array {
+            $metricItem = $publicMetricItems[$item['itemid']] ?? null;
+
+            if ($metricItem === null) {
+                return $item;
+            }
+
+            return [
+                ...$item,
+                'change' => $this->formatMetricChange($metricItem['lastvalue'], $metricItem['prevvalue']),
+            ];
+        });
+    }
+
+    protected function mergePublicMetricChanges(Collection $availableItems, Collection $publicMetricItems): Collection
+    {
+        if ($availableItems->isEmpty()) {
+            return $availableItems;
+        }
+
+        $changesByItem = $publicMetricItems
+            ->filter(fn (array $item) => isset($item['change']))
+            ->keyBy('itemid');
+
+        if ($changesByItem->isEmpty()) {
+            return $availableItems;
+        }
+
+        return $availableItems->map(function (array $item) use ($changesByItem): array {
+            $changedItem = $changesByItem[$item['itemid']] ?? null;
+
+            return $changedItem ? [
+                ...$item,
+                'change' => $changedItem['change'],
+            ] : $item;
+        });
+    }
+
+    protected function publicMetricItems(Collection $items, Collection $macros): Collection
+    {
+        $keysByHost = $macros
+            ->where('macro', '{$PUBLIC_METRICS}')
+            ->groupBy('hostid')
+            ->map(fn (Collection $hostMacros) => $hostMacros
+                ->flatMap(fn (array $macro) => $this->parseMetricKeys($macro['value'] ?? ''))
+                ->unique()
+                ->values()
+                ->all());
+
+        return $items
+            ->filter(fn (array $item) => in_array($item['key_'] ?? null, $keysByHost[$item['hostid']] ?? [], true))
+            ->values();
+    }
+
+    protected function canShowMetricChange(array $item): bool
+    {
+        return ($item['lastvalue'] ?? '') !== ''
+            && ($item['prevvalue'] ?? '') !== ''
+            && is_numeric($item['lastvalue'])
+            && is_numeric($item['prevvalue'])
+            && in_array((string) ($item['value_type'] ?? ''), ['0', '3'], true);
+    }
+
+    protected function formatMetricChange(string $currentValue, string $previousValue): array
+    {
+        $current = (float) $currentValue;
+        $previous = (float) $previousValue;
+        $delta = $current - $previous;
+        $direction = match (true) {
+            $delta > 0 => 'up',
+            $delta < 0 => 'down',
+            default => 'same',
+        };
+
+        return [
+            'direction' => $direction,
+            'previous_value' => $previousValue,
+            'delta' => $delta,
+        ];
+    }
+
     protected function parseMetricKeys(string $value): array
     {
         $keys = [];
@@ -870,6 +962,7 @@ class StatusPageBuilder
             'state' => $item['state'],
             'value_type' => $item['value_type'],
             'units' => $item['units'] ?? '',
+            'change' => $item['change'] ?? null,
         ];
     }
 

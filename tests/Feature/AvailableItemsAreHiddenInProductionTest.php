@@ -15,6 +15,7 @@ class AvailableItemsAreHiddenInProductionTest extends TestCase
     {
         $this->withoutVite();
         Config::set('app.env', 'production');
+        Config::set('zabbix.statuspage_fetch_available_items', false);
 
         $this->mock(CachedStatusPage::class, function ($mock): void {
             $mock->shouldReceive('current')

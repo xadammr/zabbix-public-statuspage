@@ -62,4 +62,29 @@ class StatusPageRendersTest extends TestCase
         $response->assertSee('points="6,66 120,36 234,12"', false);
         $response->assertSee('class="line ok"', false);
     }
+
+    public function test_the_application_renders_metric_change_before_the_value(): void
+    {
+        $this->withoutVite();
+
+        $payload = $this->statusPagePayload();
+        $payload['services'][0]['public_metrics'][0]['change'] = [
+            'direction' => 'up',
+            'previous_value' => '1.0',
+            'delta' => 0.23456,
+        ];
+        $payload['sections'][0]['services'][0] = $payload['services'][0];
+
+        $this->mock(CachedStatusPage::class, function ($mock) use ($payload): void {
+            $mock->shouldReceive('current')
+                ->once()
+                ->andReturn($payload);
+        });
+
+        $response = $this->get('/');
+
+        $response->assertStatus(200);
+        $response->assertSee('class="metric-change up"', false);
+        $response->assertSeeInOrder(['aria-label="Increased"', '&uarr;', '1.23'], false);
+    }
 }

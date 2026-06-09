@@ -36,7 +36,9 @@ class CachedStatusPage
 
     public function refresh(): array
     {
+        $startedAt = hrtime(true);
         $statusPage = $this->builder->build();
+        $durationMs = (hrtime(true) - $startedAt) / 1_000_000;
         $refreshedAt = now();
         $pollInterval = $this->pollInterval();
 
@@ -47,6 +49,8 @@ class CachedStatusPage
             'stale_after' => $this->staleAfter(),
             'is_stale' => false,
             'age_seconds' => 0,
+            'duration_ms' => $durationMs,
+            'duration' => $this->formatDuration($durationMs),
         ];
 
         Cache::forever($this->cacheKey(), $this->normalize($statusPage));
@@ -84,6 +88,15 @@ class CachedStatusPage
     protected function cacheKey(): string
     {
         return config('zabbix.statuspage_cache_key', 'statuspage.snapshot');
+    }
+
+    protected function formatDuration(float $milliseconds): string
+    {
+        if ($milliseconds < 1000) {
+            return round($milliseconds).'ms';
+        }
+
+        return number_format($milliseconds / 1000, 2).'s';
     }
 
     protected function normalize(mixed $value): mixed

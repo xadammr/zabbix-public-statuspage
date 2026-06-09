@@ -36,5 +36,7 @@ class StatusPagePollRefreshesCachedSnapshotTest extends TestCase
 
         $this->assertSame('Example', $snapshot['sections'][0]['services'][0]['name']);
         $this->assertTrue($snapshot['cache']['next_refresh_at']->greaterThan($snapshot['cache']['refreshed_at']));
+        $this->assertIsFloat($snapshot['cache']['duration_ms']);
+        $this->assertNotEmpty($snapshot['cache']['duration']);
     }
 }

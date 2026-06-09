@@ -54,6 +54,8 @@ trait BuildsStatusPagePayloads
                 'stale_after' => 120,
                 'is_stale' => false,
                 'age_seconds' => 0,
+                'duration_ms' => 1234.56,
+                'duration' => '1.23s',
             ];
         }
 

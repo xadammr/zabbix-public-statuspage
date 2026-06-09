@@ -59,6 +59,15 @@
                 </svg>
                 <span>{{ $statusDebug['real_ip'] }}</span>
             </span>
+            @isset($statusPage['cache']['duration'])
+                <span class="footer-debug-item" aria-label="Last poll duration">
+                    <svg aria-hidden="true" viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <path d="M12 6v6l4 2"></path>
+                    </svg>
+                    <span>{{ $statusPage['cache']['duration'] }}</span>
+                </span>
+            @endisset
             <span class="footer-debug-item" aria-label="Shown sections">
                 <svg aria-hidden="true" viewBox="0 0 24 24">
                     <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"></path>

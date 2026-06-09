@@ -31,6 +31,7 @@ class StatusPageRendersTest extends TestCase
         $response->assertSee('123 ms');
         $response->assertSee('example.item');
         $response->assertSee('1.23');
+        $response->assertSee('1.23s');
         $response->assertSee('High');
         $response->assertSee('data-has-active-triggers', false);
         $response->assertSee('data-page-refresh-progress', false);

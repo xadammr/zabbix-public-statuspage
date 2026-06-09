@@ -419,9 +419,13 @@ class StatusPageBuilder
     protected function fetchLatencyHistory(Collection $latencyItems, int $minutes): array
     {
         $history = [];
+        $seriesByItem = $this->fetchLatencySeriesForItems(
+            $latencyItems->pluck('itemid')->values()->all(),
+            $minutes,
+        );
 
         foreach ($latencyItems as $item) {
-            $series = $this->fetchLatencySeriesForItem($item['itemid'], $minutes);
+            $series = $seriesByItem[$item['itemid']] ?? [];
             $latest = $series[array_key_last($series)] ?? null;
 
             if ($latest !== null) {
@@ -439,19 +443,23 @@ class StatusPageBuilder
         return $history;
     }
 
-    protected function fetchLatencySeriesForItem(string $itemId, int $minutes): array
+    protected function fetchLatencySeriesForItems(array $itemIds, int $minutes): array
     {
+        if ($itemIds === []) {
+            return [];
+        }
+
         $values = $this->timed(
-            'zabbix.history.get.latency_item',
+            'zabbix.history.get.latency_items',
             fn () => $this->zabbix->request('history.get', [
-                'itemids' => [$itemId],
+                'itemids' => $itemIds,
                 'history' => 0,
                 'time_from' => now()->subMinutes($minutes)->timestamp,
                 'sortfield' => 'clock',
                 'sortorder' => 'ASC',
-                'limit' => self::LATENCY_HISTORY_LIMIT,
+                'limit' => self::LATENCY_HISTORY_LIMIT * count($itemIds),
             ]),
-            ['itemid' => $itemId, 'limit' => self::LATENCY_HISTORY_LIMIT],
+            ['items' => count($itemIds), 'limit' => self::LATENCY_HISTORY_LIMIT * count($itemIds)],
         );
 
         return collect($values)
@@ -464,12 +472,21 @@ class StatusPageBuilder
                 $seconds = (float) $value['value'];
 
                 return [
+                    'itemid' => $value['itemid'],
                     'clock' => (int) $value['clock'],
                     'seconds' => $seconds,
                     'milliseconds' => (int) round($seconds * 1000),
                 ];
             })
-            ->values()
+            ->groupBy('itemid')
+            ->map(fn (Collection $series) => $series
+                ->map(fn (array $point) => [
+                    'clock' => $point['clock'],
+                    'seconds' => $point['seconds'],
+                    'milliseconds' => $point['milliseconds'],
+                ])
+                ->values()
+                ->all())
             ->all();
     }
 

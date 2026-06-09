@@ -39,6 +39,11 @@ class LatencyHistoryFetchIsScopedTest extends TestCase
                             'host' => 'public-example',
                             'name' => 'Public Example',
                             'description' => '',
+                        ], [
+                            'hostid' => '3',
+                            'host' => 'second-public-example',
+                            'name' => 'Second Public Example',
+                            'description' => '',
                         ]],
                         'infrastructure' => [[
                             'hostid' => '2',
@@ -57,27 +62,69 @@ class LatencyHistoryFetchIsScopedTest extends TestCase
                             'macro' => '{$PUBLIC_LATENCY_ITEM_KEY}',
                             'value' => 'web.test.time[Public HTTP Check,Access Website,resp]',
                         ],
+                        [
+                            'hostid' => '3',
+                            'macro' => '{$PUBLIC_LATENCY_ITEM_KEY}',
+                            'value' => 'web.test.time[Public HTTP Check,Access Website,resp]',
+                        ],
                     ];
                 }
 
                 if ($method === 'item.get' && ($params['filter']['key_'] ?? null) === ['web.test.time[Public HTTP Check,Access Website,resp]']) {
-                    return [[
-                        'itemid' => 'latency-public',
-                        'hostid' => '1',
-                        'name' => 'Response time for step "Access Website" of scenario "Public HTTP Check".',
-                        'key_' => 'web.test.time[Public HTTP Check,Access Website,resp]',
-                        'lastvalue' => '0.123',
-                        'lastclock' => now()->timestamp,
-                        'status' => '0',
-                        'state' => '0',
-                    ]];
+                    return [
+                        [
+                            'itemid' => 'latency-public',
+                            'hostid' => '1',
+                            'name' => 'Response time for step "Access Website" of scenario "Public HTTP Check".',
+                            'key_' => 'web.test.time[Public HTTP Check,Access Website,resp]',
+                            'lastvalue' => '0.123',
+                            'lastclock' => now()->timestamp,
+                            'status' => '0',
+                            'state' => '0',
+                        ],
+                        [
+                            'itemid' => 'latency-public-2',
+                            'hostid' => '3',
+                            'name' => 'Response time for step "Access Website" of scenario "Public HTTP Check".',
+                            'key_' => 'web.test.time[Public HTTP Check,Access Website,resp]',
+                            'lastvalue' => '0.234',
+                            'lastclock' => now()->timestamp,
+                            'status' => '0',
+                            'state' => '0',
+                        ],
+                    ];
+                }
+
+                if ($method === 'history.get') {
+                    return [
+                        [
+                            'itemid' => 'latency-public',
+                            'clock' => now()->subMinute()->timestamp,
+                            'value' => '0.100',
+                        ],
+                        [
+                            'itemid' => 'latency-public-2',
+                            'clock' => now()->subMinute()->timestamp,
+                            'value' => '0.200',
+                        ],
+                        [
+                            'itemid' => 'latency-public',
+                            'clock' => now()->timestamp,
+                            'value' => '0.150',
+                        ],
+                        [
+                            'itemid' => 'latency-public-2',
+                            'clock' => now()->timestamp,
+                            'value' => '0.250',
+                        ],
+                    ];
                 }
 
                 return [];
             }
         };
 
-        (new StatusPageBuilder($zabbix, new StatusPageSummary))->build();
+        $statusPage = (new StatusPageBuilder($zabbix, new StatusPageSummary))->build();
 
         $historyCalls = collect($zabbix->calls)->where('method', 'history.get')->values();
         $latencyItemCall = collect($zabbix->calls)
@@ -85,12 +132,14 @@ class LatencyHistoryFetchIsScopedTest extends TestCase
             ->first(fn (array $call) => $call['params']['webitems'] ?? false);
 
         $this->assertCount(1, $historyCalls);
-        $this->assertSame(['1'], $latencyItemCall['params']['hostids']);
+        $this->assertSame(['1', '3'], $latencyItemCall['params']['hostids']);
         $this->assertSame(['web.test.time[Public HTTP Check,Access Website,resp]'], $latencyItemCall['params']['filter']['key_']);
         $this->assertTrue($latencyItemCall['params']['webitems']);
-        $this->assertSame(['latency-public'], $historyCalls[0]['params']['itemids']);
+        $this->assertSame(['latency-public', 'latency-public-2'], $historyCalls[0]['params']['itemids']);
         $this->assertArrayNotHasKey('hostids', $historyCalls[0]['params']);
-        $this->assertSame(60, $historyCalls[0]['params']['limit']);
+        $this->assertSame(120, $historyCalls[0]['params']['limit']);
+        $this->assertSame(2, $statusPage['services'][0]['latency']['series']['samples']);
+        $this->assertSame(2, $statusPage['services'][1]['latency']['series']['samples']);
     }
 
     public function test_latency_is_not_fetched_without_latency_item_key_macro(): void

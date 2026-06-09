@@ -23,19 +23,17 @@ class StatusPageBuilder
     {
         $this->startProfile();
         $sections = collect(config('zabbix.statuspage_sections'));
-        $hosts = $this->timed('statuspage.hosts', fn () => $sections
-            ->keys()
-            ->flatMap(fn (string $section) => collect($this->timed(
-                'zabbix.host.get',
-                fn () => $this->fetchStatuspageHosts($section),
-                ['section' => $section],
-            ))
-                ->map(fn (array $host) => [
-                    ...$host,
-                    'statuspage_section' => $section,
-                ]))
-            ->unique('hostid')
-            ->values());
+        $hosts = $this->timed(
+            'statuspage.hosts',
+            fn () => $this->statuspageHostsForSections(
+                collect($this->timed(
+                    'zabbix.host.get',
+                    fn () => $this->fetchStatuspageHosts(),
+                    ['sections' => $sections->count()],
+                )),
+                $sections->keys(),
+            ),
+        );
         $hostIds = $hosts->pluck('hostid')->values()->all();
         $triggers = collect($this->timed(
             'zabbix.trigger.get',
@@ -207,14 +205,13 @@ class StatusPageBuilder
         return (hrtime(true) - $startedAt) / 1_000_000;
     }
 
-    protected function fetchStatuspageHosts(string $section): array
+    protected function fetchStatuspageHosts(): array
     {
         return $this->zabbix->request('host.get', [
             'tags' => [
                 [
                     'tag' => 'statuspage',
-                    'value' => $section,
-                    'operator' => 1,
+                    'operator' => 4,
                 ],
             ],
             'output' => [
@@ -229,6 +226,29 @@ class StatusPageBuilder
             ],
             'sortfield' => 'name',
         ]);
+    }
+
+    protected function statuspageHostsForSections(Collection $hosts, Collection $sections): Collection
+    {
+        return $hosts
+            ->map(function (array $host) use ($sections): ?array {
+                $hostSections = collect($host['tags'] ?? [])
+                    ->where('tag', 'statuspage')
+                    ->pluck('value');
+                $section = $sections->first(fn (string $section) => $hostSections->contains($section));
+
+                if (! $section) {
+                    return null;
+                }
+
+                return [
+                    ...$host,
+                    'statuspage_section' => $section,
+                ];
+            })
+            ->filter()
+            ->unique('hostid')
+            ->values();
     }
 
     protected function fetchTriggers(array $hostIds): array

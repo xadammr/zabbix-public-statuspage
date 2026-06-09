@@ -43,6 +43,9 @@ class StatusPageBuildProfileLogsTest extends TestCase
                         'host' => 'public-example',
                         'name' => 'Public Example',
                         'description' => '',
+                        'tags' => [
+                            ['tag' => 'statuspage', 'value' => 'public'],
+                        ],
                     ]];
                 }
 

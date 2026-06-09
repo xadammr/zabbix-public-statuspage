@@ -35,6 +35,9 @@ class ProductionStatusPageDoesNotFetchAllAvailableItemsTest extends TestCase
                         'host' => 'public-example',
                         'name' => 'Example',
                         'description' => '',
+                        'tags' => [
+                            ['tag' => 'statuspage', 'value' => 'public'],
+                        ],
                     ]];
                 }
 

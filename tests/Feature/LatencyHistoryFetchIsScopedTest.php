@@ -33,26 +33,35 @@ class LatencyHistoryFetchIsScopedTest extends TestCase
                 $this->calls[] = compact('method', 'params');
 
                 if ($method === 'host.get') {
-                    return match ($params['tags'][0]['value'] ?? null) {
-                        'public' => [[
+                    return [
+                        [
                             'hostid' => '1',
                             'host' => 'public-example',
                             'name' => 'Public Example',
                             'description' => '',
-                        ], [
+                            'tags' => [
+                                ['tag' => 'statuspage', 'value' => 'public'],
+                            ],
+                        ],
+                        [
                             'hostid' => '3',
                             'host' => 'second-public-example',
                             'name' => 'Second Public Example',
                             'description' => '',
-                        ]],
-                        'infrastructure' => [[
+                            'tags' => [
+                                ['tag' => 'statuspage', 'value' => 'public'],
+                            ],
+                        ],
+                        [
                             'hostid' => '2',
                             'host' => 'infra-example',
                             'name' => 'Infrastructure Example',
                             'description' => '',
-                        ]],
-                        default => [],
-                    };
+                            'tags' => [
+                                ['tag' => 'statuspage', 'value' => 'infrastructure'],
+                            ],
+                        ],
+                    ];
                 }
 
                 if ($method === 'usermacro.get') {
@@ -166,6 +175,9 @@ class LatencyHistoryFetchIsScopedTest extends TestCase
                         'host' => 'public-example',
                         'name' => 'Public Example',
                         'description' => '',
+                        'tags' => [
+                            ['tag' => 'statuspage', 'value' => 'public'],
+                        ],
                     ]];
                 }
 

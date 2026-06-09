@@ -465,9 +465,11 @@ h1 {
 .latency-chart svg {
     aspect-ratio: 10 / 3;
     display: block;
-    width: 100%;
+    width: calc(100% + 20px);
     height: auto;
     margin-top: 10px;
+    margin-left: -10px;
+    margin-right: -10px;
     border: 1px solid var(--line);
     border-radius: 6px;
     background: var(--panel);
@@ -642,6 +644,10 @@ h1 {
 
 .service-details-body {
     overflow: hidden;
+}
+
+.service-details[open] .service-details-body {
+    overflow: visible;
 }
 
 @media (prefers-reduced-motion: reduce) {

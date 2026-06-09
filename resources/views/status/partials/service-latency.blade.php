@@ -24,7 +24,7 @@
             @endif
         </svg>
         <div class="chart-meta">
-            <span>60 min</span>
+            <span>{{ $latency['series']['duration_label'] ?? '60 min' }}</span>
             <span>
                 {{ $latency['series']['min_ms'] }}-{{ $latency['series']['max_ms'] }} ms
                 · {{ $latency['series']['samples'] }} samples

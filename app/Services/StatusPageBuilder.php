@@ -625,7 +625,9 @@ class StatusPageBuilder
         $values = collect($series);
         $minClock = $values->min('clock');
         $maxClock = $values->max('clock');
-        $maxMilliseconds = max($dangerThreshold, $values->max('milliseconds'));
+        $minMilliseconds = (int) round($values->min('milliseconds'));
+        $maxMilliseconds = (int) round($values->max('milliseconds'));
+        $scaleMaxMilliseconds = max($dangerThreshold, $maxMilliseconds);
         $width = 240;
         $height = 72;
         $padding = 6;
@@ -633,10 +635,10 @@ class StatusPageBuilder
         $innerHeight = $height - ($padding * 2);
 
         $points = $values
-            ->map(function (array $point) use ($minClock, $maxClock, $maxMilliseconds, $padding, $innerWidth, $innerHeight): array {
+            ->map(function (array $point) use ($minClock, $maxClock, $scaleMaxMilliseconds, $padding, $innerWidth, $innerHeight): array {
                 $clockRange = max(1, $maxClock - $minClock);
                 $x = $padding + ((($point['clock'] - $minClock) / $clockRange) * $innerWidth);
-                $y = $padding + ($innerHeight - (($point['milliseconds'] / $maxMilliseconds) * $innerHeight));
+                $y = $padding + ($innerHeight - (($point['milliseconds'] / $scaleMaxMilliseconds) * $innerHeight));
 
                 return [
                     'milliseconds' => (int) $point['milliseconds'],
@@ -648,12 +650,13 @@ class StatusPageBuilder
             'segments' => $this->formatLatencySegments($points, $warningThreshold, $dangerThreshold),
             'width' => $width,
             'height' => $height,
-            'max_ms' => (int) round($maxMilliseconds),
-            'min_ms' => (int) round($values->min('milliseconds')),
+            'max_ms' => $maxMilliseconds,
+            'min_ms' => $minMilliseconds,
             'samples' => $values->count(),
+            'duration_label' => $this->formatLatencyDurationLabel((int) $minClock, (int) $maxClock, $values->count()),
             'thresholds' => collect([$warningThreshold, $dangerThreshold])
-                ->map(function (int $threshold) use ($maxMilliseconds, $padding, $innerHeight): array {
-                    $y = $padding + ($innerHeight - (($threshold / $maxMilliseconds) * $innerHeight));
+                ->map(function (int $threshold) use ($scaleMaxMilliseconds, $padding, $innerHeight): array {
+                    $y = $padding + ($innerHeight - (($threshold / $scaleMaxMilliseconds) * $innerHeight));
 
                     return [
                         'value' => $threshold,
@@ -662,6 +665,17 @@ class StatusPageBuilder
                 })
                 ->all(),
         ];
+    }
+
+    protected function formatLatencyDurationLabel(int $minClock, int $maxClock, int $samples): string
+    {
+        if ($samples >= self::LATENCY_HISTORY_LIMIT) {
+            return self::LATENCY_HISTORY_MINUTES.' min';
+        }
+
+        $minutes = max(1, (int) ceil(max(0, $maxClock - $minClock) / 60) + 1);
+
+        return min(self::LATENCY_HISTORY_MINUTES, $minutes).' min';
     }
 
     protected function formatLatencySegments(Collection $points, int $warningThreshold, int $dangerThreshold): array

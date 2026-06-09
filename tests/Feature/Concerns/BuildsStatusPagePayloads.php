@@ -134,6 +134,7 @@ trait BuildsStatusPagePayloads
                     'max_ms' => 150,
                     'min_ms' => 75,
                     'samples' => 3,
+                    'duration_label' => '3 min',
                     'thresholds' => [
                         [
                             'value' => 200,

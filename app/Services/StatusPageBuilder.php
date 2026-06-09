@@ -241,6 +241,8 @@ class StatusPageBuilder
         return $this->zabbix->request('trigger.get', [
             'hostids' => $hostIds,
             'maintenance' => false,
+            'only_true' => true,
+            'skipDependent' => true,
             'output' => [
                 'triggerid',
                 'description',

@@ -12,7 +12,7 @@
     </summary>
 
     <div class="service-details-body" data-details-body>
-        <div>
+        <div class="service-details-content">
             @include('status.partials.service-card-body', [
                 'activeTriggers' => $activeTriggers,
                 'service' => $service,

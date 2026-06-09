@@ -408,7 +408,7 @@ h1 {
 .metrics {
     display: grid;
     gap: 8px;
-    margin-top: 14px;
+    margin-top: 0;
 }
 
 .metric {
@@ -430,13 +430,13 @@ h1 {
 }
 
 .metric.warning strong {
-    color: var(--warn);
+    color: var(--danger);
 }
 
 .selected-metrics {
     display: grid;
     gap: 8px;
-    margin-top: 7px;
+    margin-top: 0;
     border-top: 1px solid var(--line);
     padding-top: 8px;
 }
@@ -478,7 +478,7 @@ h1 {
 }
 
 .latency-chart {
-/*    border-top: 1px solid rgba(255, 255, 255, 0.1);*/
+    border-top: 1px solid var(--line);
 }
 
 .latency-chart summary {
@@ -586,7 +586,7 @@ h1 {
 .problems {
     display: grid;
     gap: 8px;
-    margin-top: -2px;
+    margin-top: 0;
     margin-left: -16px;
     margin-right: -16px;
 }
@@ -635,7 +635,7 @@ h1 {
 
 
 .items {
-    margin-top: 7px;
+    margin-top: 0;
     border-top: 1px solid var(--line);
     padding-top: 10px;
 }
@@ -666,10 +666,14 @@ h1 {
     margin-bottom: 10px;
 }
 
-.service-details[open] .service-details-body > div > :first-child {
-    border-top: 1px outset rgba(255, 255, 255, 0.1);
+.service-details-content {
+    display: grid;
+    gap: 10px;
+}
+
+.service-details[open] .service-details-content {
     margin-top: 0.9rem;
-    padding-top: 0.2rem;
+    padding-top: 0rem;
 }
 
 .service-details[open][data-has-active-triggers] > summary.card-header .state {

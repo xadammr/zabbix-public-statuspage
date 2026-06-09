@@ -5,25 +5,36 @@
             $generatedAt = $statusPage['generated_at']->copy()->timezone(config('app.timezone'));
             $generatedAtIso = $generatedAt->toIso8601String();
         @endphp
-        <p class="last-update muted" data-refresh-highlight>
-            <span
-                class="refresh-progress"
-                data-page-refresh-progress
-                role="progressbar"
-                aria-label="Status refresh progress"
-                aria-valuemin="0"
-                aria-valuemax="15"
-                aria-valuenow="0"
-                title="Status refresh progress"
-            ></span>
-            <time
-                data-last-updated-at="{{ $generatedAtIso }}"
-                datetime="{{ $generatedAtIso }}"
-                title="{{ $generatedAt->format('Y-m-d H:i:s') }}"
+        <div class="refresh-controls">
+            <p class="last-update muted" data-refresh-highlight>
+                <span
+                    class="refresh-progress"
+                    data-page-refresh-progress
+                    role="progressbar"
+                    aria-label="Status refresh progress"
+                    aria-valuemin="0"
+                    aria-valuemax="15"
+                    aria-valuenow="0"
+                    title="Status refresh progress"
+                ></span>
+                <time
+                    data-last-updated-at="{{ $generatedAtIso }}"
+                    datetime="{{ $generatedAtIso }}"
+                    title="{{ $generatedAt->format('Y-m-d H:i:s') }}"
+                >
+                    Polling...
+                </time>
+            </p>
+            <button
+                class="refresh-toggle"
+                type="button"
+                data-refresh-toggle
+                aria-label="Pause automatic refresh"
+                title="Pause automatic refresh"
             >
-                Polling...
-            </time>
-        </p>
+                <span aria-hidden="true" data-refresh-toggle-icon>||</span>
+            </button>
+        </div>
     </div>
 
     @if ($statusPage['cache']['is_stale'] ?? false)

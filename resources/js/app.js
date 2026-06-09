@@ -53,6 +53,8 @@ const setServiceDetailsOpen = (details, shouldOpen) => {
 
 const statusRefreshIntervalMilliseconds = 15000;
 let statusRefreshStartedAt = Date.now();
+let statusRefreshPaused = false;
+let statusRefreshFetching = false;
 
 const syncSectionToggleLabel = (button) => {
     const section = document.querySelector(`[data-section-key="${button.dataset.sectionToggle}"]`);
@@ -108,6 +110,7 @@ const bindSectionToggles = () => {
 const bindStatusPageControls = () => {
     bindServiceDetails();
     bindSectionToggles();
+    bindRefreshToggle();
 };
 
 const numberWords = new Map([
@@ -169,6 +172,14 @@ const highlightLastUpdated = () => {
 };
 
 const updatePageRefreshProgress = () => {
+    if (statusRefreshPaused) {
+        document.querySelectorAll('[data-page-refresh-progress]').forEach((element) => {
+            element.style.setProperty('--reload-progress', '0deg');
+            element.setAttribute('aria-valuenow', '0');
+        });
+        return;
+    }
+
     const elapsedMilliseconds = Date.now() - statusRefreshStartedAt;
     const progress = Math.min(1, elapsedMilliseconds / statusRefreshIntervalMilliseconds);
     const elapsedSeconds = Math.min(15, Math.floor(elapsedMilliseconds / 1000));
@@ -177,6 +188,40 @@ const updatePageRefreshProgress = () => {
         element.style.setProperty('--reload-progress', `${progress * 360}deg`);
         element.setAttribute('aria-valuenow', String(elapsedSeconds));
     });
+};
+
+const syncRefreshToggle = () => {
+    document.querySelectorAll('[data-refresh-toggle]').forEach((button) => {
+        const icon = button.querySelector('[data-refresh-toggle-icon]');
+
+        button.hidden = statusRefreshFetching;
+        button.disabled = statusRefreshFetching;
+        button.setAttribute('aria-label', statusRefreshPaused ? 'Resume automatic refresh' : 'Pause automatic refresh');
+        button.title = statusRefreshPaused ? 'Resume automatic refresh' : 'Pause automatic refresh';
+
+        if (icon) {
+            icon.textContent = statusRefreshPaused ? '>' : '||';
+        }
+    });
+};
+
+const bindRefreshToggle = () => {
+    document.querySelectorAll('[data-refresh-toggle]').forEach((button) => {
+        if (button.dataset.bound === 'true') {
+            syncRefreshToggle();
+            return;
+        }
+
+        button.dataset.bound = 'true';
+        button.addEventListener('click', () => {
+            statusRefreshPaused = !statusRefreshPaused;
+            statusRefreshStartedAt = Date.now();
+            syncRefreshToggle();
+            updatePageRefreshProgress();
+        });
+    });
+
+    syncRefreshToggle();
 };
 
 const openServiceIds = () => Array.from(document.querySelectorAll('.service-details[open][data-service-id]'))
@@ -193,6 +238,10 @@ const restoreOpenServices = (serviceIds) => {
 };
 
 const refreshStatusFragment = async () => {
+    if (statusRefreshPaused || statusRefreshFetching) {
+        return;
+    }
+
     const container = document.querySelector('[data-status-page-content]');
 
     if (! container) {
@@ -200,6 +249,8 @@ const refreshStatusFragment = async () => {
     }
 
     const openedServiceIds = openServiceIds();
+    statusRefreshFetching = true;
+    syncRefreshToggle();
     console.info('[statuspage] Fetching updated status fragment.', new Date().toISOString());
 
     try {
@@ -225,6 +276,9 @@ const refreshStatusFragment = async () => {
         console.info('[statuspage] Status fragment updated.', new Date().toISOString());
     } catch (error) {
         console.error('[statuspage] Could not refresh status page fragment.', error);
+    } finally {
+        statusRefreshFetching = false;
+        syncRefreshToggle();
     }
 };
 

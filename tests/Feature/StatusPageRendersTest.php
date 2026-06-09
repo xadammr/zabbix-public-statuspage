@@ -35,6 +35,7 @@ class StatusPageRendersTest extends TestCase
         $response->assertSee('High');
         $response->assertSee('data-has-active-triggers', false);
         $response->assertSee('data-page-refresh-progress', false);
+        $response->assertSee('data-refresh-toggle', false);
         $response->assertSeeInOrder(['Example trigger', 'Response time']);
         $response->assertDontSee('Next pull in');
         $response->assertDontSee('data-domain=', false);

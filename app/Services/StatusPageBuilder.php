@@ -6,6 +6,9 @@ use Illuminate\Support\Collection;
 
 class StatusPageBuilder
 {
+    protected const LATENCY_HISTORY_MINUTES = 60;
+    protected const LATENCY_HISTORY_LIMIT = 60;
+
     public function __construct(
         protected ZabbixClient $zabbix,
         protected StatusPageSummary $summary,
@@ -32,7 +35,12 @@ class StatusPageBuilder
             : collect($this->fetchPublicMetricItems($hostIds, $macros));
         $latencyItems = collect($this->fetchItems($hostIds, config('zabbix.latency_item_key')));
         $apiHealthItems = collect($this->fetchItems($hostIds, config('zabbix.api_health_item_key')));
-        $latencyHistory = collect($this->fetchLatencyHistory($hostIds, 60));
+        $latencyHostIds = $hosts
+            ->filter(fn (array $host) => $this->sectionShowsLatency($host['statuspage_section']))
+            ->pluck('hostid')
+            ->values()
+            ->all();
+        $latencyHistory = collect($this->fetchLatencyHistory($latencyHostIds, self::LATENCY_HISTORY_MINUTES));
 
         $services = $hosts
             ->map(fn (array $host) => $this->buildService(
@@ -238,7 +246,7 @@ class StatusPageBuilder
                 'time_from' => $timeFrom,
                 'sortfield' => 'clock',
                 'sortorder' => 'DESC',
-                'limit' => 200,
+                'limit' => self::LATENCY_HISTORY_LIMIT,
             ]);
 
             $items = collect($values)
@@ -294,7 +302,7 @@ class StatusPageBuilder
             'time_from' => now()->subMinutes($minutes)->timestamp,
             'sortfield' => 'clock',
             'sortorder' => 'ASC',
-            'limit' => 200,
+            'limit' => self::LATENCY_HISTORY_LIMIT,
         ]);
 
         return collect($values)

@@ -47,5 +47,5 @@ Artisan::command('statuspage:poll {--force : Refresh even if the cached snapshot
 })->purpose('Refresh the cached Zabbix status page snapshot');
 
 Schedule::command(app()->environment('local') ? 'statuspage:poll' : 'statuspage:poll --quiet')
-    ->everyTenSeconds()
+    ->everyThirtySeconds()
     ->withoutOverlapping();

@@ -59,26 +59,25 @@ class StatusPageBuilder
                 fn () => $this->fetchPublicMetricItems($hostIds, $macros),
                 ['hosts' => count($hostIds)],
             ));
-        $latencyItems = collect($this->timed(
-            'zabbix.item.get.latency',
-            fn () => $this->fetchItems($hostIds, config('zabbix.latency_item_key')),
-            ['hosts' => count($hostIds), 'key' => config('zabbix.latency_item_key')],
-        ));
         $apiHealthItems = collect($this->timed(
             'zabbix.item.get.api_health',
             fn () => $this->fetchItems($hostIds, config('zabbix.api_health_item_key')),
             ['hosts' => count($hostIds), 'key' => config('zabbix.api_health_item_key')],
         ));
-        $latencyHostIds = $hosts
+        $latencyHosts = $hosts
             ->filter(fn (array $host) => $this->sectionShowsLatency($host['statuspage_section']))
-            ->pluck('hostid')
-            ->values()
-            ->all();
+            ->filter(fn (array $host) => $this->macroStringValue($macros->where('hostid', $host['hostid']), '{$PUBLIC_LATENCY_ITEM_KEY}') !== null)
+            ->values();
+        $latencyItems = collect($this->timed(
+            'zabbix.item.get.latency',
+            fn () => $this->fetchLatencyItems($latencyHosts, $macros),
+            ['hosts' => $latencyHosts->count()],
+        ));
         $latencyHistory = collect($this->timed(
             'zabbix.history.get.latency_total',
-            fn () => $this->fetchLatencyHistory($latencyHostIds, self::LATENCY_HISTORY_MINUTES),
+            fn () => $this->fetchLatencyHistory($latencyItems, self::LATENCY_HISTORY_MINUTES),
             [
-                'hosts' => count($latencyHostIds),
+                'items' => $latencyItems->count(),
                 'minutes' => self::LATENCY_HISTORY_MINUTES,
                 'limit' => self::LATENCY_HISTORY_LIMIT,
             ],
@@ -369,62 +368,69 @@ class StatusPageBuilder
         ]);
     }
 
-    protected function fetchLatencyHistory(array $hostIds, int $minutes): array
+    protected function fetchLatencyItems(Collection $hosts, Collection $macros): array
+    {
+        if ($hosts->isEmpty()) {
+            return [];
+        }
+
+        $hostIds = $hosts->pluck('hostid')->values()->all();
+        $keys = $hosts
+            ->map(fn (array $host) => $this->macroStringValue($macros->where('hostid', $host['hostid']), '{$PUBLIC_LATENCY_ITEM_KEY}'))
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+
+        if ($keys === []) {
+            return [];
+        }
+
+        $items = $this->zabbix->request('item.get', [
+            'hostids' => $hostIds,
+            'webitems' => true,
+            'output' => [
+                'itemid',
+                'hostid',
+                'name',
+                'key_',
+                'lastvalue',
+                'lastclock',
+                'status',
+                'state',
+            ],
+            'filter' => [
+                'key_' => $keys,
+            ],
+            'sortfield' => 'name',
+        ]);
+
+        $keysByHost = $hosts
+            ->mapWithKeys(fn (array $host) => [
+                $host['hostid'] => $this->macroStringValue($macros->where('hostid', $host['hostid']), '{$PUBLIC_LATENCY_ITEM_KEY}'),
+            ]);
+
+        return collect($items)
+            ->filter(fn (array $item) => ($keysByHost[$item['hostid']] ?? null) === ($item['key_'] ?? null))
+            ->values()
+            ->all();
+    }
+
+    protected function fetchLatencyHistory(Collection $latencyItems, int $minutes): array
     {
         $history = [];
-        $timeFrom = now()->subMinutes($minutes)->timestamp;
 
-        foreach ($hostIds as $hostId) {
-            $values = $this->timed(
-                'zabbix.history.get.latency_host',
-                fn () => $this->zabbix->request('history.get', [
-                    'hostids' => [$hostId],
-                    'history' => 0,
-                    'time_from' => $timeFrom,
-                    'sortfield' => 'clock',
-                    'sortorder' => 'DESC',
-                    'limit' => self::LATENCY_HISTORY_LIMIT,
-                ]),
-                ['hostid' => $hostId, 'limit' => self::LATENCY_HISTORY_LIMIT],
-            );
+        foreach ($latencyItems as $item) {
+            $series = $this->fetchLatencySeriesForItem($item['itemid'], $minutes);
+            $latest = $series[array_key_last($series)] ?? null;
 
-            $items = collect($values)
-                ->filter(function (array $value): bool {
-                    $seconds = (float) $value['value'];
-
-                    return $seconds > 0 && $seconds < 30;
-                })
-                ->groupBy('itemid')
-                ->sortByDesc(fn (Collection $points) => $points->count());
-
-            $points = $items->first();
-
-            if (! $points) {
-                continue;
-            }
-
-            $latest = $points->sortByDesc('clock')->first();
-            $series = $points
-                ->sortBy('clock')
-                ->map(function (array $value): array {
-                    $seconds = (float) $value['value'];
-
-                    return [
-                        'clock' => (int) $value['clock'],
-                        'seconds' => $seconds,
-                        'milliseconds' => (int) round($seconds * 1000),
-                    ];
-                })
-                ->values()
-                ->all();
-
-            if ($latest) {
+            if ($latest !== null) {
                 $history[] = [
-                    'hostid' => $hostId,
-                    'itemid' => $latest['itemid'],
-                    'lastvalue' => $latest['value'],
+                    'hostid' => $item['hostid'],
+                    'itemid' => $item['itemid'],
+                    'lastvalue' => (string) $latest['seconds'],
                     'lastclock' => $latest['clock'],
-                    'name' => 'Web response time',
+                    'name' => $item['name'],
                     'series' => $series,
                 ];
             }

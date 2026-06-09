@@ -87,7 +87,7 @@ Force a refresh:
 php artisan statuspage:poll --force
 ```
 
-The scheduler runs the poll command every 10 seconds and the cache service decides whether a real Zabbix refresh is due. In local development the scheduled poll logs its summary; in non-local environments it runs quietly.
+The scheduler runs the poll command every 30 seconds and the cache service decides whether a real Zabbix refresh is due. In local development the scheduled poll logs its summary; in non-local environments it runs quietly.
 
 Relevant environment values:
 
@@ -95,6 +95,7 @@ Relevant environment values:
 STATUSPAGE_CACHE_KEY=statuspage.snapshot
 STATUSPAGE_POLL_INTERVAL=60
 STATUSPAGE_STALE_AFTER=120
+STATUSPAGE_PROFILE_LOG=false
 ```
 
 If cached data is older than `STATUSPAGE_STALE_AFTER`, the page shows a stale-data warning. This lets the status page keep serving the last known state while making it obvious that Zabbix polling may be broken.
@@ -200,19 +201,21 @@ Only valid `http` and `https` URLs are shown.
 
 ## Response Time
 
-Response time is shown for sections listed in `latency_sections`, currently:
+Response time is opt-in per host. A host must be in a section listed in `latency_sections`, currently:
 
 ```php
 ['public', 'internal']
 ```
 
-The preferred item key is:
+It must also have a latency item key macro:
 
-```env
-ZABBIX_LATENCY_ITEM_KEY=statuspage.web.latency
+```text
+{$PUBLIC_LATENCY_ITEM_KEY}=web.test.time[Public HTTP Check,Access Website,resp]
 ```
 
-If that item is not present, the app falls back to recent numeric web-scenario history.
+The value should be the exact Zabbix item key for the response-time item to display. For Zabbix web scenario steps, use the generated `web.test.time[...]` item key. The app resolves that item with `webitems=true`, uses its latest value for the response-time metric, and fetches its history by exact `itemid` for the sparkline.
+
+Hosts without `{$PUBLIC_LATENCY_ITEM_KEY}` do not show response time or a response-time sparkline.
 
 Response-time chart thresholds are controlled per host with macros:
 

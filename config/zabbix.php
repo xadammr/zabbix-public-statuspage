@@ -19,7 +19,6 @@ return [
         ],
     ],
 
-    'latency_item_key' => env('ZABBIX_LATENCY_ITEM_KEY', 'statuspage.web.latency'),
     'latency_sections' => ['public', 'internal'],
     'api_health_item_key' => env('ZABBIX_API_HEALTH_ITEM_KEY', 'api.health.status'),
     'api_health_success_value' => env('ZABBIX_API_HEALTH_SUCCESS_VALUE', '1'),

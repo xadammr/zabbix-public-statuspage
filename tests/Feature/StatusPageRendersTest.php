@@ -38,4 +38,26 @@ class StatusPageRendersTest extends TestCase
         $response->assertDontSee('Next pull in');
         $response->assertDontSee('data-domain=', false);
     }
+
+    public function test_the_application_renders_cached_latency_charts_with_legacy_points(): void
+    {
+        $this->withoutVite();
+
+        $payload = $this->statusPagePayload();
+        $payload['services'][0]['latency']['series']['points'] = '6,66 120,36 234,12';
+        unset($payload['services'][0]['latency']['series']['segments']);
+        $payload['sections'][0]['services'][0] = $payload['services'][0];
+
+        $this->mock(CachedStatusPage::class, function ($mock) use ($payload): void {
+            $mock->shouldReceive('current')
+                ->once()
+                ->andReturn($payload);
+        });
+
+        $response = $this->get('/');
+
+        $response->assertStatus(200);
+        $response->assertSee('points="6,66 120,36 234,12"', false);
+        $response->assertSee('class="line ok"', false);
+    }
 }

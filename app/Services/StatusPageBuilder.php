@@ -616,23 +616,24 @@ class StatusPageBuilder
         $innerHeight = $height - ($padding * 2);
 
         $points = $values
-            ->map(function (array $point) use ($minClock, $maxClock, $maxMilliseconds, $padding, $innerWidth, $innerHeight): string {
+            ->map(function (array $point) use ($minClock, $maxClock, $maxMilliseconds, $padding, $innerWidth, $innerHeight): array {
                 $clockRange = max(1, $maxClock - $minClock);
                 $x = $padding + ((($point['clock'] - $minClock) / $clockRange) * $innerWidth);
                 $y = $padding + ($innerHeight - (($point['milliseconds'] / $maxMilliseconds) * $innerHeight));
 
-                return round($x, 2).','.round($y, 2);
-            })
-            ->implode(' ');
+                return [
+                    'milliseconds' => (int) $point['milliseconds'],
+                    'point' => round($x, 2).','.round($y, 2),
+                ];
+            });
 
         return [
-            'points' => $points,
+            'segments' => $this->formatLatencySegments($points, $warningThreshold, $dangerThreshold),
             'width' => $width,
             'height' => $height,
             'max_ms' => (int) round($maxMilliseconds),
             'min_ms' => (int) round($values->min('milliseconds')),
             'samples' => $values->count(),
-            'bands' => $this->formatLatencyBands($maxMilliseconds, $padding, $innerHeight, $warningThreshold, $dangerThreshold),
             'thresholds' => collect([$warningThreshold, $dangerThreshold])
                 ->map(function (int $threshold) use ($maxMilliseconds, $padding, $innerHeight): array {
                     $y = $padding + ($innerHeight - (($threshold / $maxMilliseconds) * $innerHeight));
@@ -646,36 +647,27 @@ class StatusPageBuilder
         ];
     }
 
-    protected function formatLatencyBands(float|int $maxMilliseconds, int $padding, int $innerHeight, int $warningThreshold, int $dangerThreshold): array
+    protected function formatLatencySegments(Collection $points, int $warningThreshold, int $dangerThreshold): array
     {
-        $yFor = function (int $milliseconds) use ($maxMilliseconds, $padding, $innerHeight): float {
-            $y = $padding + ($innerHeight - (($milliseconds / $maxMilliseconds) * $innerHeight));
+        return $points
+            ->values()
+            ->sliding(2)
+            ->map(function (Collection $pair) use ($warningThreshold, $dangerThreshold): array {
+                $severity = $pair->max('milliseconds');
 
-            return round(max($padding, min($padding + $innerHeight, $y)), 2);
-        };
+                $class = match (true) {
+                    $severity >= $dangerThreshold => 'danger',
+                    $severity >= $warningThreshold => 'warning',
+                    default => 'ok',
+                };
 
-        $top = $padding;
-        $bottom = $padding + $innerHeight;
-        $warningTop = $yFor($dangerThreshold);
-        $warningBottom = $yFor($warningThreshold);
-
-        return [
-            [
-                'class' => 'danger',
-                'y' => $top,
-                'height' => max(0, round($warningTop - $top, 2)),
-            ],
-            [
-                'class' => 'warning',
-                'y' => $warningTop,
-                'height' => max(0, round($warningBottom - $warningTop, 2)),
-            ],
-            [
-                'class' => 'ok',
-                'y' => $warningBottom,
-                'height' => max(0, round($bottom - $warningBottom, 2)),
-            ],
-        ];
+                return [
+                    'class' => $class,
+                    'points' => $pair->pluck('point')->implode(' '),
+                ];
+            })
+            ->values()
+            ->all();
     }
 
     protected function formatLatencyThresholds(Collection $macros): array

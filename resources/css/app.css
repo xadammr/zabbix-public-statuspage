@@ -463,27 +463,21 @@ h1 {
 }
 
 .latency-chart svg {
+    aspect-ratio: 10 / 3;
     display: block;
     width: 100%;
-    height: 72px;
+    height: auto;
     margin-top: 10px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--panel);
+    overflow: hidden;
 }
 
 .latency-chart .axis {
     stroke: var(--line);
     stroke-width: 1;
-}
-
-.latency-chart .band.warning {
-    fill: var(--warn-bg);
-}
-
-.latency-chart .band.danger {
-    fill: var(--danger-bg);
-}
-
-.latency-chart .band.ok {
-    fill: transparent;
+    vector-effect: non-scaling-stroke;
 }
 
 .latency-chart .threshold {
@@ -491,19 +485,36 @@ h1 {
     stroke-dasharray: 4 4;
     stroke-width: 1;
     opacity: 0.75;
+    vector-effect: non-scaling-stroke;
 }
 
 .latency-chart .threshold-label {
     fill: var(--muted);
     font-size: 9px;
+    paint-order: stroke;
+    stroke: var(--panel);
+    stroke-linejoin: round;
+    stroke-width: 2px;
 }
 
 .latency-chart .line {
     fill: none;
-    stroke: var(--ok);
     stroke-linecap: round;
     stroke-linejoin: round;
     stroke-width: 2.5;
+    vector-effect: non-scaling-stroke;
+}
+
+.latency-chart .line.ok {
+    stroke: var(--ok);
+}
+
+.latency-chart .line.warning {
+    stroke: var(--warn);
+}
+
+.latency-chart .line.danger {
+    stroke: var(--danger);
 }
 
 .chart-meta {

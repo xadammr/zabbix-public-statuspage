@@ -117,29 +117,21 @@ trait BuildsStatusPagePayloads
             'latency' => [
                 'milliseconds' => 123,
                 'series' => [
-                    'points' => '6,66 120,36 234,12',
+                    'segments' => [
+                        [
+                            'class' => 'ok',
+                            'points' => '6,66 120,36',
+                        ],
+                        [
+                            'class' => 'ok',
+                            'points' => '120,36 234,12',
+                        ],
+                    ],
                     'width' => 240,
                     'height' => 72,
                     'max_ms' => 150,
                     'min_ms' => 75,
                     'samples' => 3,
-                    'bands' => [
-                        [
-                            'class' => 'danger',
-                            'y' => 6,
-                            'height' => 0,
-                        ],
-                        [
-                            'class' => 'warning',
-                            'y' => 6,
-                            'height' => 40,
-                        ],
-                        [
-                            'class' => 'ok',
-                            'y' => 46,
-                            'height' => 20,
-                        ],
-                    ],
                     'thresholds' => [
                         [
                             'value' => 200,

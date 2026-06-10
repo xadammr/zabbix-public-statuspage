@@ -265,13 +265,13 @@ Each card includes a disclosure section listing every available item and key for
 
 ## Frontend
 
-The frontend is plain Blade, CSS, and a small JavaScript file:
+The frontend is plain Blade, SCSS, and a small JavaScript file:
 
 - [resources/views/status](resources/views/status)
-- [resources/css/app.css](resources/css/app.css)
+- [resources/scss/app.scss](resources/scss/app.scss)
 - [resources/js/app.js](resources/js/app.js)
 
-CSS and JS are built with Vite:
+SCSS and JS are built with Vite:
 
 ```bash
 npm run dev

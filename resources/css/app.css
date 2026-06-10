@@ -245,9 +245,9 @@ h1 {
 
 .badge.not-classified,
 .badge.information {
-    background: rgba(32, 36, 39, 0.08);
-    border-color: rgba(32, 36, 39, 0.15);
-    color: var(--muted);
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.24);
+    color: var(--text);
 }
 
 .badge.warning,

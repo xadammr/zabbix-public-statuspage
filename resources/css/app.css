@@ -339,6 +339,7 @@ h1 {
 }
 
 .state {
+    border: 1px solid transparent;
     border-radius: 999px;
     padding: 3px 9px;
     font-size: 0.8rem;
@@ -389,7 +390,8 @@ h1 {
 
 .state.not-classified,
 .state.information {
-    background: rgba(32, 36, 39, 0.08);
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.2);
     color: var(--muted);
 }
 
@@ -616,6 +618,8 @@ h1 {
 .problem-row.not-classified,
 .problem-row.information {
     border: 1px solid var(--line);
+    border-left: 0;
+    border-right: 0;
     background: rgba(255, 255, 255, 0.15);
     color: var(--muted);
 }

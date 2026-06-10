@@ -39,9 +39,11 @@ class StatusPageBuilderFormatsValuesTest extends TestCase
         $formatValueWithUnits = new ReflectionMethod($builder, 'formatValueWithUnits');
 
         $this->assertSame('94.57 vps', $formatValueWithUnits->invoke($builder, '94.57', 'vps'));
+        $this->assertSame('531.74 KB', $formatValueWithUnits->invoke($builder, '531.74K', 'B'));
+        $this->assertSame('7.06 MB', $formatValueWithUnits->invoke($builder, '7.06M', 'B'));
+        $this->assertSame('512 B', $formatValueWithUnits->invoke($builder, '512', 'B'));
         $this->assertSame('94.57', $formatValueWithUnits->invoke($builder, '94.57', ''));
     }
-
 
     public function test_metric_change_ignores_floating_point_noise(): void
     {

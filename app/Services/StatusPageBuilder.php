@@ -1011,6 +1011,10 @@ class StatusPageBuilder
 
     protected function formatValueWithUnits(string $value, string $units): string
     {
+        if ($units === 'B' && preg_match('/^(-?\d+(?:\.\d+)?)([KMGTPE])$/', $value, $matches) === 1) {
+            return $matches[1].' '.$matches[2].$units;
+        }
+
         return $units === '' ? $value : $value.' '.$units;
     }
 

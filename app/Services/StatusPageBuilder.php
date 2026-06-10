@@ -997,6 +997,10 @@ class StatusPageBuilder
             return $this->formatByteValue((float) $value);
         }
 
+        if (($item['units'] ?? '') === 'bps' && is_numeric($value)) {
+            return $this->formatBitrateValue((float) $value);
+        }
+
         if (($item['value_type'] ?? null) === '0' && is_numeric($value)) {
             return number_format((float) $value, 2, '.', '');
         }
@@ -1015,6 +1019,10 @@ class StatusPageBuilder
             return $matches[1].' '.$matches[2].$units;
         }
 
+        if ($units === 'bps' && preg_match('/^(-?\d+(?:\.\d+)?)([KMGTPE])$/', $value, $matches) === 1) {
+            return $matches[1].' '.$matches[2].$units;
+        }
+
         return $units === '' ? $value : $value.' '.$units;
     }
 
@@ -1030,6 +1038,26 @@ class StatusPageBuilder
         }
 
         $scaled = $bytes < 0 ? -$value : $value;
+
+        if ($prefix === 0) {
+            return (string) (int) round($scaled);
+        }
+
+        return number_format($scaled, 2, '.', '').$prefixes[$prefix];
+    }
+
+    protected function formatBitrateValue(float $bitsPerSecond): string
+    {
+        $prefixes = ['', 'K', 'M', 'G', 'T', 'P', 'E'];
+        $value = abs($bitsPerSecond);
+        $prefix = 0;
+
+        while ($value >= 1000 && $prefix < count($prefixes) - 1) {
+            $value /= 1000;
+            $prefix++;
+        }
+
+        $scaled = $bitsPerSecond < 0 ? -$value : $value;
 
         if ($prefix === 0) {
             return (string) (int) round($scaled);

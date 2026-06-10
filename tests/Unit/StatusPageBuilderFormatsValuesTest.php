@@ -24,6 +24,29 @@ class StatusPageBuilderFormatsValuesTest extends TestCase
         );
     }
 
+    public function test_bitrate_values_are_scaled_like_zabbix_units(): void
+    {
+        $builder = new StatusPageBuilder($this->createMock(ZabbixClient::class), new StatusPageSummary);
+        $formatDisplayValue = new ReflectionMethod($builder, 'formatDisplayValue');
+        $formatValueWithUnits = new ReflectionMethod($builder, 'formatValueWithUnits');
+
+        $displayValue = $formatDisplayValue->invoke($builder, '1452992', [
+            'units' => 'bps',
+            'value_type' => '3',
+        ]);
+
+        $this->assertSame('1.45M', $displayValue);
+        $this->assertSame('1.45 Mbps', $formatValueWithUnits->invoke($builder, $displayValue, 'bps'));
+
+        $displayValue = $formatDisplayValue->invoke($builder, '886808', [
+            'units' => 'bps',
+            'value_type' => '3',
+        ]);
+
+        $this->assertSame('886.81K', $displayValue);
+        $this->assertSame('886.81 Kbps', $formatValueWithUnits->invoke($builder, $displayValue, 'bps'));
+    }
+
     public function test_zabbix_literal_units_are_cleaned_for_display(): void
     {
         $builder = new StatusPageBuilder($this->createMock(ZabbixClient::class), new StatusPageSummary);

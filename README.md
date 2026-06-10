@@ -269,6 +269,7 @@ The frontend is plain Blade, SCSS, and a small JavaScript file:
 
 - [resources/views/status](resources/views/status)
 - [resources/scss/app.scss](resources/scss/app.scss)
+- [resources/scss/partials](resources/scss/partials)
 - [resources/js/app.js](resources/js/app.js)
 
 SCSS and JS are built with Vite:

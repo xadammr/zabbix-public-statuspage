@@ -1,0 +1,71 @@
+.metrics {
+    display: grid;
+    gap: 8px;
+    margin-top: 0;
+}
+
+.metric {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    border-top: 1px solid var(--line);
+    padding-top: 8px;
+    font-size: 0.9rem;
+}
+
+.metric strong {
+    font-weight: 750;
+}
+
+.metric.ok strong {
+    color: var(--ok);
+}
+
+.metric.warning strong {
+    color: var(--danger);
+}
+
+.selected-metrics {
+    display: grid;
+    gap: 8px;
+    margin-top: 0;
+    border-top: 1px solid var(--line);
+    padding-top: 8px;
+}
+
+.selected-metric {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 0.9rem;
+}
+
+.selected-metric span {
+    color: var(--muted);
+}
+
+.selected-metric strong {
+    overflow-wrap: anywhere;
+    text-align: right;
+}
+
+.metric-change {
+    align-items: center;
+    display: inline-flex;
+    font-size: 0.82rem;
+    font-weight: 900;
+    justify-content: center;
+    line-height: 1;
+    margin-right: 0.25rem;
+    transform: translateY(-0.05em);
+}
+
+.metric-change.up {
+    color: var(--ok);
+}
+
+.metric-change.down {
+    color: var(--danger);
+}

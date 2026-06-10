@@ -1,0 +1,92 @@
+.card {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--panel);
+    padding: 16px;
+}
+
+/*.service-details[open] {
+    min-height: 170px;
+}*/
+
+.card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.card h3 {
+    font-size: 1rem;
+    line-height: 1.25;
+}
+
+.state {
+    border: 1px solid transparent;
+    border-radius: 999px;
+    padding: 3px 9px;
+    font-size: 0.8rem;
+    font-weight: 750;
+    white-space: nowrap;
+}
+
+.service-actions {
+    align-items: center;
+    display: flex;
+    flex: 0 0 auto;
+    gap: 0.45rem;
+    margin-left: auto;
+}
+
+.service-link {
+    align-items: center;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 999px;
+    color: var(--muted);
+    display: inline-flex;
+    height: 1.55rem;
+    justify-content: center;
+    transition: border-color 0.15s ease, color 0.15s ease, background-color 0.15s ease;
+    width: 1.55rem;
+}
+
+.service-link:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.24);
+    color: var(--text);
+}
+
+.service-link svg {
+    fill: none;
+    height: 0.9rem;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 2;
+    width: 0.9rem;
+}
+
+.state.ok {
+    background: var(--ok-bg);
+    color: var(--ok);
+}
+
+.state.not-classified,
+.state.information {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: var(--muted);
+}
+
+.state.warning,
+.state.average {
+    background: var(--warn-bg);
+    color: var(--warn);
+}
+
+.state.high,
+.state.disaster {
+    background: var(--danger-bg);
+    color: var(--danger);
+}

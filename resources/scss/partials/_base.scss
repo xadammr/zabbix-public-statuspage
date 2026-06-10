@@ -1,0 +1,42 @@
+:root {
+    color-scheme: dark;
+    --bg: #1a1a1a;
+    --panel: #2d2d2d;
+    --text: #e0e0e0;
+    --muted: #a0a0a0;
+    --line: #404040;
+    --ok: #4caf50;
+    --ok-bg: #e9f7ee;
+    --warn: #a15c00;
+    --warn-bg: #fff3d8;
+    --danger: #b42318;
+    --danger-bg: #fde7e5;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    width: auto !important;
+}
+
+main {
+    width: min(1120px, calc(100% - 32px)) !important;
+    margin: 3rem auto !important;
+    padding: 32px 0;
+}
+
+
+
+h1,
+h2,
+h3,
+p {
+    margin: 0;
+}
+
+h1 {
+    font-size: 2rem;
+    font-weight: 750;
+}

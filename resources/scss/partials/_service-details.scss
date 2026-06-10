@@ -1,0 +1,93 @@
+.items {
+    margin-top: 0;
+    border-top: 1px solid var(--line);
+    padding-top: 10px;
+}
+
+.service-details > summary.card-header {
+    align-items: flex-start;
+    cursor: pointer;
+    justify-content: flex-start;
+    list-style: none;
+    margin-bottom: 0;
+    transition: margin-bottom 0.18s ease;
+}
+
+.service-details > summary.card-header > div {
+    flex: 1 1 auto;
+}
+
+.service-details > summary.card-header > .service-actions {
+    flex: 0 0 auto;
+    justify-content: flex-end;
+}
+
+.service-details > summary.card-header .state {
+    transition: opacity 0.16s ease, transform 0.16s ease;
+}
+
+.service-details[open] > summary.card-header {
+    margin-bottom: 10px;
+}
+
+.service-details-content {
+    display: grid;
+    gap: 10px;
+}
+
+.service-details[open] .service-details-content {
+    margin-top: 0.9rem;
+    padding-top: 0rem;
+}
+
+.service-details[open][data-has-active-triggers] > summary.card-header .state {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateX(4px);
+}
+
+.service-details > summary.card-header::-webkit-details-marker {
+    display: none;
+}
+
+.service-details > summary.card-header::before {
+    content: ">";
+    color: var(--muted);
+    flex: 0 0 auto;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    font-weight: 800;
+    line-height: 1.3;
+    transition: transform 0.15s ease;
+}
+
+.service-details[open] > summary.card-header::before {
+    transform: rotate(90deg);
+}
+
+.service-details {
+    transition: border-color 0.18s ease, background-color 0.18s ease;
+}
+
+.service-details[open] {
+    border-color: rgba(255, 255, 255, 0.18);
+    background: color-mix(in srgb, var(--panel) 92%, white);
+}
+
+.service-details-body {
+    overflow: hidden;
+}
+
+.service-details[open] .service-details-body {
+    overflow: visible;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .service-details,
+    .service-details > summary.card-header,
+    .service-details > summary.card-header .state,
+    .service-details > summary.card-header::before,
+    .last-update.is-fresh {
+        animation: none;
+        transition: none;
+    }
+}

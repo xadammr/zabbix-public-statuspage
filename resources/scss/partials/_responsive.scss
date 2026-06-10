@@ -1,0 +1,12 @@
+@media (min-width: 780px) {
+    header {
+        grid-template-columns: 1fr 1.1fr;
+        align-items: center;
+    }
+}
+
+@media (min-width: 1040px) {
+    .grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}

@@ -1,0 +1,58 @@
+.problems {
+    display: grid;
+    gap: 8px;
+    margin-top: 0;
+    margin-left: -17px;
+    margin-right: -17px;
+}
+
+.problem-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    background: var(--warn-bg);
+    color: var(--warn);
+    padding: 8px 15px;
+    font-size: 0.9rem;
+}
+
+
+.problem-priority {
+    flex: 0 0 auto;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.65);
+    padding: 2px 8px;
+    font-size: 0.72rem;
+    white-space: nowrap;
+    color: inherit;
+}
+
+.problem-row.not-classified,
+.problem-row.information {
+    border: 1px solid var(--line);
+    border-left: 0;
+    border-right: 0;
+    background: rgba(255, 255, 255, 0.15);
+    color: var(--muted);
+}
+
+.problem-row.not-classified .problem-priority,
+.problem-row.information .problem-priority {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: var(--text);
+}
+
+.problem-row.warning,
+.problem-row.average {
+    background: var(--warn-bg);
+    background: color-mix(in srgb, var(--warn-bg) 75%, transparent);
+    color: var(--warn);
+}
+
+.problem-row.high,
+.problem-row.disaster {
+    background: color-mix(in srgb, var(--danger-bg) 75%, transparent);
+    color: var(--danger);
+}

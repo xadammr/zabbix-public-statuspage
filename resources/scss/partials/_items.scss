@@ -1,0 +1,40 @@
+.items summary {
+    cursor: pointer;
+    color: var(--muted);
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+.item-table {
+    width: 100%;
+    margin-top: 10px;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+}
+
+.item-table th,
+.item-table td {
+    border-top: 1px solid var(--line);
+    padding: 8px 0;
+    text-align: left;
+    vertical-align: top;
+}
+
+.item-table th {
+    color: var(--muted);
+    font-weight: 700;
+}
+
+.item-table code {
+    display: inline-block;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    color: #334155;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    font-size: 0.78rem;
+}
+
+.item-value {
+    max-width: 180px;
+    overflow-wrap: anywhere;
+}

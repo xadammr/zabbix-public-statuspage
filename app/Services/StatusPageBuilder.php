@@ -858,6 +858,7 @@ class StatusPageBuilder
         $previous = (float) $previousValue;
         $delta = $current - $previous;
         $direction = match (true) {
+            abs($delta) < 0.000000001 => 'same',
             $delta > 0 => 'up',
             $delta < 0 => 'down',
             default => 'same',
@@ -950,18 +951,21 @@ class StatusPageBuilder
     {
         $value = $item['lastvalue'];
         $displayValue = $this->applyValueMap($item);
+        $formattedDisplayValue = $this->formatDisplayValue($displayValue, $item);
+        $units = $this->formatUnits($item['units'] ?? '');
 
         return [
             'itemid' => $item['itemid'],
             'name' => $label ?: $item['name'],
             'key' => $item['key_'],
             'lastvalue' => $value,
-            'display_value' => $this->formatDisplayValue($displayValue, $item),
+            'display_value' => $formattedDisplayValue,
+            'formatted_value' => $this->formatValueWithUnits($formattedDisplayValue, $units),
             'lastclock' => $item['lastclock'],
             'status' => $item['status'],
             'state' => $item['state'],
             'value_type' => $item['value_type'],
-            'units' => $item['units'] ?? '',
+            'units' => $units,
             'change' => $item['change'] ?? null,
         ];
     }
@@ -998,6 +1002,16 @@ class StatusPageBuilder
         }
 
         return $value;
+    }
+
+    protected function formatUnits(string $units): string
+    {
+        return str_starts_with($units, '!') ? substr($units, 1) : $units;
+    }
+
+    protected function formatValueWithUnits(string $value, string $units): string
+    {
+        return $units === '' ? $value : $value.' '.$units;
     }
 
     protected function formatByteValue(float $bytes): string

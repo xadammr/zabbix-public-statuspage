@@ -24,6 +24,35 @@ class StatusPageBuilderFormatsValuesTest extends TestCase
         );
     }
 
+    public function test_zabbix_literal_units_are_cleaned_for_display(): void
+    {
+        $builder = new StatusPageBuilder($this->createMock(ZabbixClient::class), new StatusPageSummary);
+        $formatUnits = new ReflectionMethod($builder, 'formatUnits');
+
+        $this->assertSame('vps', $formatUnits->invoke($builder, '!vps'));
+        $this->assertSame('ms', $formatUnits->invoke($builder, 'ms'));
+    }
+
+    public function test_values_and_units_are_spaced_for_display(): void
+    {
+        $builder = new StatusPageBuilder($this->createMock(ZabbixClient::class), new StatusPageSummary);
+        $formatValueWithUnits = new ReflectionMethod($builder, 'formatValueWithUnits');
+
+        $this->assertSame('94.57 vps', $formatValueWithUnits->invoke($builder, '94.57', 'vps'));
+        $this->assertSame('94.57', $formatValueWithUnits->invoke($builder, '94.57', ''));
+    }
+
+
+    public function test_metric_change_ignores_floating_point_noise(): void
+    {
+        $builder = new StatusPageBuilder($this->createMock(ZabbixClient::class), new StatusPageSummary);
+        $formatMetricChange = new ReflectionMethod($builder, 'formatMetricChange');
+
+        $change = $formatMetricChange->invoke($builder, '94.56918981481365', '94.5691898148137');
+
+        $this->assertSame('same', $change['direction']);
+    }
+
     public function test_latency_chart_range_uses_observed_values_and_computes_duration(): void
     {
         $builder = new StatusPageBuilder($this->createMock(ZabbixClient::class), new StatusPageSummary);

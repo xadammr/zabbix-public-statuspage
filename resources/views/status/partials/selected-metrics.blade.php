@@ -11,7 +11,7 @@
                             title="{{ $metric['change']['direction'] === 'up' ? 'Increased' : 'Decreased' }}"
                         >@if ($metric['change']['direction'] === 'up')&uarr;@else&darr;@endif</span>
                     @endif
-                    {{ $metric['display_value'] }}{{ $metric['units'] }}
+                    {{ $metric['formatted_value'] ?? trim(($metric['display_value'] ?? '').' '.($metric['units'] ?? '')) }}
                 @else
                     No value
                 @endif

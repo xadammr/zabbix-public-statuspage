@@ -182,6 +182,7 @@ class StatusPageChangeLog
             return 'No value';
         }
 
-        return ($metric['display_value'] ?? $metric['lastvalue']).($metric['units'] ?? '');
+        return $metric['formatted_value']
+            ?? trim(($metric['display_value'] ?? $metric['lastvalue']).' '.($metric['units'] ?? ''));
     }
 }

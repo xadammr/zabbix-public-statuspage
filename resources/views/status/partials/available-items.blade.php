@@ -22,7 +22,7 @@
                                     title="{{ $item['change']['direction'] === 'up' ? 'Increased' : 'Decreased' }}"
                                 >@if ($item['change']['direction'] === 'up')&uarr;@else&darr;@endif</span>
                             @endif
-                            {{ $item['display_value'] }}{{ $item['units'] }}
+                            {{ $item['formatted_value'] ?? trim(($item['display_value'] ?? '').' '.($item['units'] ?? '')) }}
                         @else
                             <span class="muted">No value</span>
                         @endif

@@ -11,8 +11,8 @@ self.addEventListener('push', (event) => {
         data: {
             url: payload.url || fallback.url,
         },
-        icon: '/favicon.ico',
-        badge: '/favicon.ico',
+        icon: '/images/icon-192.png',
+        badge: '/images/icon-192.png',
         tag: payload.tag || 'statuspage-alert',
         renotify: true,
     };

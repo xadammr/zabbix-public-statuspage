@@ -10,6 +10,9 @@ git pull --ff-only
 echo "Installing PHP dependencies..."
 composer install --no-dev --optimize-autoloader
 
+echo "Running database migrations..."
+php artisan migrate --force
+
 echo "Installing frontend dependencies..."
 npm ci
 

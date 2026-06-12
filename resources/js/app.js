@@ -55,6 +55,12 @@ const statusRefreshIntervalMilliseconds = 15000;
 let statusRefreshStartedAt = Date.now();
 let statusRefreshPaused = false;
 let statusRefreshFetching = false;
+let pushSubscription = null;
+let pushSupported = false;
+let pushReady = false;
+let pushBusy = false;
+let pushRegistration = null;
+let pushPublicKey = null;
 
 const syncSectionToggleLabel = (button) => {
     const section = document.querySelector(`[data-section-key="${button.dataset.sectionToggle}"]`);
@@ -111,6 +117,7 @@ const bindStatusPageControls = () => {
     bindServiceDetails();
     bindSectionToggles();
     bindRefreshToggle();
+    bindPushToggle();
 };
 
 const numberWords = new Map([
@@ -224,6 +231,184 @@ const bindRefreshToggle = () => {
     syncRefreshToggle();
 };
 
+const csrfToken = () => document.querySelector('meta[name="csrf-token"]')?.content ?? '';
+
+const urlBase64ToUint8Array = (base64String) => {
+    const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+    const base64 = `${base64String}${padding}`.replace(/-/g, '+').replace(/_/g, '/');
+    const rawData = window.atob(base64);
+
+    return Uint8Array.from([...rawData].map((character) => character.charCodeAt(0)));
+};
+
+const pushJsonRequest = async (url, options = {}) => fetch(url, {
+    ...options,
+    credentials: 'same-origin',
+    headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': csrfToken(),
+        'X-Requested-With': 'XMLHttpRequest',
+        ...(options.headers ?? {}),
+    },
+});
+
+const syncPushToggle = () => {
+    document.querySelectorAll('[data-push-toggle]').forEach((button) => {
+        const permission = pushSupported ? Notification.permission : 'default';
+
+        button.hidden = ! pushSupported;
+        button.disabled = ! pushReady || pushBusy || permission === 'denied';
+
+        const subscribed = pushSubscription !== null;
+        const label = permission === 'denied'
+            ? 'Notifications blocked by browser'
+            : subscribed
+                ? 'Unsubscribe from status notifications'
+                : 'Subscribe to status notifications';
+
+        button.setAttribute('aria-label', label);
+        button.title = label;
+        button.dataset.subscribed = subscribed ? 'true' : 'false';
+    });
+};
+
+const subscriptionPayload = (subscription) => {
+    const json = subscription.toJSON();
+
+    return {
+        endpoint: json.endpoint,
+        keys: json.keys,
+        contentEncoding: PushManager.supportedContentEncodings?.includes('aes128gcm') ? 'aes128gcm' : 'aesgcm',
+    };
+};
+
+const savePushSubscription = async (subscription) => {
+    const response = await pushJsonRequest('/push/subscriptions', {
+        method: 'POST',
+        body: JSON.stringify(subscriptionPayload(subscription)),
+    });
+
+    if (! response.ok) {
+        throw new Error(`Could not save push subscription: ${response.status}`);
+    }
+};
+
+const deletePushSubscription = async (subscription) => {
+    const response = await pushJsonRequest('/push/subscriptions', {
+        method: 'DELETE',
+        body: JSON.stringify({ endpoint: subscription.endpoint }),
+    });
+
+    if (! response.ok && response.status !== 404) {
+        throw new Error(`Could not delete push subscription: ${response.status}`);
+    }
+};
+
+const subscribeToPushNotifications = async () => {
+    const permission = await Notification.requestPermission();
+
+    if (permission !== 'granted') {
+        syncPushToggle();
+        return;
+    }
+
+    const subscription = await pushRegistration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(pushPublicKey),
+    });
+
+    await savePushSubscription(subscription);
+    pushSubscription = subscription;
+};
+
+const unsubscribeFromPushNotifications = async () => {
+    const subscription = pushSubscription;
+
+    if (! subscription) {
+        return;
+    }
+
+    await deletePushSubscription(subscription);
+    await subscription.unsubscribe();
+    pushSubscription = null;
+};
+
+const togglePushSubscription = async () => {
+    if (! pushReady || pushBusy) {
+        return;
+    }
+
+    pushBusy = true;
+    syncPushToggle();
+
+    try {
+        if (pushSubscription) {
+            await unsubscribeFromPushNotifications();
+        } else {
+            await subscribeToPushNotifications();
+        }
+    } catch (error) {
+        console.error('[statuspage] Could not update push notification subscription.', error);
+    } finally {
+        pushBusy = false;
+        syncPushToggle();
+    }
+};
+
+const bindPushToggle = () => {
+    document.querySelectorAll('[data-push-toggle]').forEach((button) => {
+        if (button.dataset.bound === 'true') {
+            syncPushToggle();
+            return;
+        }
+
+        button.dataset.bound = 'true';
+        button.addEventListener('click', togglePushSubscription);
+    });
+
+    syncPushToggle();
+};
+
+const initializePushNotifications = async () => {
+    pushSupported = 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
+    syncPushToggle();
+
+    if (! pushSupported) {
+        return;
+    }
+
+    try {
+        const keyResponse = await fetch('/push/vapid-public-key', {
+            cache: 'no-store',
+            credentials: 'same-origin',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+        });
+
+        if (! keyResponse.ok) {
+            pushSupported = false;
+            syncPushToggle();
+            return;
+        }
+
+        pushPublicKey = (await keyResponse.json()).publicKey;
+        pushRegistration = await navigator.serviceWorker.register('/sw.js');
+        pushSubscription = await pushRegistration.pushManager.getSubscription();
+
+        if (pushSubscription) {
+            await savePushSubscription(pushSubscription);
+        }
+
+        pushReady = true;
+    } catch (error) {
+        pushSupported = false;
+        console.error('[statuspage] Could not initialize push notifications.', error);
+    } finally {
+        syncPushToggle();
+    }
+};
+
 const openServiceIds = () => Array.from(document.querySelectorAll('.service-details[open][data-service-id]'))
     .map((detail) => detail.dataset.serviceId);
 
@@ -283,6 +468,7 @@ const refreshStatusFragment = async () => {
 };
 
 bindStatusPageControls();
+initializePushNotifications();
 updateLastUpdatedAges();
 updatePageRefreshProgress();
 window.setInterval(() => {

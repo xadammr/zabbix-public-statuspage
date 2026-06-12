@@ -6,10 +6,20 @@ use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schedule;
+use Minishlink\WebPush\VAPID;
 
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
+
+Artisan::command('webpush:keys', function (): int {
+    $keys = VAPID::createVapidKeys();
+
+    $this->line('WEB_PUSH_VAPID_PUBLIC_KEY='.$keys['publicKey']);
+    $this->line('WEB_PUSH_VAPID_PRIVATE_KEY='.$keys['privateKey']);
+
+    return 0;
+})->purpose('Generate VAPID keys for browser push notifications');
 
 Artisan::command('statuspage:poll {--force : Refresh even if the cached snapshot is not due yet}', function (CachedStatusPage $statusPage, StatusPageChangeLog $changeLog): int {
     $before = $statusPage->cached();

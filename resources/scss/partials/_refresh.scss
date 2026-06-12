@@ -57,7 +57,8 @@
     vertical-align: middle;
 }
 
-.refresh-toggle {
+.refresh-toggle,
+.push-toggle {
     align-items: center;
     background: rgba(255, 255, 255, 0.06);
     border: 1px solid rgba(255, 255, 255, 0.14);
@@ -76,11 +77,48 @@
     width: calc(1em + 1rem + 4px);
 }
 
-.refresh-toggle:hover {
+.push-toggle {
+    padding: 0;
+}
+
+.refresh-toggle:hover,
+.push-toggle:hover {
     border-color: rgba(255, 255, 255, 0.3);
     color: var(--text);
 }
 
-.refresh-toggle[hidden] {
+.push-toggle-icon {
+    align-items: center;
+    display: inline-flex;
+    justify-content: center;
+}
+
+.push-toggle-icon svg {
+    fill: none;
+    height: 0.85rem;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 2.4;
+    width: 0.85rem;
+}
+
+.push-toggle-icon-check,
+.push-toggle[data-subscribed="true"] .push-toggle-icon-bell {
+    display: none;
+}
+
+.push-toggle[data-subscribed="true"] .push-toggle-icon-check {
+    display: inline-flex;
+}
+
+.push-toggle[aria-label^="Unsubscribe"] {
+    background: color-mix(in srgb, var(--ok-bg) 14%, rgba(255, 255, 255, 0.06));
+    border-color: color-mix(in srgb, var(--ok) 42%, rgba(255, 255, 255, 0.14));
+    color: var(--ok-bg);
+}
+
+.refresh-toggle[hidden],
+.push-toggle[hidden] {
     display: none;
 }

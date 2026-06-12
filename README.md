@@ -299,6 +299,27 @@ PLAUSIBLE_SCRIPT_URL=https://plausible.io/js/script.js
 
 The script is only rendered when `PLAUSIBLE_DOMAIN` is set. If you self-host Plausible, set `PLAUSIBLE_SCRIPT_URL` to your own script URL.
 
+## Browser Push Notifications
+
+Browser push subscriptions can be enabled with:
+
+```env
+WEB_PUSH_ENABLED=true
+WEB_PUSH_VAPID_SUBJECT=https://status.example.com
+WEB_PUSH_VAPID_PUBLIC_KEY=...
+WEB_PUSH_VAPID_PRIVATE_KEY=...
+WEB_PUSH_MIN_SEVERITY=warning
+WEB_PUSH_NOTIFY_RECOVERIES=true
+```
+
+Generate VAPID keys with:
+
+```bash
+php artisan webpush:keys
+```
+
+When enabled and configured, a subscribe button appears beside the refresh pause button. Subscribed browsers are notified when a service opens a new trigger, escalates at or above `WEB_PUSH_MIN_SEVERITY`, or recovers when `WEB_PUSH_NOTIFY_RECOVERIES` is enabled.
+
 ## Deployment Notes
 
 In production, run a scheduler process so cached data keeps refreshing:

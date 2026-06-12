@@ -22,7 +22,7 @@
                     datetime="{{ $generatedAtIso }}"
                     title="{{ $generatedAt->format('Y-m-d H:i:s') }}"
                 >
-                    Polling...
+                    Last updated:
                 </time>
             </p>
             <button
@@ -33,6 +33,26 @@
                 title="Pause automatic refresh"
             >
                 <span aria-hidden="true" data-refresh-toggle-icon>||</span>
+            </button>
+            <button
+                class="push-toggle"
+                type="button"
+                data-push-toggle
+                aria-label="Subscribe to status notifications"
+                title="Subscribe to status notifications"
+                hidden
+            >
+                <span aria-hidden="true" class="push-toggle-icon push-toggle-icon-bell">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M6 8a6 6 0 0 1 12 0c0 7 3 7 3 9H3c0-2 3-2 3-9"></path>
+                        <path d="M10 21h4"></path>
+                    </svg>
+                </span>
+                <span aria-hidden="true" class="push-toggle-icon push-toggle-icon-check">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M20 6 9 17l-5-5"></path>
+                    </svg>
+                </span>
             </button>
         </div>
     </div>

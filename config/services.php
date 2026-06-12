@@ -40,4 +40,13 @@ return [
         'script_url' => env('PLAUSIBLE_SCRIPT_URL', 'https://plausible.io/js/script.js'),
     ],
 
+    'web_push' => [
+        'enabled' => env('WEB_PUSH_ENABLED', false),
+        'vapid_subject' => env('WEB_PUSH_VAPID_SUBJECT', env('APP_URL', 'http://localhost')),
+        'vapid_public_key' => env('WEB_PUSH_VAPID_PUBLIC_KEY'),
+        'vapid_private_key' => env('WEB_PUSH_VAPID_PRIVATE_KEY'),
+        'min_severity' => env('WEB_PUSH_MIN_SEVERITY', 'warning'),
+        'notify_recoveries' => env('WEB_PUSH_NOTIFY_RECOVERIES', true),
+    ],
+
 ];

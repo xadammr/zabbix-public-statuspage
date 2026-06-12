@@ -10,6 +10,7 @@ class CachedStatusPage
 {
     public function __construct(
         protected StatusPageBuilder $builder,
+        protected BrowserPushNotifier $browserPushNotifier,
     ) {}
 
     public function current(): array
@@ -36,6 +37,7 @@ class CachedStatusPage
 
     public function refresh(): array
     {
+        $previous = $this->cached();
         $startedAt = hrtime(true);
         $statusPage = $this->builder->build();
         $durationMs = (hrtime(true) - $startedAt) / 1_000_000;
@@ -54,6 +56,7 @@ class CachedStatusPage
         ];
 
         Cache::forever($this->cacheKey(), $this->normalize($statusPage));
+        $this->browserPushNotifier->notifyChanges($previous, $statusPage);
 
         return $statusPage;
     }

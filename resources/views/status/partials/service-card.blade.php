@@ -3,7 +3,7 @@
 @endphp
 
 <details
-    class="card service-details"
+    class="card service-details severity-{{ $service['severity']['class'] }}"
     data-service-id="{{ $service['hostid'] }}"
     @if ($activeTriggers->isNotEmpty()) data-has-active-triggers @endif
 >

@@ -52,9 +52,13 @@ const setServiceDetailsOpen = (details, shouldOpen) => {
 };
 
 const statusRefreshIntervalMilliseconds = 15000;
+const statusRefreshPollingLabelMinimumMilliseconds = 1000;
 let statusRefreshStartedAt = Date.now();
 let statusRefreshPaused = false;
 let statusRefreshFetching = false;
+let statusRefreshShowPollingLabel = false;
+let statusRefreshPollingLabelShownAt = 0;
+let statusRefreshPollingLabelTimer = null;
 let pushSubscription = null;
 let pushSupported = false;
 let pushReady = false;
@@ -161,6 +165,11 @@ const relativeTime = (date) => {
 
 const updateLastUpdatedAges = () => {
     document.querySelectorAll('[data-last-updated-at]').forEach((element) => {
+        if (statusRefreshFetching && statusRefreshShowPollingLabel) {
+            element.textContent = 'Polling...';
+            return;
+        }
+
         const updatedAt = new Date(element.dataset.lastUpdatedAt);
 
         if (Number.isNaN(updatedAt.getTime())) {
@@ -169,6 +178,42 @@ const updateLastUpdatedAges = () => {
 
         element.textContent = `Last updated: ${relativeTime(updatedAt)}`;
     });
+};
+
+const remainingStatusRefreshPollingLabelMilliseconds = () => Math.max(
+    0,
+    statusRefreshPollingLabelMinimumMilliseconds - (Date.now() - statusRefreshPollingLabelShownAt),
+);
+
+const waitForStatusRefreshPollingLabelMinimum = () => new Promise((resolve) => {
+    const remainingMilliseconds = remainingStatusRefreshPollingLabelMilliseconds();
+
+    if (! statusRefreshShowPollingLabel || remainingMilliseconds <= 0) {
+        resolve();
+        return;
+    }
+
+    window.clearTimeout(statusRefreshPollingLabelTimer);
+    statusRefreshPollingLabelTimer = window.setTimeout(resolve, remainingMilliseconds);
+});
+
+const setStatusRefreshFetching = (fetching) => {
+    window.clearTimeout(statusRefreshPollingLabelTimer);
+    statusRefreshPollingLabelTimer = null;
+
+    if (fetching) {
+        statusRefreshFetching = true;
+        statusRefreshShowPollingLabel = true;
+        statusRefreshPollingLabelShownAt = Date.now();
+        syncRefreshToggle();
+        updateLastUpdatedAges();
+        return;
+    }
+
+    statusRefreshFetching = false;
+    statusRefreshShowPollingLabel = false;
+    syncRefreshToggle();
+    updateLastUpdatedAges();
 };
 
 const highlightLastUpdated = () => {
@@ -445,8 +490,7 @@ const refreshStatusFragment = async () => {
     }
 
     const openedServiceIds = openServiceIds();
-    statusRefreshFetching = true;
-    syncRefreshToggle();
+    setStatusRefreshFetching(true);
     console.info('[statuspage] Fetching updated status fragment.', new Date().toISOString());
 
     try {
@@ -463,7 +507,10 @@ const refreshStatusFragment = async () => {
             return;
         }
 
-        container.innerHTML = await response.text();
+        const statusFragmentHtml = await response.text();
+        await waitForStatusRefreshPollingLabelMinimum();
+
+        container.innerHTML = statusFragmentHtml;
         restoreOpenServices(openedServiceIds);
         bindStatusPageControls();
         statusRefreshStartedAt = Date.now();
@@ -473,8 +520,7 @@ const refreshStatusFragment = async () => {
     } catch (error) {
         console.error('[statuspage] Could not refresh status page fragment.', error);
     } finally {
-        statusRefreshFetching = false;
-        syncRefreshToggle();
+        setStatusRefreshFetching(false);
     }
 };
 

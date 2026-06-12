@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\PushSubscription as PushSubscriptionModel;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 use Minishlink\WebPush\Subscription;
 use Minishlink\WebPush\WebPush;
 use Throwable;
@@ -21,22 +22,59 @@ class BrowserPushNotifier
         'disaster' => 6,
     ];
 
-    public function notifyChanges(?array $before, array $after): void
+    public function notifyChanges(?array $before, array $after): array
     {
         if (! $this->enabled() || ! $before) {
-            return;
+            return $this->emptyStats();
         }
 
         $events = $this->events($before, $after);
 
         if ($events === []) {
-            return;
+            return $this->emptyStats(['enabled' => true, 'events' => 0]);
+        }
+
+        return $this->sendPayloads($events);
+    }
+
+    public function sendTest(string $title, string $body): array
+    {
+        if (! $this->enabled()) {
+            return $this->emptyStats();
+        }
+
+        return $this->sendPayloads([[
+            'title' => $title,
+            'body' => $body,
+            'url' => url('/'),
+            'tag' => 'statuspage-test',
+        ]]);
+    }
+
+    public function sendPayloads(array $payloads): array
+    {
+        if (! Schema::hasTable('push_subscriptions')) {
+            return $this->emptyStats([
+                'enabled' => true,
+                'migrated' => false,
+                'events' => count($payloads),
+            ]);
         }
 
         $subscriptions = PushSubscriptionModel::query()->get();
+        $stats = [
+            'enabled' => true,
+            'migrated' => true,
+            'events' => count($payloads),
+            'sent' => 0,
+            'failed' => 0,
+            'expired' => 0,
+            'subscribers' => $subscriptions->count(),
+            'failures' => [],
+        ];
 
-        if ($subscriptions->isEmpty()) {
-            return;
+        if ($subscriptions->isEmpty() || $payloads === []) {
+            return $stats;
         }
 
         try {
@@ -49,7 +87,7 @@ class BrowserPushNotifier
             ]);
             $webPush->setReuseVAPIDHeaders(true);
 
-            foreach ($events as $event) {
+            foreach ($payloads as $payload) {
                 foreach ($subscriptions as $subscription) {
                     $webPush->queueNotification(
                         Subscription::create([
@@ -58,30 +96,64 @@ class BrowserPushNotifier
                             'authToken' => $subscription->auth_token,
                             'contentEncoding' => $subscription->content_encoding,
                         ]),
-                        json_encode($event, JSON_THROW_ON_ERROR),
+                        json_encode($payload, JSON_THROW_ON_ERROR),
                     );
                 }
             }
 
             foreach ($webPush->flush() as $report) {
                 if ($report->isSubscriptionExpired()) {
+                    $stats['expired']++;
                     PushSubscriptionModel::query()
                         ->where('endpoint_hash', hash('sha256', $report->getEndpoint()))
                         ->delete();
                 }
 
                 if (! $report->isSuccess()) {
+                    $stats['failed']++;
+                    $stats['failures'][] = [
+                        'endpoint' => $report->getEndpoint(),
+                        'reason' => $report->getReason(),
+                    ];
                     Log::warning('statuspage:web_push_failed', [
                         'endpoint' => $report->getEndpoint(),
                         'reason' => $report->getReason(),
                     ]);
+
+                    continue;
                 }
+
+                $stats['sent']++;
             }
         } catch (Throwable $exception) {
+            $stats['failed'] = $subscriptions->count() * count($payloads);
+            $stats['failures'][] = [
+                'endpoint' => null,
+                'reason' => $exception->getMessage(),
+            ];
             Log::warning('statuspage:web_push_error', [
                 'message' => $exception->getMessage(),
             ]);
         }
+
+        return $stats;
+    }
+
+    protected function emptyStats(array $overrides = []): array
+    {
+        return [
+            'enabled' => false,
+            'migrated' => Schema::hasTable('push_subscriptions'),
+            'events' => 0,
+            'sent' => 0,
+            'failed' => 0,
+            'expired' => 0,
+            'subscribers' => Schema::hasTable('push_subscriptions')
+                ? PushSubscriptionModel::query()->count()
+                : 0,
+            'failures' => [],
+            ...$overrides,
+        ];
     }
 
     protected function enabled(): bool

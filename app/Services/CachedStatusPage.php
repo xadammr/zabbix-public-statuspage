@@ -56,7 +56,7 @@ class CachedStatusPage
         ];
 
         Cache::forever($this->cacheKey(), $this->normalize($statusPage));
-        $this->browserPushNotifier->notifyChanges($previous, $statusPage);
+        $statusPage['notifications']['web_push'] = $this->browserPushNotifier->notifyChanges($previous, $statusPage);
 
         return $statusPage;
     }

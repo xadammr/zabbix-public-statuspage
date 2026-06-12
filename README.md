@@ -312,6 +312,8 @@ WEB_PUSH_MIN_SEVERITY=warning
 WEB_PUSH_NOTIFY_RECOVERIES=true
 ```
 
+Use a `mailto:` address or the real HTTPS status page URL for `WEB_PUSH_VAPID_SUBJECT`; some push services reject HTTP subjects.
+
 Generate VAPID keys with:
 
 ```bash
@@ -319,6 +321,18 @@ php artisan webpush:keys
 ```
 
 When enabled and configured, a subscribe button appears beside the refresh pause button. Subscribed browsers are notified when a service opens a new trigger, escalates at or above `WEB_PUSH_MIN_SEVERITY`, or recovers when `WEB_PUSH_NOTIFY_RECOVERIES` is enabled.
+
+Send a test notification to all current subscribers with:
+
+```bash
+php artisan webpush:test
+```
+
+You can override the notification text:
+
+```bash
+php artisan webpush:test --title="Status test" --body="Push notifications are working."
+```
 
 ## Deployment Notes
 

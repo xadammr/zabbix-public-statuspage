@@ -61,6 +61,7 @@ let pushReady = false;
 let pushBusy = false;
 let pushRegistration = null;
 let pushPublicKey = null;
+const pushPublicKeyStorageKey = 'statuspage.pushPublicKey';
 
 const syncSectionToggleLabel = (button) => {
     const section = document.querySelector(`[data-section-key="${button.dataset.sectionToggle}"]`);
@@ -304,6 +305,13 @@ const deletePushSubscription = async (subscription) => {
     }
 };
 
+const forgetPushSubscription = async (subscription) => {
+    await deletePushSubscription(subscription);
+    await subscription.unsubscribe();
+    pushSubscription = null;
+    window.localStorage.removeItem(pushPublicKeyStorageKey);
+};
+
 const subscribeToPushNotifications = async () => {
     const permission = await Notification.requestPermission();
 
@@ -318,6 +326,7 @@ const subscribeToPushNotifications = async () => {
     });
 
     await savePushSubscription(subscription);
+    window.localStorage.setItem(pushPublicKeyStorageKey, pushPublicKey);
     pushSubscription = subscription;
 };
 
@@ -328,9 +337,7 @@ const unsubscribeFromPushNotifications = async () => {
         return;
     }
 
-    await deletePushSubscription(subscription);
-    await subscription.unsubscribe();
-    pushSubscription = null;
+    await forgetPushSubscription(subscription);
 };
 
 const togglePushSubscription = async () => {
@@ -397,7 +404,11 @@ const initializePushNotifications = async () => {
         pushSubscription = await pushRegistration.pushManager.getSubscription();
 
         if (pushSubscription) {
-            await savePushSubscription(pushSubscription);
+            if (window.localStorage.getItem(pushPublicKeyStorageKey) !== pushPublicKey) {
+                await forgetPushSubscription(pushSubscription);
+            } else {
+                await savePushSubscription(pushSubscription);
+            }
         }
 
         pushReady = true;

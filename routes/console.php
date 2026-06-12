@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\PushSubscription;
 use App\Services\BrowserPushNotifier;
 use App\Services\CachedStatusPage;
 use App\Services\StatusPageChangeLog;
@@ -108,6 +109,34 @@ Artisan::command('webpush:test {--title=Status page test} {--body=Browser push n
 
     return $stats['failed'] > 0 ? 1 : 0;
 })->purpose('Send a test browser push notification to current subscribers');
+
+Artisan::command('webpush:clear {--force : Clear subscribers without asking for confirmation}', function (): int {
+    if (! Schema::hasTable('push_subscriptions')) {
+        $this->warn('Push subscription table is missing. Run php artisan migrate.');
+
+        return 1;
+    }
+
+    $subscribers = PushSubscription::query()->count();
+
+    if ($subscribers === 0) {
+        $this->info('No browser push subscribers found.');
+
+        return 0;
+    }
+
+    if (! $this->option('force') && ! $this->confirm("Remove {$subscribers} browser push subscriber(s)?")) {
+        $this->line('No subscribers removed.');
+
+        return 0;
+    }
+
+    PushSubscription::query()->delete();
+
+    $this->info("Removed {$subscribers} browser push subscriber(s).");
+
+    return 0;
+})->purpose('Remove all browser push notification subscribers');
 
 Artisan::command('statuspage:poll {--force : Refresh even if the cached snapshot is not due yet}', function (CachedStatusPage $statusPage, StatusPageChangeLog $changeLog): int {
     $before = $statusPage->cached();

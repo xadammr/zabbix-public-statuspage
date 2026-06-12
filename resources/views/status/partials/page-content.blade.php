@@ -61,11 +61,42 @@
         @include('status.partials.stale-cache-warning', ['cache' => $statusPage['cache']])
     @endif
 
-    @include('status.partials.summary', ['summary' => $statusPage['summary']])
+    @php
+        $isStale = $statusPage['cache']['is_stale'] ?? false;
+        $forceDisaster = $isStale && config('zabbix.statuspage_stale_forces_disaster');
+        $summary = $statusPage['summary'];
+
+        if ($forceDisaster) {
+            $summary = [
+                ...$summary,
+                'ok' => 0,
+                'problem' => $summary['total'],
+                'highest' => [
+                    'class' => 'disaster',
+                    'label' => 'Disaster',
+                ],
+                'severity_counts' => [
+                    [
+                        'class' => 'disaster',
+                        'label' => 'Disaster',
+                        'count' => $summary['total'],
+                    ],
+                ],
+            ];
+        }
+    @endphp
+
+    @include('status.partials.summary', [
+        'forceDisaster' => $forceDisaster,
+        'summary' => $summary,
+    ])
 </header>
 
 @foreach ($statusPage['sections'] as $section)
-    @include('status.partials.section', ['section' => $section])
+    @include('status.partials.section', [
+        'forceDisaster' => $forceDisaster,
+        'section' => $section,
+    ])
 @endforeach
 
 <footer>

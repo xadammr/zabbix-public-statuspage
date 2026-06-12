@@ -9,10 +9,12 @@
             <span class="count">{{ $summary['total'] }}</span>
             <span class="label">Monitored</span>
         </div-->
-        <div class="badge normal">
-            <span class="count">{{ $summary['ok'] }}</span>
-            <span class="label">Normal</span>
-        </div>
+        @unless ($forceDisaster ?? false)
+            <div class="badge normal">
+                <span class="count">{{ $summary['ok'] }}</span>
+                <span class="label">Normal</span>
+            </div>
+        @endunless
         @foreach ($summary['severity_counts'] as $severity)
             @if ($severity['class'] !== 'ok')
                 <div class="badge {{ $severity['class'] }}">

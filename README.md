@@ -95,10 +95,13 @@ Relevant environment values:
 STATUSPAGE_CACHE_KEY=statuspage.snapshot
 STATUSPAGE_POLL_INTERVAL=60
 STATUSPAGE_STALE_AFTER=120
+STATUSPAGE_STALE_FORCES_DISASTER=true
 STATUSPAGE_PROFILE_LOG=false
 ```
 
 If cached data is older than `STATUSPAGE_STALE_AFTER`, the page shows a stale-data warning. This lets the status page keep serving the last known state while making it obvious that Zabbix polling may be broken.
+
+When `STATUSPAGE_STALE_FORCES_DISASTER` is true, stale data also makes the summary and all status cards display as Disaster.
 
 ## Zabbix Host Discovery
 

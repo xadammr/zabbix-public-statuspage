@@ -25,6 +25,7 @@ return [
     'statuspage_cache_key' => env('STATUSPAGE_CACHE_KEY', 'statuspage.snapshot'),
     'statuspage_poll_interval' => env('STATUSPAGE_POLL_INTERVAL', 60),
     'statuspage_stale_after' => env('STATUSPAGE_STALE_AFTER', 120),
+    'statuspage_stale_forces_disaster' => env('STATUSPAGE_STALE_FORCES_DISASTER', true),
     'statuspage_profile_log' => env('STATUSPAGE_PROFILE_LOG', false),
     'statuspage_fetch_available_items' => env('STATUSPAGE_FETCH_AVAILABLE_ITEMS', env('APP_ENV', 'production') !== 'production'),
     'statuspage_private_sections' => array_filter(array_map('trim', explode(',', env('STATUSPAGE_PRIVATE_SECTIONS', 'internal,infrastructure')))),

@@ -124,6 +124,19 @@
     background: color-mix(in srgb, var(--panel) 92%, white);
 }
 
+.service-details[open].severity-warning,
+.service-details[open].severity-average {
+    border-color: color-mix(in srgb, var(--warn-bg) 52%, var(--line));
+}
+
+.service-details[open].severity-high {
+    border-color: color-mix(in srgb, #f97066 70%, var(--line));
+}
+
+.service-details[open].severity-disaster {
+    border-color: color-mix(in srgb, #f04438 86%, var(--line));
+}
+
 .service-details-body {
     overflow: hidden;
 }

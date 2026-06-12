@@ -10,6 +10,7 @@
     <div class="grid">
         @foreach ($section['services'] as $service)
             @include('status.partials.service-card', [
+                'forceDisaster' => $forceDisaster ?? false,
                 'section' => $section,
                 'service' => $service,
             ])

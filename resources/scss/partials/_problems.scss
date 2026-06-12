@@ -2,8 +2,8 @@
     display: grid;
     gap: 8px;
     margin-top: 0;
-    margin-left: -17px;
-    margin-right: -17px;
+    margin-left: calc(-16px + var(--service-rail-width, 0px));
+    margin-right: -16px;
 }
 
 .problem-row {
@@ -47,12 +47,21 @@
 .problem-row.warning,
 .problem-row.average {
     background: var(--warn-bg);
-    background: color-mix(in srgb, var(--warn-bg) 75%, transparent);
     color: var(--warn);
 }
 
-.problem-row.high,
+.problem-row.high {
+    background: #f04438;
+    color: #fff;
+}
+
 .problem-row.disaster {
-    background: color-mix(in srgb, var(--danger-bg) 75%, transparent);
-    color: var(--danger);
+    background: #d92d20;
+    color: #fff;
+}
+
+.problem-row.high .problem-priority,
+.problem-row.disaster .problem-priority {
+    background: rgba(255, 255, 255, 0.2);
+    color: inherit;
 }

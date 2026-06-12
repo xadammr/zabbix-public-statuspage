@@ -997,12 +997,20 @@ class StatusPageBuilder
             return $this->formatByteValue((float) $value);
         }
 
+        if (in_array(($item['units'] ?? ''), ['B/sec', 'Bps'], true) && is_numeric($value)) {
+            return $this->formatByteRateValue((float) $value);
+        }
+
         if (($item['units'] ?? '') === 'bps' && is_numeric($value)) {
             return $this->formatBitrateValue((float) $value);
         }
 
         if (($item['value_type'] ?? null) === '0' && is_numeric($value)) {
             return number_format((float) $value, 2, '.', '');
+        }
+
+        if (in_array((string) ($item['value_type'] ?? ''), ['1', '4'], true)) {
+            return $this->formatTextValue($value);
         }
 
         return $value;
@@ -1020,6 +1028,10 @@ class StatusPageBuilder
         }
 
         if ($units === 'bps' && preg_match('/^(-?\d+(?:\.\d+)?)([KMGTPE])$/', $value, $matches) === 1) {
+            return $matches[1].' '.$matches[2].$units;
+        }
+
+        if (in_array($units, ['B/sec', 'Bps'], true) && preg_match('/^(-?\d+(?:\.\d+)?)([KMGTPE])$/', $value, $matches) === 1) {
             return $matches[1].' '.$matches[2].$units;
         }
 
@@ -1064,5 +1076,25 @@ class StatusPageBuilder
         }
 
         return number_format($scaled, 2, '.', '').$prefixes[$prefix];
+    }
+
+    protected function formatByteRateValue(float $bytesPerSecond): string
+    {
+        return $this->formatBitrateValue($bytesPerSecond);
+    }
+
+    protected function formatTextValue(string $value): string
+    {
+        $trimmed = trim($value);
+
+        if ($trimmed === '' || preg_match('/[a-z]/', $trimmed) !== 1) {
+            return $value;
+        }
+
+        if ($trimmed !== strtolower($trimmed)) {
+            return $value;
+        }
+
+        return ucfirst($trimmed);
     }
 }

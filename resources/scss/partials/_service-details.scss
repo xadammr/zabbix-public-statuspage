@@ -30,6 +30,29 @@
     margin-bottom: 10px;
 }
 
+.service-details[open].severity-high > summary.card-header,
+.service-details[open].severity-disaster > summary.card-header {
+    border-radius: 7px 7px 0 0;
+    margin-left: calc(-16px + var(--service-rail-width));
+    margin-right: -16px;
+    margin-top: -16px;
+    margin-bottom: 3px;
+    padding: 16px 16px 16px calc(16px - var(--service-rail-width));
+}
+
+.service-details[open].severity-high .service-details-content,
+.service-details[open].severity-disaster .service-details-content {
+    margin-top: 0.35rem;
+}
+
+.service-details[open].severity-high > summary.card-header {
+    background: color-mix(in srgb, #d92d20 30%, var(--panel));
+}
+
+.service-details[open].severity-disaster > summary.card-header {
+    background: color-mix(in srgb, #b42318 42%, var(--panel));
+}
+
 .service-details-content {
     display: grid;
     gap: 10px;

@@ -47,6 +47,51 @@ class StatusPageBuilderFormatsValuesTest extends TestCase
         $this->assertSame('886.81 Kbps', $formatValueWithUnits->invoke($builder, $displayValue, 'bps'));
     }
 
+    public function test_byte_rate_values_are_scaled_like_zabbix_units(): void
+    {
+        $builder = new StatusPageBuilder($this->createMock(ZabbixClient::class), new StatusPageSummary);
+        $formatDisplayValue = new ReflectionMethod($builder, 'formatDisplayValue');
+        $formatValueWithUnits = new ReflectionMethod($builder, 'formatValueWithUnits');
+
+        $displayValue = $formatDisplayValue->invoke($builder, '15206919', [
+            'units' => 'B/sec',
+            'value_type' => '3',
+        ]);
+
+        $this->assertSame('15.21M', $displayValue);
+        $this->assertSame('15.21 MB/sec', $formatValueWithUnits->invoke($builder, $displayValue, 'B/sec'));
+    }
+
+    public function test_lowercase_text_values_are_sentence_cased(): void
+    {
+        $builder = new StatusPageBuilder($this->createMock(ZabbixClient::class), new StatusPageSummary);
+        $formatDisplayValue = new ReflectionMethod($builder, 'formatDisplayValue');
+
+        $this->assertSame('Running normally', $formatDisplayValue->invoke($builder, 'running normally', [
+            'units' => '',
+            'value_type' => '1',
+        ]));
+        $this->assertSame('Degraded', $formatDisplayValue->invoke($builder, 'degraded', [
+            'units' => '',
+            'value_type' => '4',
+        ]));
+    }
+
+    public function test_text_values_preserve_mixed_case_and_acronyms(): void
+    {
+        $builder = new StatusPageBuilder($this->createMock(ZabbixClient::class), new StatusPageSummary);
+        $formatDisplayValue = new ReflectionMethod($builder, 'formatDisplayValue');
+
+        $this->assertSame('HTTP OK', $formatDisplayValue->invoke($builder, 'HTTP OK', [
+            'units' => '',
+            'value_type' => '1',
+        ]));
+        $this->assertSame('MSSQLServer healthy', $formatDisplayValue->invoke($builder, 'MSSQLServer healthy', [
+            'units' => '',
+            'value_type' => '1',
+        ]));
+    }
+
     public function test_zabbix_literal_units_are_cleaned_for_display(): void
     {
         $builder = new StatusPageBuilder($this->createMock(ZabbixClient::class), new StatusPageSummary);

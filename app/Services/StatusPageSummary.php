@@ -54,7 +54,7 @@ class StatusPageSummary
             'label' => match ($class) {
                 'ok' => 'OK',
                 'not-classified' => 'Note',
-                'information' => 'Information',
+                'information' => 'Info',
                 'warning' => 'Warning',
                 'average' => 'Average',
                 'high' => 'High',

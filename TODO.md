@@ -14,9 +14,8 @@ This repo is in decent shape already: it has a clear Laravel structure, focused 
   - Added validated, deduplicated `STATUSPAGE_CUSTOM_CSS_URLS` links to both page layouts.
   - Preserved the former SPD styles only in the ignored local `.env`.
 
-- [ ] Delete or replace the default Laravel welcome view.
-  - `resources/views/welcome.blade.php` is still tracked and contains Laravel promotional links.
-  - It does not appear to be routed currently, but it reads unfinished in a public project.
+- [x] Delete or replace the default Laravel welcome view.
+  - Removed the unrouted Laravel promotional view and its unused Tailwind build dependencies.
 
 - [ ] Add a license file.
   - `composer.json` says `MIT`, but there is no `LICENSE` file in the repo root.
@@ -151,9 +150,8 @@ This repo is in decent shape already: it has a clear Laravel structure, focused 
   - Keep rules focused on actual defects: invalid declarations, duplicate properties, selector mistakes, and excessive specificity; avoid a large formatting-only migration.
   - Run Sass compilation and the CSS lint command in CI.
 
-- [ ] Remove unused frontend tooling after deleting the Laravel welcome view.
-  - The status-page assets do not use Tailwind, but `@tailwindcss/vite` and `tailwindcss` are still configured in `vite.config.js` and `package.json`.
-  - Remove those dependencies and the Vite plugin if no remaining tracked view or stylesheet needs them.
+- [x] Remove unused frontend tooling after deleting the Laravel welcome view.
+  - Removed `@tailwindcss/vite`, `tailwindcss`, and the unused Vite plugin configuration.
 
 - [ ] Add a light visual QA pass after removing vendor CSS.
   - Check desktop and mobile layouts.

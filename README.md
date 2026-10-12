@@ -166,6 +166,10 @@ TRUSTED_PROXIES=173.245.48.0/20,103.21.244.0/22,103.22.200.0/22,103.31.4.0/22,14
 
 Forwarded headers are only used for private-section access when the immediate connecting IP is one of the trusted proxies.
 
+## Wallboard
+
+`/wallboard` provides a dense, automatically refreshing view for small operations displays (including a 764 by 459 pixel Raspberry Pi viewport). Service details start collapsed, while non-OK services are moved into a severity-sorted alert area directly beneath the header. Both the page and its refresh fragment are restricted to `STATUSPAGE_PRIVATE_IPS`; visitors outside those exact IPs or CIDR ranges receive HTTP 403.
+
 ## Service Health
 
 The app fetches active triggers for each discovered host. A card's status is the highest-priority active trigger:

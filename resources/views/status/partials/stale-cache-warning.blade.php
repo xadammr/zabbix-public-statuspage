@@ -1,4 +1,4 @@
-<section class="stale-cache-warning" role="alert">
+<section @class(['stale-cache-warning', 'wallboard-stale' => $wallboard ?? false]) role="alert">
     @php($refreshedAt = $cache['refreshed_at']->copy()->timezone(config('app.timezone')))
     <h2>No new data available.</h2>
     <p class="muted">

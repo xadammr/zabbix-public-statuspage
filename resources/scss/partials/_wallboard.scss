@@ -41,32 +41,18 @@
 
 .wallboard .last-update {
     background: var(--panel);
+    color: var(--muted);
+    cursor: pointer;
     font-size: 0.7rem;
+}
+
+.wallboard .last-update:hover {
+    border-color: rgba(255, 255, 255, 0.3);
+    color: var(--text);
 }
 
 .wallboard .push-toggle {
     display: none;
-}
-
-.wallboard .refresh-now {
-    align-items: center;
-    background: var(--panel);
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    border-radius: 999px;
-    color: var(--muted);
-    cursor: pointer;
-    display: inline-flex;
-    font: inherit;
-    font-size: 0.65rem;
-    font-weight: 700;
-    justify-content: center;
-    line-height: 1;
-    padding: 0.45rem 0.65rem;
-}
-
-.wallboard .refresh-now:hover {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.3);
 }
 
 .wallboard .summary {
@@ -144,17 +130,17 @@
     width: 7px;
 }
 
-.wallboard:not(:has(.wallboard-alerts)) main {
+.wallboard:not(:has(.wallboard-alerts)):not(:has(.wallboard-stale)) main {
     height: 100vh;
     min-height: 0;
     padding-bottom: 8px;
 }
 
-.wallboard:not(:has(.wallboard-alerts)) {
+.wallboard:not(:has(.wallboard-alerts)):not(:has(.wallboard-stale)) {
     overflow-y: hidden;
 }
 
-.wallboard:not(:has(.wallboard-alerts)) .wallboard-header {
+.wallboard:not(:has(.wallboard-alerts)):not(:has(.wallboard-stale)) .wallboard-header {
     align-items: center;
     display: flex;
     flex-direction: column;
@@ -166,13 +152,13 @@
     width: 100%;
 }
 
-.wallboard:not(:has(.wallboard-alerts)) .wallboard-header > div:first-child {
+.wallboard:not(:has(.wallboard-alerts)):not(:has(.wallboard-stale)) .wallboard-header > div:first-child {
     justify-content: center;
     position: relative;
     z-index: 1;
 }
 
-.wallboard:not(:has(.wallboard-alerts)) .summary.ok {
+.wallboard:not(:has(.wallboard-alerts)):not(:has(.wallboard-stale)) .summary.ok {
     background: color-mix(in srgb, var(--ok) 10%, var(--panel)) !important;
     border-color: color-mix(in srgb, var(--ok) 60%, var(--line)) !important;
     box-shadow:
@@ -184,38 +170,41 @@
     width: min(90%, 520px);
 }
 
-.wallboard:not(:has(.wallboard-alerts)) .summary.ok h2 {
+.wallboard:not(:has(.wallboard-alerts)):not(:has(.wallboard-stale)) .summary.ok h2 {
     font-size: 1.8rem;
     margin: 0;
 }
 
-.wallboard:not(:has(.wallboard-alerts)) .summary-all-normal {
+.wallboard:not(:has(.wallboard-alerts)):not(:has(.wallboard-stale)) .summary-all-normal {
     gap: 12px;
     text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
 }
 
-.wallboard:not(:has(.wallboard-alerts)) .summary-status-dot {
-    animation: wallboard-all-clear-pulse 2.4s ease-in-out infinite;
-    box-shadow: 0 0 0 5px color-mix(in srgb, var(--ok) 18%, transparent);
-    height: 13px;
-    width: 13px;
+.wallboard:not(:has(.wallboard-alerts)):not(:has(.wallboard-stale)) .summary-status-logo {
+    animation: wallboard-logo-pulse 2.4s ease-in-out infinite;
+    filter: drop-shadow(0 0 5px color-mix(in srgb, var(--ok) 45%, transparent));
+    height: 2.4rem;
+    object-fit: contain;
+    width: 2.4rem;
 }
 
-@keyframes wallboard-all-clear-pulse {
+@keyframes wallboard-logo-pulse {
     0%,
     100% {
-        box-shadow: 0 0 0 5px color-mix(in srgb, var(--ok) 18%, transparent);
-        opacity: 0.9;
+        filter: drop-shadow(0 0 4px color-mix(in srgb, var(--ok) 35%, transparent));
+        opacity: 0.88;
+        transform: scale(0.96);
     }
 
     50% {
-        box-shadow: 0 0 0 9px color-mix(in srgb, var(--ok) 6%, transparent);
+        filter: drop-shadow(0 0 12px color-mix(in srgb, var(--ok) 70%, transparent));
         opacity: 1;
+        transform: scale(1.06);
     }
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .wallboard:not(:has(.wallboard-alerts)) .summary-status-dot {
+    .wallboard:not(:has(.wallboard-alerts)):not(:has(.wallboard-stale)) .summary-status-logo {
         animation: none;
     }
 }
@@ -244,11 +233,80 @@
     display: none;
 }
 
+.wallboard:not(:has(.wallboard-alerts)):not(:has(.wallboard-stale)) .badge {
+    flex-basis: auto;
+    flex-direction: row;
+    gap: 0.35rem;
+    justify-content: center;
+    padding-left: 10px;
+    padding-right: 10px;
+    white-space: nowrap;
+    width: auto;
+}
+
+.wallboard:not(:has(.wallboard-alerts)):not(:has(.wallboard-stale)) .badge span.label {
+    display: inline;
+    font-size: 0.75rem;
+    font-weight: 600;
+    line-height: 1;
+}
+
 .wallboard .stale-cache-warning {
     grid-column: 1 / -1;
     margin: 0;
     padding: 5px 8px;
     width: 100%;
+}
+
+.wallboard:has(.wallboard-stale) {
+    overflow-y: hidden;
+}
+
+.wallboard:has(.wallboard-stale) main {
+    height: 100vh;
+    min-height: 0;
+    padding-bottom: 8px;
+}
+
+.wallboard:has(.wallboard-stale) .wallboard-header {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    justify-content: center;
+    margin-bottom: 0;
+    min-height: 100%;
+    width: 100%;
+}
+
+.wallboard:has(.wallboard-stale) .wallboard-header > div:first-child {
+    justify-content: center;
+}
+
+.wallboard .wallboard-stale {
+    background: color-mix(in srgb, var(--danger) 18%, var(--panel));
+    border: 2px solid color-mix(in srgb, var(--danger) 75%, var(--line));
+    border-radius: 8px;
+    box-shadow:
+        0 0 0 1px color-mix(in srgb, var(--danger) 18%, transparent),
+        0 0 34px color-mix(in srgb, var(--danger) 24%, transparent);
+    color: var(--text);
+    gap: 12px;
+    padding: 28px 32px;
+    width: min(90%, 620px);
+}
+
+.wallboard .wallboard-stale h2 {
+    font-size: 2rem;
+    line-height: 1.1;
+}
+
+.wallboard .wallboard-stale p.muted {
+    color: color-mix(in srgb, var(--text) 82%, var(--danger));
+    font-size: 1rem;
+    font-weight: 500;
+    line-height: 1.4;
+    margin: 0;
 }
 
 .wallboard .section {

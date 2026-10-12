@@ -96,6 +96,33 @@ class WallboardAccessTest extends TestCase
             ->assertOk()
             ->assertSee('Everything is OK.')
             ->assertSee('class="summary ok"', false)
+            ->assertSee('src="/images/spd-logo.png"', false)
+            ->assertSee('<span class="count">1</span>', false)
+            ->assertSee('<span class="label">Host Monitored</span>', false)
+            ->assertDontSee('wallboard-alerts');
+    }
+
+    public function test_stale_wallboard_shows_one_warning_without_service_cards(): void
+    {
+        $this->withoutVite();
+        Config::set('zabbix.statuspage_private_ips', ['203.0.113.0/24']);
+        $payload = $this->statusPagePayloadWithPrivateSection();
+        $payload['cache']['refreshed_at'] = now()->subMinutes(3);
+        $payload['cache']['is_stale'] = true;
+        $payload['cache']['age_seconds'] = 180;
+
+        $this->mock(CachedStatusPage::class, function ($mock) use ($payload): void {
+            $mock->shouldReceive('current')->once()->andReturn($payload);
+        });
+
+        $this->withServerVariables(['REMOTE_ADDR' => '203.0.113.10'])
+            ->get('/wallboard')
+            ->assertOk()
+            ->assertSee('class="stale-cache-warning wallboard-stale"', false)
+            ->assertSee('No new data available.')
+            ->assertSee('The status page is currently showing stale data')
+            ->assertDontSee('class="summary', false)
+            ->assertDontSee('<details', false)
             ->assertDontSee('wallboard-alerts');
     }
 }

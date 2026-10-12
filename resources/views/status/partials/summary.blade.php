@@ -5,7 +5,7 @@
                 <span class="summary-attention-label">{{ $summary['problem'] }} Active {{ \Illuminate\Support\Str::plural('Alert', $summary['problem']) }}</span>
             @else
                 <span class="summary-all-normal">
-                    <span class="summary-status-dot" aria-hidden="true"></span>
+                    <img class="summary-status-logo" src="/images/spd-logo.png" alt="">
                     Everything is OK.
                 </span>
             @endif
@@ -30,8 +30,13 @@
         @endforeach
         @unless ($forceDisaster ?? false)
             <div class="badge normal">
-                <span class="count">{{ $summary['ok'] }}</span>
-                <span class="label">Normal</span>
+                @if (($wallboard ?? false) && $summary['problem'] === 0)
+                    <span class="count">{{ $summary['total'] }}</span>
+                    <span class="label">{{ \Illuminate\Support\Str::plural('Host', $summary['total']) }} Monitored</span>
+                @else
+                    <span class="count">{{ $summary['ok'] }}</span>
+                    <span class="label">Normal</span>
+                @endif
             </div>
         @endunless
     </div>

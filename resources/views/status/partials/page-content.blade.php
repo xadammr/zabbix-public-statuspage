@@ -8,7 +8,18 @@
             $generatedAtIso = $generatedAt->toIso8601String();
         @endphp
         <div class="refresh-controls">
-            <p class="last-update muted" data-refresh-highlight>
+            @if ($wallboard ?? false)
+                <button
+                    class="last-update muted"
+                    type="button"
+                    data-refresh-highlight
+                    data-page-reload
+                    aria-label="Reload wallboard"
+                    title="Reload wallboard"
+                >
+            @else
+                <p class="last-update muted" data-refresh-highlight>
+            @endif
                 <span
                     class="refresh-progress"
                     data-page-refresh-progress
@@ -27,7 +38,11 @@
                 >
                     {{ ($wallboard ?? false) ? 'Just now' : 'Last updated:' }}
                 </time>
-            </p>
+            @if ($wallboard ?? false)
+                </button>
+            @else
+                </p>
+            @endif
             @unless ($wallboard ?? false)
                 <button
                     class="refresh-toggle"
@@ -39,17 +54,6 @@
                     <span aria-hidden="true" data-refresh-toggle-icon>||</span>
                 </button>
             @endunless
-            @if ($wallboard ?? false)
-                <button
-                    class="refresh-now"
-                    type="button"
-                    data-page-reload
-                    aria-label="Reload wallboard"
-                    title="Reload wallboard"
-                >
-                    Refresh
-                </button>
-            @endif
             <button
                 class="push-toggle"
                 type="button"
@@ -72,10 +76,6 @@
             </button>
         </div>
     </div>
-
-    @if ($statusPage['cache']['is_stale'] ?? false)
-        @include('status.partials.stale-cache-warning', ['cache' => $statusPage['cache']])
-    @endif
 
     @php
         $isStale = $statusPage['cache']['is_stale'] ?? false;
@@ -102,17 +102,26 @@
         }
     @endphp
 
-    @include('status.partials.summary', [
-        'forceDisaster' => $forceDisaster,
-        'summary' => $summary,
-        'wallboard' => $wallboard ?? false,
-    ])
+    @if ($isStale)
+        @include('status.partials.stale-cache-warning', [
+            'cache' => $statusPage['cache'],
+            'wallboard' => $wallboard ?? false,
+        ])
+    @endif
+
+    @unless (($wallboard ?? false) && $isStale)
+        @include('status.partials.summary', [
+            'forceDisaster' => $forceDisaster,
+            'summary' => $summary,
+            'wallboard' => $wallboard ?? false,
+        ])
+    @endunless
 </header>
 
 @php
     $wallboardAlertingServices = collect();
 
-    if ($wallboard ?? false) {
+    if (($wallboard ?? false) && ! $isStale) {
         $severityOrder = [
             'disaster' => 6,
             'high' => 5,

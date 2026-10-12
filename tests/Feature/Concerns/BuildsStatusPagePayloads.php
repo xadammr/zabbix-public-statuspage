@@ -108,6 +108,7 @@ trait BuildsStatusPagePayloads
                 [
                     'triggerid' => '1',
                     'description' => 'Example trigger',
+                    'lastchange' => Carbon::parse('2026-06-07 07:30:00')->timestamp,
                     'priority' => '4',
                     'priority_label' => 'High',
                     'priority_class' => 'high',

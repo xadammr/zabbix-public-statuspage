@@ -51,6 +51,8 @@ class WallboardAccessTest extends TestCase
             ->assertDontSee('Alerting now')
             ->assertSee('class="section wallboard-alerts severity-high"', false)
             ->assertSee('class="wallboard-alert-problems"', false)
+            ->assertSee('data-alert-started-at="', false)
+            ->assertSee('data-alert-duration', false)
             ->assertSee('class="problem-row high"', false)
             ->assertDontSee('class="state high"', false)
             ->assertDontSee('class="service-link"', false)

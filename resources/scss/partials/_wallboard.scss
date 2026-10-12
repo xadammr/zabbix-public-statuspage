@@ -30,10 +30,17 @@
 }
 
 .wallboard .refresh-controls {
+    align-items: stretch;
     margin: 0 auto;
 }
 
+.wallboard:has(.wallboard-alerts) .refresh-controls {
+    margin-left: 0;
+    margin-right: auto;
+}
+
 .wallboard .last-update {
+    background: var(--panel);
     font-size: 0.7rem;
 }
 
@@ -42,14 +49,17 @@
 }
 
 .wallboard .refresh-now {
-    background: rgba(255, 255, 255, 0.06);
+    align-items: center;
+    background: var(--panel);
     border: 1px solid rgba(255, 255, 255, 0.14);
     border-radius: 999px;
-    color: var(--text);
+    color: var(--muted);
     cursor: pointer;
+    display: inline-flex;
     font: inherit;
     font-size: 0.65rem;
     font-weight: 700;
+    justify-content: center;
     line-height: 1;
     padding: 0.45rem 0.65rem;
 }
@@ -160,21 +170,6 @@
     justify-content: center;
     position: relative;
     z-index: 1;
-}
-
-.wallboard:not(:has(.wallboard-alerts)) .last-update,
-.wallboard:not(:has(.wallboard-alerts)) .refresh-now {
-    background: var(--panel);
-}
-
-.wallboard:not(:has(.wallboard-alerts)) .refresh-controls {
-    align-items: stretch;
-}
-
-.wallboard:not(:has(.wallboard-alerts)) .refresh-now {
-    align-items: center;
-    display: inline-flex;
-    justify-content: center;
 }
 
 .wallboard:not(:has(.wallboard-alerts)) .summary.ok {
@@ -312,6 +307,33 @@
     font-size: 1.5rem;
     padding-top: 2px;
     padding-bottom: 2px;
+}
+
+.wallboard .wallboard-alerts .alert-duration {
+    align-items: center;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 999px;
+    color: var(--text);
+    display: inline-flex;
+    font-family: Monaco, Consolas, 'Courier New', Courier, monospace;
+    font-size: 0.9rem;
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+    gap: 5px;
+    line-height: 1;
+    padding: 5px 9px;
+    white-space: nowrap;
+}
+
+.wallboard .wallboard-alerts .alert-duration svg {
+    fill: none;
+    height: 1rem;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 2;
+    width: 1rem;
 }
 
 .wallboard .wallboard-alerts .problem-row {

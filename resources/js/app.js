@@ -181,6 +181,42 @@ const updateLastUpdatedAges = () => {
     });
 };
 
+const formatAlertDuration = (elapsedSeconds) => {
+    const days = Math.floor(elapsedSeconds / 86400);
+    const hours = Math.floor((elapsedSeconds % 86400) / 3600);
+    const minutes = Math.floor((elapsedSeconds % 3600) / 60);
+    const seconds = elapsedSeconds % 60;
+
+    if (days > 0) {
+        return `${days}d ${hours}h`;
+    }
+
+    if (hours > 0) {
+        return `${hours}h ${minutes}m`;
+    }
+
+    if (minutes > 0) {
+        return `${minutes}m ${seconds}s`;
+    }
+
+    return `${seconds}s`;
+};
+
+const updateAlertDurations = () => {
+    document.querySelectorAll('[data-alert-started-at]').forEach((element) => {
+        const startedAt = Number(element.dataset.alertStartedAt) * 1000;
+        const output = element.querySelector('[data-alert-duration]');
+
+        if (! output || ! Number.isFinite(startedAt) || startedAt <= 0) {
+            return;
+        }
+
+        const elapsedSeconds = Math.max(0, Math.floor((Date.now() - startedAt) / 1000));
+
+        output.textContent = formatAlertDuration(elapsedSeconds);
+    });
+};
+
 const remainingStatusRefreshPollingLabelMilliseconds = () => Math.max(
     0,
     statusRefreshPollingLabelMinimumMilliseconds - (Date.now() - statusRefreshPollingLabelShownAt),
@@ -531,6 +567,7 @@ const refreshStatusFragment = async () => {
         container.innerHTML = statusFragmentHtml;
         restoreOpenServices(openedServiceIds);
         bindStatusPageControls();
+        updateAlertDurations();
         statusRefreshStartedAt = Date.now();
         updatePageRefreshProgress();
         highlightLastUpdated();
@@ -545,9 +582,11 @@ const refreshStatusFragment = async () => {
 bindStatusPageControls();
 initializePushNotifications();
 updateLastUpdatedAges();
+updateAlertDurations();
 updatePageRefreshProgress();
 window.setInterval(() => {
     updateLastUpdatedAges();
+    updateAlertDurations();
     updatePageRefreshProgress();
 }, 1000);
 window.setInterval(refreshStatusFragment, statusRefreshIntervalMilliseconds);

@@ -9,6 +9,11 @@
     }
 
     $activeTriggers = collect($service['triggers'])->where('value', '1');
+    $alertStartedAt = $activeTriggers
+        ->pluck('lastchange')
+        ->filter(fn ($lastChange) => is_numeric($lastChange) && (int) $lastChange > 0)
+        ->map(fn ($lastChange) => (int) $lastChange)
+        ->min();
 @endphp
 
 <details
@@ -20,6 +25,7 @@
         @include('status.partials.service-card-header', [
             'hideLink' => $wallboard ?? false,
             'hideState' => $wallboardAlert ?? false,
+            'alertStartedAt' => ($wallboardAlert ?? false) ? $alertStartedAt : null,
             'service' => $displayService,
         ])
 

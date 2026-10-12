@@ -267,6 +267,7 @@ class StatusPageBuilder
             'output' => [
                 'triggerid',
                 'description',
+                'lastchange',
                 'priority',
                 'status',
                 'value',

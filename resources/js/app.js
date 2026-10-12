@@ -286,7 +286,12 @@ const bindPageReload = () => {
         }
 
         button.dataset.bound = 'true';
-        button.addEventListener('click', () => window.location.reload());
+        button.addEventListener('click', () => {
+            const reloadUrl = new URL(window.location.href);
+
+            reloadUrl.searchParams.set('_reload', Date.now().toString());
+            window.location.replace(reloadUrl);
+        });
     });
 };
 

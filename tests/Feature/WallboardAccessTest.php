@@ -34,6 +34,8 @@ class WallboardAccessTest extends TestCase
         $this->withServerVariables(['REMOTE_ADDR' => '203.0.113.10'])
             ->get('/wallboard')
             ->assertOk()
+            ->assertHeader('Cache-Control', 'max-age=0, must-revalidate, no-cache, no-store, private')
+            ->assertHeader('Pragma', 'no-cache')
             ->assertDontSee('Operations Wallboard')
             ->assertSee('Internal Example')
             ->assertSee('data-status-fragment-url="/wallboard/status-fragment"', false)

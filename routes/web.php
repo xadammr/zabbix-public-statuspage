@@ -56,11 +56,17 @@ Route::get('/status-fragment', function (CachedStatusPage $statusPage, StatusPag
 });
 
 Route::get('/wallboard', function (CachedStatusPage $statusPage, StatusPageVisibility $visibility, Request $request) use ($wallboardViewData) {
-    return view('status.wallboard', $wallboardViewData($statusPage, $visibility, $request));
+    return response()
+        ->view('status.wallboard', $wallboardViewData($statusPage, $visibility, $request))
+        ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+        ->header('Pragma', 'no-cache');
 });
 
 Route::get('/wallboard/status-fragment', function (CachedStatusPage $statusPage, StatusPageVisibility $visibility, Request $request) use ($wallboardViewData) {
-    return view('status.partials.page-content', $wallboardViewData($statusPage, $visibility, $request));
+    return response()
+        ->view('status.partials.page-content', $wallboardViewData($statusPage, $visibility, $request))
+        ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+        ->header('Pragma', 'no-cache');
 });
 
 Route::get('/push/vapid-public-key', function () {

@@ -6,8 +6,13 @@
     margin: 5px auto 1.5rem;
 }
 
+header .refresh-controls {
+    margin-bottom: 0;
+}
+
 .last-update {
     align-items: center;
+    background: var(--panel);
     border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 999px;
     display: flex;
@@ -60,7 +65,7 @@
 .refresh-toggle,
 .push-toggle {
     align-items: center;
-    background: rgba(255, 255, 255, 0.06);
+    background: var(--panel);
     border: 1px solid rgba(255, 255, 255, 0.14);
     border-radius: 999px;
     color: var(--muted);

@@ -22,10 +22,10 @@
                 plausible.init()
             </script>
         @endif
+        @vite(['resources/scss/app.scss', 'resources/js/app.js'])
         @foreach (config('statuspage.custom_css_urls') as $customCssUrl)
             <link rel="stylesheet" href="{{ $customCssUrl }}">
         @endforeach
-        @vite(['resources/scss/app.scss', 'resources/js/app.js'])
     </head>
     <body>
         <main data-status-page-content data-status-fragment-url="/status-fragment">

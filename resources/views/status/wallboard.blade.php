@@ -10,10 +10,10 @@
         @if (config('statuspage.favicon_url'))
             <link rel="icon" href="{{ config('statuspage.favicon_url') }}">
         @endif
+        @vite(['resources/scss/app.scss', 'resources/js/app.js'])
         @foreach (config('statuspage.custom_css_urls') as $customCssUrl)
             <link rel="stylesheet" href="{{ $customCssUrl }}">
         @endforeach
-        @vite(['resources/scss/app.scss', 'resources/js/app.js'])
     </head>
     <body class="wallboard">
         <main data-status-page-content data-status-fragment-url="/wallboard/status-fragment">

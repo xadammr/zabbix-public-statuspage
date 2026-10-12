@@ -288,13 +288,13 @@ npm run dev
 npm run build
 ```
 
-Optional deployment-specific stylesheets can be loaded before the built application CSS with a comma-separated environment setting:
+Optional deployment-specific stylesheets can be loaded after the built application CSS with a comma-separated environment setting:
 
 ```env
 STATUSPAGE_CUSTOM_CSS_URLS="https://cdn.example.com/base.css,https://cdn.example.com/brand.css"
 ```
 
-Only absolute HTTP and HTTPS URLs are accepted. Leave the setting empty to use only the built-in status-page styles.
+Only absolute HTTP and HTTPS URLs are accepted. Leave the setting empty to use only the built-in status-page styles. Custom stylesheets load last so they can override the built-in theme.
 
 ### Branding
 

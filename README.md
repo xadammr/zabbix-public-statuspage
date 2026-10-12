@@ -170,6 +170,8 @@ Forwarded headers are only used for private-section access when the immediate co
 
 `/wallboard` provides a dense, automatically refreshing exception view for small operations displays (including a 764 by 459 pixel Raspberry Pi viewport). It shows only non-OK services, sorted by severity, while service details start collapsed. Both the page and its refresh fragment are restricted to `STATUSPAGE_PRIVATE_IPS`; visitors outside those exact IPs or CIDR ranges receive HTTP 403.
 
+The wallboard footer is hidden by default. Set `WALLBOARD_SHOW_FOOTER=true` to show its copyright and diagnostic statistics.
+
 ## Service Health
 
 The app fetches active triggers for each discovered host. A card's status is the highest-priority active trigger:

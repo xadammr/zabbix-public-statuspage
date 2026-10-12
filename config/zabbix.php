@@ -30,6 +30,7 @@ return [
     'statuspage_fetch_available_items' => env('STATUSPAGE_FETCH_AVAILABLE_ITEMS', env('APP_ENV', 'production') !== 'production'),
     'statuspage_private_sections' => array_filter(array_map('trim', explode(',', env('STATUSPAGE_PRIVATE_SECTIONS', 'internal,infrastructure')))),
     'statuspage_private_ips' => array_filter(array_map('trim', explode(',', env('STATUSPAGE_PRIVATE_IPS', '')))),
+    'wallboard_show_footer' => env('WALLBOARD_SHOW_FOOTER', false),
     'trusted_proxies' => array_filter(array_map('trim', explode(',', env('TRUSTED_PROXIES', '')))),
     'cloudflare_ip_ranges_url' => env('CLOUDFLARE_IP_RANGES_URL', 'https://api.cloudflare.com/client/v4/ips'),
     'cloudflare_ip_ranges_cache_key' => env('CLOUDFLARE_IP_RANGES_CACHE_KEY', 'statuspage.cloudflare_ip_ranges'),

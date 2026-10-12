@@ -168,6 +168,7 @@
     @endforeach
 @endunless
 
+@if (! ($wallboard ?? false) || config('zabbix.wallboard_show_footer'))
 <footer>
     <p class="muted">
         &copy; {{ date('Y') }} SPD Ltd. All rights reserved.
@@ -220,3 +221,4 @@
         </p>
     @endisset
 </footer>
+@endif

@@ -24,6 +24,7 @@ class WallboardAccessTest extends TestCase
     {
         $this->withoutVite();
         Config::set('zabbix.statuspage_private_ips', ['203.0.113.0/24']);
+        Config::set('zabbix.wallboard_show_footer', true);
 
         $this->mock(CachedStatusPage::class, function ($mock): void {
             $mock->shouldReceive('current')
@@ -104,6 +105,7 @@ class WallboardAccessTest extends TestCase
             ->assertSee('src="/images/spd-logo.png"', false)
             ->assertSee('<span class="count">1</span>', false)
             ->assertSee('<span class="label">Host Monitored</span>', false)
+            ->assertDontSee('<footer', false)
             ->assertDontSee('wallboard-alerts');
     }
 

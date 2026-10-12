@@ -320,6 +320,7 @@
 }
 
 .wallboard .wallboard-alert-problems .problems {
+    gap: 0px;
     margin-left: calc(-12px + var(--service-rail-width));
     margin-right: -12px;
     margin-top: 3px;

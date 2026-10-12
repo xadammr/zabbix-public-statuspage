@@ -135,11 +135,6 @@
             : ($wallboardAlertingServices->first()['severity']['class'] ?? 'not-classified');
     @endphp
     <section class="section wallboard-alerts severity-{{ $wallboardAlertSeverity }}" data-section-key="alerting">
-        <div class="section-header">
-            <div>
-                <h2>Alerting now</h2>
-            </div>
-        </div>
         <div class="grid">
             @foreach ($wallboardAlertingServices as $service)
                 @include('status.partials.service-card', [

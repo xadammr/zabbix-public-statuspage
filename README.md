@@ -288,14 +288,13 @@ npm run dev
 npm run build
 ```
 
-The stylesheet imports local standard layout CSS from:
+Optional deployment-specific stylesheets can be loaded before the built application CSS with a comma-separated environment setting:
 
-```css
-@import url("https://spd.ltd/global_assets/css/fortress.css");
-@import url("https://spd.ltd/global_assets/css/spd.css");
+```env
+STATUSPAGE_CUSTOM_CSS_URLS="https://cdn.example.com/base.css,https://cdn.example.com/brand.css"
 ```
 
-Remove or replace these imports if you are deploying this outside that environment.
+Only absolute HTTP and HTTPS URLs are accepted. Leave the setting empty to use only the built-in status-page styles.
 
 ### Branding
 
@@ -310,6 +309,7 @@ STATUSPAGE_FOOTER_TEXT="Example Company"
 STATUSPAGE_THEME_COLOR="#1a1a1a"
 STATUSPAGE_FAVICON_URL="https://status.example.com/favicon.svg"
 STATUSPAGE_WALLBOARD_ICON_URL="https://status.example.com/wallboard-icon.png"
+STATUSPAGE_CUSTOM_CSS_URLS="https://cdn.example.com/status-brand.css"
 ```
 
 Both image settings accept a root-relative or absolute HTTP(S) URL. `STATUSPAGE_FAVICON_URL` supplies the browser, web app manifest, and push-notification icon. `STATUSPAGE_WALLBOARD_ICON_URL` supplies the all-clear wallboard artwork; when it is empty, the wallboard uses a glowing status dot.

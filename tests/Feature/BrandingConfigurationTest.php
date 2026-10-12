@@ -18,6 +18,7 @@ class BrandingConfigurationTest extends TestCase
         config()->set('statuspage.theme_color', '#1a1a1a');
         config()->set('statuspage.favicon_url', null);
         config()->set('statuspage.wallboard_icon_url', null);
+        config()->set('statuspage.custom_css_urls', []);
 
         $this->withoutVite();
         $this->mockStatusPage();
@@ -29,6 +30,7 @@ class BrandingConfigurationTest extends TestCase
         $response->assertSee('<h1>Service Status</h1>', false);
         $response->assertSee('Service Status. All rights reserved.');
         $response->assertDontSee('<link rel="icon"', false);
+        $response->assertDontSee('<link rel="stylesheet"', false);
         $response->assertDontSee('SPD', false);
         $response->assertDontSee('spd.ltd', false);
     }
@@ -40,6 +42,10 @@ class BrandingConfigurationTest extends TestCase
         config()->set('statuspage.footer_text', 'Example Company');
         config()->set('statuspage.theme_color', '#123456');
         config()->set('statuspage.favicon_url', 'https://status.example.com/favicon.svg');
+        config()->set('statuspage.custom_css_urls', [
+            'https://cdn.example.com/base.css',
+            'https://cdn.example.com/brand.css',
+        ]);
 
         $this->withoutVite();
         $this->mockStatusPage();
@@ -52,6 +58,8 @@ class BrandingConfigurationTest extends TestCase
         $response->assertSee('Example Company. All rights reserved.');
         $response->assertSee('<meta name="theme-color" content="#123456">', false);
         $response->assertSee('<link rel="icon" href="https://status.example.com/favicon.svg">', false);
+        $response->assertSee('<link rel="stylesheet" href="https://cdn.example.com/base.css">', false);
+        $response->assertSee('<link rel="stylesheet" href="https://cdn.example.com/brand.css">', false);
     }
 
     public function test_the_manifest_uses_configured_branding(): void

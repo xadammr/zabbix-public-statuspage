@@ -22,6 +22,9 @@
                 plausible.init()
             </script>
         @endif
+        @foreach (config('statuspage.custom_css_urls') as $customCssUrl)
+            <link rel="stylesheet" href="{{ $customCssUrl }}">
+        @endforeach
         @vite(['resources/scss/app.scss', 'resources/js/app.js'])
     </head>
     <body>

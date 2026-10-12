@@ -9,13 +9,10 @@ This repo is in decent shape already: it has a clear Laravel structure, focused 
   - The web app manifest is generated from configuration, and an optional favicon URL supplies browser, manifest, and wallboard artwork.
   - Removed the favicon generator and committed brand assets; the wallboard falls back to its glowing status dot.
 
-- [ ] Move hardcoded external CSS imports into environment-controlled custom CSS.
-  - `resources/scss/partials/_vendor.scss` imports:
-    - `https://spd.ltd/global_assets/css/fortress.css`
-    - `https://spd.ltd/global_assets/css/spd.css`
-  - This should not ship as the default GitHub experience.
-  - Recommended fix: remove the SCSS imports and add a config value such as `STATUSPAGE_CUSTOM_CSS_URLS`, parsed as a comma-separated list of `http`/`https` URLs and rendered as optional `<link rel="stylesheet">` tags.
-  - Keep the built-in SCSS looking reasonable without custom CSS.
+- [x] Move hardcoded external CSS imports into environment-controlled custom CSS.
+  - Removed `_vendor.scss`; the public default no longer loads third-party stylesheets.
+  - Added validated, deduplicated `STATUSPAGE_CUSTOM_CSS_URLS` links to both page layouts.
+  - Preserved the former SPD styles only in the ignored local `.env`.
 
 - [ ] Delete or replace the default Laravel welcome view.
   - `resources/views/welcome.blade.php` is still tracked and contains Laravel promotional links.
@@ -117,7 +114,7 @@ This repo is in decent shape already: it has a clear Laravel structure, focused 
 
 ## CSS And Frontend Tidy-Up
 
-- [ ] Keep the SCSS partial structure, but remove `_vendor.scss` once custom CSS URLs exist.
+- [x] Keep the SCSS partial structure, but remove `_vendor.scss` once custom CSS URLs exist.
   - Current partials are reasonably scoped by UI area.
   - Combining them would probably make the CSS less navigable, not cleaner.
 
@@ -169,7 +166,7 @@ This repo is in decent shape already: it has a clear Laravel structure, focused 
 
 ## Tests To Add
 
-- [ ] Test custom CSS URL rendering once implemented.
+- [x] Test custom CSS URL rendering once implemented.
   - Assert no custom stylesheet renders by default.
   - Assert configured `http`/`https` stylesheets render.
   - Assert invalid schemes such as `javascript:` are ignored.
@@ -201,7 +198,7 @@ This repo is in decent shape already: it has a clear Laravel structure, focused 
 - [ ] Document the private section model with examples.
   - Include safe examples for direct deployment, Cloudflare deployment, and private network/Tailscale deployment.
 
-- [ ] Update README after moving custom CSS to env.
+- [x] Update README after moving custom CSS to env.
   - Replace the current "stylesheet imports local standard layout CSS" section with `STATUSPAGE_CUSTOM_CSS_URLS`.
 
 ## Nice To Have

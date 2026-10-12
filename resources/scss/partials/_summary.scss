@@ -13,6 +13,10 @@
     color: #EFEFEF;
 }
 
+body:not(.wallboard) .summary {
+    width: min(100%, 620px);
+}
+
 .summary.ok {
     border-color: #b8dfc6;
     background: var(--ok-bg);
@@ -33,6 +37,7 @@
 .summary h2 {
     font-size: 1.1rem;
     margin-bottom: 8px;
+    text-align: center;
 }
 
 .stale-cache-warning {

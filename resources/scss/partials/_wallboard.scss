@@ -19,7 +19,7 @@
 .wallboard .wallboard-header > div:first-child {
     align-items: center;
     display: flex;
-    gap: 10px;
+    gap: 15px;
 }
 
 .wallboard h1 {
@@ -152,6 +152,7 @@
 }
 
 .wallboard .wallboard-alerts .grid {
+    gap: 10px;
     grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 

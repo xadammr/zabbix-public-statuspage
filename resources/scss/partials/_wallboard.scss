@@ -1,5 +1,5 @@
 .wallboard {
-    overflow-y: scroll;
+    overflow-y: auto;
 }
 
 .wallboard main {
@@ -133,6 +133,75 @@
     width: 7px;
 }
 
+.wallboard:not(:has(.wallboard-alerts)) main {
+    min-height: 100vh;
+    padding-bottom: 8px;
+}
+
+.wallboard:not(:has(.wallboard-alerts)) .wallboard-header {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    justify-content: center;
+    min-height: calc(100vh - 16px);
+    position: relative;
+    width: 100%;
+}
+
+.wallboard:not(:has(.wallboard-alerts)) .wallboard-header > div:first-child {
+    justify-content: center;
+    position: static;
+}
+
+.wallboard:not(:has(.wallboard-alerts)) .summary.ok {
+    background: color-mix(in srgb, var(--ok) 10%, var(--panel)) !important;
+    border-color: color-mix(in srgb, var(--ok) 60%, var(--line)) !important;
+    box-shadow:
+        0 0 0 1px color-mix(in srgb, var(--ok) 15%, transparent),
+        0 0 34px color-mix(in srgb, var(--ok) 20%, transparent);
+    flex-direction: column;
+    gap: 14px;
+    padding: 24px 30px;
+    width: min(90%, 520px);
+}
+
+.wallboard:not(:has(.wallboard-alerts)) .summary.ok h2 {
+    font-size: 1.8rem;
+    margin: 0;
+}
+
+.wallboard:not(:has(.wallboard-alerts)) .summary-all-normal {
+    gap: 12px;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+}
+
+.wallboard:not(:has(.wallboard-alerts)) .summary-status-dot {
+    animation: wallboard-all-clear-pulse 2.4s ease-in-out infinite;
+    box-shadow: 0 0 0 5px color-mix(in srgb, var(--ok) 18%, transparent);
+    height: 13px;
+    width: 13px;
+}
+
+@keyframes wallboard-all-clear-pulse {
+    0%,
+    100% {
+        box-shadow: 0 0 0 5px color-mix(in srgb, var(--ok) 18%, transparent);
+        opacity: 0.9;
+    }
+
+    50% {
+        box-shadow: 0 0 0 9px color-mix(in srgb, var(--ok) 6%, transparent);
+        opacity: 1;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .wallboard:not(:has(.wallboard-alerts)) .summary-status-dot {
+        animation: none;
+    }
+}
+
 .wallboard .badges {
     flex-wrap: nowrap;
     gap: 4px;
@@ -179,7 +248,7 @@
     border-bottom: 0;
     border-top: 0;
     margin: 0 -8px;
-    padding: 10px 8px;
+    padding: 20px 8px;
     margin-bottom: 8px;
 }
 
@@ -225,6 +294,7 @@
 .wallboard .wallboard-alerts .problem-row {
     align-items: center;
     font-size: 1.25rem;
+    padding-left: 8px;
 }
 
 .wallboard .wallboard-alerts .problem-priority {
@@ -240,8 +310,8 @@
 }
 
 .wallboard .wallboard-alerts .service-details:not([open]) > summary.card-header {
-    margin: -9px -12px 0 calc(-12px + var(--service-rail-width));
-    padding: 9px 12px 9px calc(12px - var(--service-rail-width));
+    margin: -9px -12px -9px calc(-12px + var(--service-rail-width));
+    padding: 9px 12px 0 calc(12px - var(--service-rail-width));
 }
 
 .wallboard .service-details > summary.card-header > .wallboard-alert-problems {
@@ -260,7 +330,7 @@
 }
 
 .wallboard .wallboard-alerts .service-details:not([open]) .wallboard-alert-problems .problems {
-    margin-bottom: -9px;
+    margin-bottom: 0;
 }
 
 .wallboard .section-header {
@@ -282,7 +352,7 @@
 }
 
 .wallboard .card {
-    border-radius: 5px;
+    border-radius: 0;
     padding: 7px 10px;
 }
 
@@ -366,10 +436,6 @@
     padding-top: 3px;
 }
 
-.wallboard .problem-row {
-    padding: 4px 10px;
-}
-
 .wallboard .problems {
     gap: 3px;
     margin-left: -10px;
@@ -379,6 +445,11 @@
 .wallboard .problem-priority {
     font-size: 0.55rem;
     padding: 1px 4px;
+}
+
+.wallboard .service-details:not([open]) > summary.card-header,
+.wallboard .service-details[open] > summary.card-header {
+    border-radius: 0;
 }
 
 @media (max-width: 620px) {

@@ -68,4 +68,32 @@ class WallboardAccessTest extends TestCase
             ->get('/wallboard/status-fragment')
             ->assertForbidden();
     }
+
+    public function test_all_clear_wallboard_has_no_alert_cards(): void
+    {
+        $this->withoutVite();
+        Config::set('zabbix.statuspage_private_ips', ['203.0.113.0/24']);
+        $payload = $this->statusPagePayload();
+        $payload['summary'] = [
+            'total' => 1,
+            'ok' => 1,
+            'problem' => 0,
+            'highest' => ['label' => 'OK', 'class' => 'ok'],
+            'severity_counts' => [],
+        ];
+        $payload['services'][0]['severity'] = ['label' => 'OK', 'class' => 'ok'];
+        $payload['services'][0]['triggers'] = [];
+        $payload['sections'][0]['services'][0] = $payload['services'][0];
+
+        $this->mock(CachedStatusPage::class, function ($mock) use ($payload): void {
+            $mock->shouldReceive('current')->once()->andReturn($payload);
+        });
+
+        $this->withServerVariables(['REMOTE_ADDR' => '203.0.113.10'])
+            ->get('/wallboard')
+            ->assertOk()
+            ->assertSee('Everything is OK.')
+            ->assertSee('class="summary ok"', false)
+            ->assertDontSee('wallboard-alerts');
+    }
 }

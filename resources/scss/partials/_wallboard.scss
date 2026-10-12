@@ -93,13 +93,29 @@
 }
 
 .wallboard .wallboard-alerts {
-    background: color-mix(in srgb, #d92d20 14%, var(--bg));
-    border: 1px solid color-mix(in srgb, var(--danger) 100%, var(--line));
+    --alert-band-color: var(--muted);
+    background: transparent;
+    border: 1px solid var(--line);
     border-left: 0;
     border-radius: 0;
     border-right: 0;
+    border-bottom: 0;
+    border-top: 0;
     margin: 0 -8px;
     padding: 6px 8px 8px;
+    margin-bottom: 8px;
+}
+
+.wallboard .wallboard-alerts.severity-high {
+    --alert-band-color: #f04438;
+    background: color-mix(in srgb, var(--alert-band-color) 14%, var(--bg));
+    border-color: color-mix(in srgb, var(--alert-band-color) 85%, var(--line));
+}
+
+.wallboard .wallboard-alerts.severity-disaster {
+    --alert-band-color: #d92d20;
+    background: color-mix(in srgb, var(--alert-band-color) 14%, var(--bg));
+    border-color: color-mix(in srgb, var(--alert-band-color) 85%, var(--line));
 }
 
 .wallboard .wallboard-alerts + .section {
@@ -107,7 +123,7 @@
 }
 
 .wallboard .wallboard-alerts .section-header h2 {
-    color: #f97066;
+    color: var(--alert-band-color);
 }
 
 .wallboard .wallboard-alerts .card-header {

@@ -118,7 +118,12 @@
 @endphp
 
 @if ($wallboardAlertingServices->isNotEmpty())
-    <section class="section wallboard-alerts" data-section-key="alerting">
+    @php
+        $wallboardAlertSeverity = $forceDisaster
+            ? 'disaster'
+            : ($wallboardAlertingServices->first()['severity']['class'] ?? 'not-classified');
+    @endphp
+    <section class="section wallboard-alerts severity-{{ $wallboardAlertSeverity }}" data-section-key="alerting">
         <div class="section-header">
             <div>
                 <h2>Alerting now</h2>

@@ -12,6 +12,7 @@ class StatusPageRendersTest extends TestCase
 
     public function test_the_application_returns_a_successful_response(): void
     {
+        config()->set('zabbix.statuspage_fetch_available_items', true);
         $this->withoutVite();
 
         $this->mock(CachedStatusPage::class, function ($mock): void {

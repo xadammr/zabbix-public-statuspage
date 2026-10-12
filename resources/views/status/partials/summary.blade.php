@@ -5,7 +5,11 @@
                 <span class="summary-attention-label">{{ $summary['problem'] }} Active {{ \Illuminate\Support\Str::plural('Alert', $summary['problem']) }}</span>
             @else
                 <span class="summary-all-normal">
-                    <img class="summary-status-logo" src="/images/spd-logo.png" alt="">
+                    @if (config('statuspage.wallboard_icon_url'))
+                        <img class="summary-status-logo" src="{{ config('statuspage.wallboard_icon_url') }}" alt="">
+                    @else
+                        <span class="summary-status-dot" aria-hidden="true"></span>
+                    @endif
                     Everything is OK.
                 </span>
             @endif

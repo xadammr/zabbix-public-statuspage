@@ -88,6 +88,10 @@ class BrowserPushNotifier
             $webPush->setReuseVAPIDHeaders(true);
 
             foreach ($payloads as $payload) {
+                if (config('statuspage.favicon_url')) {
+                    $payload['icon'] ??= config('statuspage.favicon_url');
+                }
+
                 foreach ($subscriptions as $subscription) {
                     $webPush->queueNotification(
                         Subscription::create([

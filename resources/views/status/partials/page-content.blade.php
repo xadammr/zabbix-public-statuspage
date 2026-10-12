@@ -1,7 +1,7 @@
 <header @class(['wallboard-header' => $wallboard ?? false])>
     <div>
         @unless ($wallboard ?? false)
-            <h1>Service Status</h1>
+            <h1>{{ config('statuspage.name') }}</h1>
         @endunless
         @php
             $generatedAt = $statusPage['generated_at']->copy()->timezone(config('app.timezone'));
@@ -171,7 +171,7 @@
 @if (! ($wallboard ?? false) || config('zabbix.wallboard_show_footer'))
 <footer>
     <p class="muted">
-        &copy; {{ date('Y') }} SPD Ltd. All rights reserved.
+        &copy; {{ date('Y') }} {{ config('statuspage.footer_text') }}. All rights reserved.
     </p>
     @isset($statusDebug)
         <p class="footer-debug muted">

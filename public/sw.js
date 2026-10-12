@@ -11,11 +11,14 @@ self.addEventListener('push', (event) => {
         data: {
             url: payload.url || fallback.url,
         },
-        icon: '/images/icon-192.png',
-        badge: '/images/icon-192.png',
         tag: payload.tag || 'statuspage-alert',
         renotify: true,
     };
+
+    if (payload.icon) {
+        options.icon = payload.icon;
+        options.badge = payload.icon;
+    }
 
     event.waitUntil(self.registration.showNotification(title, options));
 });

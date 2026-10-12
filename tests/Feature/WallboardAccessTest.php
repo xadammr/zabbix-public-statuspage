@@ -25,6 +25,7 @@ class WallboardAccessTest extends TestCase
         $this->withoutVite();
         Config::set('zabbix.statuspage_private_ips', ['203.0.113.0/24']);
         Config::set('zabbix.wallboard_show_footer', true);
+        Config::set('statuspage.footer_text', 'Service Status');
 
         $this->mock(CachedStatusPage::class, function ($mock): void {
             $mock->shouldReceive('current')
@@ -37,7 +38,7 @@ class WallboardAccessTest extends TestCase
             ->assertOk()
             ->assertHeader('Cache-Control', 'max-age=0, must-revalidate, no-cache, no-store, private')
             ->assertHeader('Pragma', 'no-cache')
-            ->assertDontSee('Operations Wallboard')
+            ->assertDontSee('<h1>Operations Wallboard</h1>', false)
             ->assertSee('data-status-fragment-url="/wallboard/status-fragment"', false)
             ->assertSee('data-page-reload', false)
             ->assertSee('Reload wallboard')
@@ -61,7 +62,7 @@ class WallboardAccessTest extends TestCase
             ->assertDontSee('Pause automatic refresh')
             ->assertDontSee('Last updated:')
             ->assertSee('<footer', false)
-            ->assertSee('SPD Ltd. All rights reserved.')
+            ->assertSee('Service Status. All rights reserved.')
             ->assertSee('aria-label="Request IP address"', false)
             ->assertSee('aria-label="Last poll duration"', false)
             ->assertDontSee('aria-label="Shown sections"', false)
@@ -81,6 +82,7 @@ class WallboardAccessTest extends TestCase
     {
         $this->withoutVite();
         Config::set('zabbix.statuspage_private_ips', ['203.0.113.0/24']);
+        Config::set('statuspage.wallboard_icon_url', null);
         $payload = $this->statusPagePayload();
         $payload['summary'] = [
             'total' => 1,
@@ -102,7 +104,7 @@ class WallboardAccessTest extends TestCase
             ->assertOk()
             ->assertSee('Everything is OK.')
             ->assertSee('class="summary ok"', false)
-            ->assertSee('src="/images/spd-logo.png"', false)
+            ->assertSee('class="summary-status-dot"', false)
             ->assertSee('<span class="count">1</span>', false)
             ->assertSee('<span class="label">Host Monitored</span>', false)
             ->assertDontSee('<footer', false)

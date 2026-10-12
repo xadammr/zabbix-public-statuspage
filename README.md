@@ -297,6 +297,25 @@ The stylesheet imports local standard layout CSS from:
 
 Remove or replace these imports if you are deploying this outside that environment.
 
+### Branding
+
+The public page, wallboard, footer, browser theme, and web app manifest use generic defaults. Override them in `.env` when deploying a branded status page:
+
+```env
+STATUSPAGE_NAME="Example Service Status"
+STATUSPAGE_SHORT_NAME="Example Status"
+STATUSPAGE_TITLE="Example - Service Status"
+STATUSPAGE_WALLBOARD_TITLE="Example - Operations Wallboard"
+STATUSPAGE_FOOTER_TEXT="Example Company"
+STATUSPAGE_THEME_COLOR="#1a1a1a"
+STATUSPAGE_FAVICON_URL="https://status.example.com/favicon.svg"
+STATUSPAGE_WALLBOARD_ICON_URL="https://status.example.com/wallboard-icon.png"
+```
+
+Both image settings accept a root-relative or absolute HTTP(S) URL. `STATUSPAGE_FAVICON_URL` supplies the browser, web app manifest, and push-notification icon. `STATUSPAGE_WALLBOARD_ICON_URL` supplies the all-clear wallboard artwork; when it is empty, the wallboard uses a glowing status dot.
+
+Deployment-specific images can be stored under the gitignored `public/vendor/statuspage/` directory and referenced with URLs such as `/vendor/statuspage/favicon.png`. Your deployment process must copy these ignored files onto each server.
+
 ## Analytics
 
 Plausible analytics can be enabled with:

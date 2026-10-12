@@ -5,11 +5,11 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="robots" content="noindex, nofollow">
         <meta name="csrf-token" content="{{ csrf_token() }}">
-        <meta name="theme-color" content="#d92d20">
-        <title>spd.ltd - service status</title>
-        <link rel="icon" href="/images/favicon.ico" sizes="any">
-        <link rel="icon" href="/images/favicon.svg" type="image/svg+xml">
-        <link rel="apple-touch-icon" href="/images/apple-touch-icon.png">
+        <meta name="theme-color" content="{{ config('statuspage.theme_color') }}">
+        <title>{{ config('statuspage.title') }}</title>
+        @if (config('statuspage.favicon_url'))
+            <link rel="icon" href="{{ config('statuspage.favicon_url') }}">
+        @endif
         <link rel="manifest" href="/site.webmanifest">
         @if (config('services.plausible.domain'))
             <script

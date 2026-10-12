@@ -2,10 +2,7 @@
     <h2>
         @if ($wallboard ?? false)
             @if ($summary['problem'] > 0)
-                <span class="summary-severity-pill {{ $summary['highest']['class'] }}">
-                    {{ strtoupper($summary['highest']['label']) }}
-                </span>
-                <span class="summary-attention-label">{{ $summary['problem'] }} Alert</span>
+                <span class="summary-attention-label">{{ $summary['problem'] }} Active {{ \Illuminate\Support\Str::plural('Alert', $summary['problem']) }}</span>
             @else
                 <span class="summary-all-normal">
                     <span class="summary-status-dot" aria-hidden="true"></span>

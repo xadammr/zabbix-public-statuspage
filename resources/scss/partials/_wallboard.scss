@@ -65,7 +65,7 @@
     margin: 0;
     max-width: none;
     min-height: 42px;
-    padding: 5px 8px;
+    padding: 5px 8px 5px 15px;
 }
 
 .wallboard .summary h2 {
@@ -171,7 +171,7 @@
 
 .wallboard .wallboard-alerts {
     --alert-band-color: var(--muted);
-    background: transparent;
+    background: color-mix(in srgb, var(--panel) 72%, var(--bg));
     border: 1px solid var(--line);
     border-left: 0;
     border-radius: 0;

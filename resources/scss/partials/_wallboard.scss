@@ -69,9 +69,68 @@
 }
 
 .wallboard .summary h2 {
+    align-items: center;
+    display: flex;
     font-size: 0.85rem;
+    gap: 8px;
     margin: 0 auto 0 0;
     white-space: nowrap;
+}
+
+.wallboard .summary-severity-pill {
+    border: 1px solid currentColor;
+    border-radius: 999px;
+    font-size: 0.66rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    padding: 3px 8px;
+}
+
+.wallboard .summary-attention-label {
+    -webkit-text-stroke: 0.5px rgba(255, 255, 255, 0.32);
+    align-self: center;
+    display: inline-flex;
+    align-items: center;
+    font-variant-caps: normal;
+    font-size: 1.0rem;
+    font-weight: 500;
+    letter-spacing: 0.055em;
+    line-height: 1;
+    paint-order: stroke fill;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.65);
+    text-transform: uppercase;
+}
+
+.wallboard .summary-severity-pill.warning,
+.wallboard .summary-severity-pill.average {
+    background: var(--warn-bg);
+    color: var(--warn);
+}
+
+.wallboard .summary-severity-pill.high,
+.wallboard .summary-severity-pill.disaster {
+    background: var(--danger-bg);
+    color: var(--danger);
+}
+
+.wallboard .summary-severity-pill.not-classified,
+.wallboard .summary-severity-pill.information {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--muted);
+}
+
+.wallboard .summary-all-normal {
+    align-items: center;
+    display: inline-flex;
+    gap: 6px;
+}
+
+.wallboard .summary-status-dot {
+    background: var(--ok);
+    border-radius: 50%;
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--ok) 18%, transparent);
+    height: 7px;
+    width: 7px;
 }
 
 .wallboard .badges {

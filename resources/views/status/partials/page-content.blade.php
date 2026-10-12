@@ -105,6 +105,7 @@
     @include('status.partials.summary', [
         'forceDisaster' => $forceDisaster,
         'summary' => $summary,
+        'wallboard' => $wallboard ?? false,
     ])
 </header>
 

@@ -168,7 +168,6 @@
     @endforeach
 @endunless
 
-@unless ($wallboard ?? false)
 <footer>
     <p class="muted">
         &copy; {{ date('Y') }} SPD Ltd. All rights reserved.
@@ -200,23 +199,24 @@
                     <span>{{ $statusPage['cache']['duration'] }}</span>
                 </span>
             @endisset
-            <span class="footer-debug-item" aria-label="Shown sections">
-                <svg aria-hidden="true" viewBox="0 0 24 24">
-                    <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"></path>
-                    <circle cx="12" cy="12" r="3"></circle>
-                </svg>
-                <span>{{ implode(', ', $statusDebug['shown_sections']) ?: 'none' }}</span>
-            </span>
-            <span class="footer-debug-item" aria-label="Hidden sections">
-                <svg aria-hidden="true" viewBox="0 0 24 24">
-                    <path d="M10.7 5.1A10.8 10.8 0 0 1 12 5c6.5 0 10 7 10 7a17 17 0 0 1-2 3"></path>
-                    <path d="M6.6 6.6C3.7 8.5 2 12 2 12s3.5 7 10 7a9.7 9.7 0 0 0 5.4-1.6"></path>
-                    <path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"></path>
-                    <path d="M3 3l18 18"></path>
-                </svg>
-                <span>{{ implode(', ', $statusDebug['hidden_sections']) ?: 'none' }}</span>
-            </span>
+            @unless ($wallboard ?? false)
+                <span class="footer-debug-item" aria-label="Shown sections">
+                    <svg aria-hidden="true" viewBox="0 0 24 24">
+                        <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                    <span>{{ implode(', ', $statusDebug['shown_sections']) ?: 'none' }}</span>
+                </span>
+                <span class="footer-debug-item" aria-label="Hidden sections">
+                    <svg aria-hidden="true" viewBox="0 0 24 24">
+                        <path d="M10.7 5.1A10.8 10.8 0 0 1 12 5c6.5 0 10 7 10 7a17 17 0 0 1-2 3"></path>
+                        <path d="M6.6 6.6C3.7 8.5 2 12 2 12s3.5 7 10 7a9.7 9.7 0 0 0 5.4-1.6"></path>
+                        <path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"></path>
+                        <path d="M3 3l18 18"></path>
+                    </svg>
+                    <span>{{ implode(', ', $statusDebug['hidden_sections']) ?: 'none' }}</span>
+                </span>
+            @endunless
         </p>
     @endisset
 </footer>
-@endunless

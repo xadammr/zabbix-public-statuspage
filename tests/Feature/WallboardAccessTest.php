@@ -59,7 +59,12 @@ class WallboardAccessTest extends TestCase
             ->assertSee('Example trigger')
             ->assertDontSee('Pause automatic refresh')
             ->assertDontSee('Last updated:')
-            ->assertDontSee('<footer', false);
+            ->assertSee('<footer', false)
+            ->assertSee('SPD Ltd. All rights reserved.')
+            ->assertSee('aria-label="Request IP address"', false)
+            ->assertSee('aria-label="Last poll duration"', false)
+            ->assertDontSee('aria-label="Shown sections"', false)
+            ->assertDontSee('aria-label="Hidden sections"', false);
     }
 
     public function test_wallboard_refresh_fragment_has_the_same_access_control(): void

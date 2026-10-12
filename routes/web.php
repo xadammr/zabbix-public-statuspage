@@ -40,9 +40,18 @@ $wallboardViewData = function (CachedStatusPage $statusPage, StatusPageVisibilit
     );
 
     abort_unless($visibility->isTrustedVisitor($clientIps), 403);
+    $snapshot = $statusPage->current();
 
     return [
-        'statusPage' => $statusPage->current(),
+        'statusPage' => $snapshot,
+        'statusDebug' => $visibility->debug(
+            $snapshot,
+            $snapshot,
+            $request->ip(),
+            $request->headers->get('X-Real-IP'),
+            $request->headers->get('CF-Connecting-IP'),
+            $request->headers->get('X-Forwarded-For'),
+        ),
         'wallboard' => true,
     ];
 };

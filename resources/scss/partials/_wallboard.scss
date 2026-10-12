@@ -5,8 +5,38 @@
 
 .wallboard main {
     margin: 0 auto !important;
-    padding: 8px 0 12px;
+    padding: 8px 0 32px;
     width: calc(100% - 16px) !important;
+}
+
+.wallboard footer {
+    align-items: center;
+    bottom: 8px;
+    display: flex;
+    flex-direction: column;
+    font-size: 0.62rem;
+    gap: 3px;
+    justify-content: center;
+    left: 0;
+    margin: 0;
+    max-width: none !important;
+    padding: 0 12px;
+    position: fixed;
+    right: auto;
+    text-align: center;
+    transform: none !important;
+    width: 100vw !important;
+    z-index: 3;
+}
+
+.wallboard footer > p:first-child {
+    margin: 0;
+    text-align: center;
+    width: auto;
+}
+
+.wallboard footer .footer-debug {
+    margin: 0;
 }
 
 .wallboard .wallboard-header {
@@ -133,7 +163,7 @@
 .wallboard:not(:has(.wallboard-alerts)):not(:has(.wallboard-stale)) main {
     height: 100vh;
     min-height: 0;
-    padding-bottom: 8px;
+    padding-bottom: 32px;
 }
 
 .wallboard:not(:has(.wallboard-alerts)):not(:has(.wallboard-stale)) {
@@ -265,7 +295,7 @@
 .wallboard:has(.wallboard-stale) main {
     height: 100vh;
     min-height: 0;
-    padding-bottom: 8px;
+    padding-bottom: 32px;
 }
 
 .wallboard:has(.wallboard-stale) .wallboard-header {

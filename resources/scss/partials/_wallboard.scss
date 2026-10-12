@@ -206,8 +206,10 @@
 }
 
 .wallboard .wallboard-alerts .grid {
-    gap: 10px;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 15px;
+    grid-template-columns: minmax(0, 1fr);
+    margin: 0 auto;
+    width: 90%;
 }
 
 .wallboard .wallboard-alerts .card {
@@ -215,19 +217,26 @@
 }
 
 .wallboard .wallboard-alerts .card h3 {
-    font-size: 1.35rem;
+    font-size: 1.5rem;
     padding-top: 2px;
     padding-bottom: 2px;
 }
 
 .wallboard .wallboard-alerts .problem-row {
     align-items: center;
-    font-size: 1.1rem;
+    font-size: 1.25rem;
 }
 
 .wallboard .wallboard-alerts .problem-priority {
-    font-size: 0.78rem;
-    padding: 3px 8px;
+    font-size: 0.85rem;
+    padding: 4px 10px;
+}
+
+.wallboard .wallboard-alerts .service-details-content,
+.wallboard .wallboard-alerts .metric,
+.wallboard .wallboard-alerts .selected-metric,
+.wallboard .wallboard-alerts .latency-chart summary {
+    font-size: 0.85rem;
 }
 
 .wallboard .wallboard-alerts .service-details:not([open]) > summary.card-header {

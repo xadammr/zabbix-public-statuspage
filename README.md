@@ -168,7 +168,7 @@ Forwarded headers are only used for private-section access when the immediate co
 
 ## Wallboard
 
-`/wallboard` provides a dense, automatically refreshing view for small operations displays (including a 764 by 459 pixel Raspberry Pi viewport). Service details start collapsed, while non-OK services are moved into a severity-sorted alert area directly beneath the header. Both the page and its refresh fragment are restricted to `STATUSPAGE_PRIVATE_IPS`; visitors outside those exact IPs or CIDR ranges receive HTTP 403.
+`/wallboard` provides a dense, automatically refreshing exception view for small operations displays (including a 764 by 459 pixel Raspberry Pi viewport). It shows only non-OK services, sorted by severity, while service details start collapsed. Both the page and its refresh fragment are restricted to `STATUSPAGE_PRIVATE_IPS`; visitors outside those exact IPs or CIDR ranges receive HTTP 403.
 
 ## Service Health
 

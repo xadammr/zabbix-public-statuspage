@@ -149,27 +149,15 @@
     </section>
 @endif
 
-@foreach ($statusPage['sections'] as $section)
-    @php
-        $visibleSection = $section;
-
-        if ($wallboard ?? false) {
-            $alertingServiceIds = $wallboardAlertingServices->pluck('hostid')->all();
-            $visibleSection['services'] = collect($section['services'])
-                ->reject(fn (array $service) => in_array($service['hostid'], $alertingServiceIds, true))
-                ->values()
-                ->all();
-        }
-    @endphp
-
-    @if (! ($wallboard ?? false) || count($visibleSection['services']) > 0)
+@unless ($wallboard ?? false)
+    @foreach ($statusPage['sections'] as $section)
         @include('status.partials.section', [
             'forceDisaster' => $forceDisaster,
-            'section' => $visibleSection,
-            'wallboard' => $wallboard ?? false,
+            'section' => $section,
+            'wallboard' => false,
         ])
-    @endif
-@endforeach
+    @endforeach
+@endunless
 
 @unless ($wallboard ?? false)
 <footer>

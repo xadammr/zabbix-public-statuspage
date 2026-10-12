@@ -81,10 +81,11 @@
 }
 
 .wallboard .badge {
+    flex: 0 0 36px;
     height: 32px;
     justify-content: center;
     padding: 2px 7px;
-    width: auto;
+    width: 36px;
 }
 
 .wallboard .badge span.count {
@@ -94,8 +95,7 @@
 }
 
 .wallboard .badge span.label {
-    font-size: 0.58rem;
-    line-height: 1;
+    display: none;
 }
 
 .wallboard .stale-cache-warning {

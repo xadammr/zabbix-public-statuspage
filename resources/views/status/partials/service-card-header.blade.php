@@ -6,9 +6,11 @@
 </div>
 
 <div class="service-actions">
-    <span class="state {{ $service['severity']['class'] }}">
-        {{ $service['severity']['label'] }}
-    </span>
+    @unless ($hideState ?? false)
+        <span class="state {{ $service['severity']['class'] }}">
+            {{ $service['severity']['label'] }}
+        </span>
+    @endunless
 
     @if ($service['public_url'] ?? null)
         <a

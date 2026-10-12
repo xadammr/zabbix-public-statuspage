@@ -40,6 +40,10 @@ class WallboardAccessTest extends TestCase
             ->assertSee('<details', false)
             ->assertDontSee('<details open', false)
             ->assertSeeInOrder(['Alerting now', 'Example', 'Internal Services', 'Internal Example'])
+            ->assertSee('class="wallboard-alert-problems"', false)
+            ->assertSee('class="problem-row high"', false)
+            ->assertDontSee('class="state high"', false)
+            ->assertSee('Example trigger')
             ->assertDontSee('Pause automatic refresh')
             ->assertDontSee('Last updated:')
             ->assertDontSee('<footer', false);

@@ -130,6 +130,7 @@
                     'forceDisaster' => $forceDisaster,
                     'service' => $service,
                     'wallboard' => true,
+                    'wallboardAlert' => true,
                 ])
             @endforeach
         </div>

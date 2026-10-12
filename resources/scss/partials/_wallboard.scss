@@ -93,14 +93,45 @@
 }
 
 .wallboard .wallboard-alerts {
-    border: 1px solid color-mix(in srgb, var(--danger) 65%, var(--line));
-    border-radius: 6px;
-    margin-top: 0;
-    padding: 6px;
+    background: color-mix(in srgb, #d92d20 14%, var(--bg));
+    border: 1px solid color-mix(in srgb, var(--danger) 100%, var(--line));
+    border-left: 0;
+    border-radius: 0;
+    border-right: 0;
+    margin: 0 -8px;
+    padding: 6px 8px 8px;
+}
+
+.wallboard .wallboard-alerts + .section {
+    margin-top: -1px;
 }
 
 .wallboard .wallboard-alerts .section-header h2 {
     color: #f97066;
+}
+
+.wallboard .wallboard-alerts .card-header {
+    border-radius: 4px;
+    flex-wrap: wrap;
+    overflow: hidden;
+}
+
+.wallboard .wallboard-alerts .service-details:not([open]) > summary.card-header {
+    margin: -7px -10px;
+    padding: 7px 10px;
+}
+
+.wallboard .service-details > summary.card-header > .wallboard-alert-problems {
+    flex: 0 0 100%;
+    min-width: 0;
+}
+
+.wallboard .wallboard-alert-problems .problems {
+    margin-top: 3px;
+}
+
+.wallboard .wallboard-alerts .service-details:not([open]) .wallboard-alert-problems .problems {
+    margin-bottom: -7px;
 }
 
 .wallboard .section-header {
@@ -123,7 +154,7 @@
 
 .wallboard .card {
     border-radius: 5px;
-    padding: 7px;
+    padding: 7px 10px;
 }
 
 .wallboard .card-header {
@@ -166,8 +197,21 @@
 .wallboard .service-details[open].severity-high > summary.card-header,
 .wallboard .service-details[open].severity-disaster > summary.card-header {
     border-radius: 4px 4px 0 0;
-    margin: -7px -7px 3px;
-    padding: 7px;
+    margin: -7px -10px 3px;
+    padding: 7px 10px;
+}
+
+.wallboard .service-details[open].severity-warning > summary.card-header,
+.wallboard .service-details[open].severity-average > summary.card-header {
+    box-shadow: inset 3px 0 0 var(--warn-bg);
+}
+
+.wallboard .service-details[open].severity-high > summary.card-header {
+    box-shadow: inset 3px 0 0 #f04438;
+}
+
+.wallboard .service-details[open].severity-disaster > summary.card-header {
+    box-shadow: inset 3px 0 0 #d92d20;
 }
 
 .wallboard .service-details[open] .service-details-content,
@@ -189,13 +233,13 @@
 }
 
 .wallboard .problem-row {
-    padding: 4px 7px;
+    padding: 4px 10px;
 }
 
 .wallboard .problems {
     gap: 3px;
-    margin-left: -7px;
-    margin-right: -7px;
+    margin-left: -10px;
+    margin-right: -10px;
 }
 
 .wallboard .problem-priority {

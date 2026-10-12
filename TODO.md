@@ -17,8 +17,8 @@ This repo is in decent shape already: it has a clear Laravel structure, focused 
 - [x] Delete or replace the default Laravel welcome view.
   - Removed the unrouted Laravel promotional view and its unused Tailwind build dependencies.
 
-- [ ] Add a license file.
-  - `composer.json` says `MIT`, but there is no `LICENSE` file in the repo root.
+- [x] Add a license file.
+  - Added the MIT license declared by `composer.json`.
 
 - [ ] Add a GitHub-ready project hygiene set.
   - Add `CONTRIBUTING.md` or a short contributor section in `README.md`.

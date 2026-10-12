@@ -5,11 +5,11 @@
                 <span class="summary-severity-pill {{ $summary['highest']['class'] }}">
                     {{ strtoupper($summary['highest']['label']) }}
                 </span>
-                <span class="summary-attention-label">Services need attention</span>
+                <span class="summary-attention-label">{{ $summary['problem'] }} Alert</span>
             @else
                 <span class="summary-all-normal">
                     <span class="summary-status-dot" aria-hidden="true"></span>
-                    All systems normal
+                    Everything is OK.
                 </span>
             @endif
         @else

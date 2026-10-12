@@ -13,8 +13,8 @@ composer install --no-dev --optimize-autoloader
 echo "Running database migrations..."
 php artisan migrate --force
 
-echo "Installing frontend dependencies..."
-npm ci
+#echo "Installing frontend dependencies..."
+#npm ci
 
 echo "Building frontend assets..."
 npm run build

@@ -9,7 +9,7 @@ return [
     'short_name' => env('STATUSPAGE_SHORT_NAME', $name),
     'title' => env('STATUSPAGE_TITLE', $name),
     'wallboard_title' => env('STATUSPAGE_WALLBOARD_TITLE', $name.' - Operations Wallboard'),
-    'footer_text' => env('STATUSPAGE_FOOTER_TEXT', $name),
+    'org_name' => env('STATUSPAGE_ORG_NAME'),
     'theme_color' => env('STATUSPAGE_THEME_COLOR', '#1a1a1a'),
     'favicon_url' => StatusPageConfig::assetUrl(env('STATUSPAGE_FAVICON_URL')),
     'wallboard_icon_url' => StatusPageConfig::assetUrl(env('STATUSPAGE_WALLBOARD_ICON_URL')),

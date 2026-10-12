@@ -25,7 +25,7 @@ class WallboardAccessTest extends TestCase
         $this->withoutVite();
         Config::set('zabbix.statuspage_private_ips', ['203.0.113.0/24']);
         Config::set('zabbix.wallboard_show_footer', true);
-        Config::set('statuspage.footer_text', 'Service Status');
+        Config::set('statuspage.org_name', 'Example Company');
 
         $this->mock(CachedStatusPage::class, function ($mock): void {
             $mock->shouldReceive('current')
@@ -62,7 +62,7 @@ class WallboardAccessTest extends TestCase
             ->assertDontSee('Pause automatic refresh')
             ->assertDontSee('Last updated:')
             ->assertSee('<footer', false)
-            ->assertSee('Service Status. All rights reserved.')
+            ->assertSee('Example Company. All rights reserved.')
             ->assertSee('aria-label="Request IP address"', false)
             ->assertSee('aria-label="Last poll duration"', false)
             ->assertDontSee('aria-label="Shown sections"', false)

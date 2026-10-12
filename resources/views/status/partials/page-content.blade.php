@@ -171,7 +171,7 @@
 @if (! ($wallboard ?? false) || config('zabbix.wallboard_show_footer'))
 <footer>
     <p class="muted">
-        &copy; {{ date('Y') }} {{ config('statuspage.footer_text') }}. All rights reserved.
+        &copy; {{ date('Y') }}@if (config('statuspage.org_name')) {{ config('statuspage.org_name') }}@endif. All rights reserved.
     </p>
     @isset($statusDebug)
         <p class="footer-debug muted">

@@ -305,7 +305,7 @@ STATUSPAGE_NAME="Example Service Status"
 STATUSPAGE_SHORT_NAME="Example Status"
 STATUSPAGE_TITLE="Example - Service Status"
 STATUSPAGE_WALLBOARD_TITLE="Example - Operations Wallboard"
-STATUSPAGE_FOOTER_TEXT="Example Company"
+STATUSPAGE_ORG_NAME="Example Company"
 STATUSPAGE_THEME_COLOR="#1a1a1a"
 STATUSPAGE_FAVICON_URL="https://status.example.com/favicon.svg"
 STATUSPAGE_WALLBOARD_ICON_URL="https://status.example.com/wallboard-icon.png"
@@ -313,6 +313,8 @@ STATUSPAGE_CUSTOM_CSS_URLS="https://cdn.example.com/status-brand.css"
 ```
 
 Both image settings accept a root-relative or absolute HTTP(S) URL. `STATUSPAGE_FAVICON_URL` supplies the browser, web app manifest, and push-notification icon. `STATUSPAGE_WALLBOARD_ICON_URL` supplies the all-clear wallboard artwork; when it is empty, the wallboard uses a glowing status dot.
+
+`STATUSPAGE_ORG_NAME` is optional. When empty, the footer renders only the current year and “All rights reserved.”
 
 Deployment-specific images can be stored under the gitignored `public/vendor/statuspage/` directory and referenced with URLs such as `/vendor/statuspage/favicon.png`. Your deployment process must copy these ignored files onto each server.
 

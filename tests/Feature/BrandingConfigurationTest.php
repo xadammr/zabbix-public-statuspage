@@ -14,7 +14,7 @@ class BrandingConfigurationTest extends TestCase
     {
         config()->set('statuspage.name', 'Service Status');
         config()->set('statuspage.title', 'Service Status');
-        config()->set('statuspage.footer_text', 'Service Status');
+        config()->set('statuspage.org_name', null);
         config()->set('statuspage.theme_color', '#1a1a1a');
         config()->set('statuspage.favicon_url', null);
         config()->set('statuspage.wallboard_icon_url', null);
@@ -28,7 +28,7 @@ class BrandingConfigurationTest extends TestCase
         $response->assertOk();
         $response->assertSee('<title>Service Status</title>', false);
         $response->assertSee('<h1>Service Status</h1>', false);
-        $response->assertSee('Service Status. All rights reserved.');
+        $response->assertSee(date('Y').'. All rights reserved.');
         $response->assertDontSee('<link rel="icon"', false);
         $response->assertDontSee('<link rel="stylesheet"', false);
         $response->assertDontSee('SPD', false);
@@ -39,7 +39,7 @@ class BrandingConfigurationTest extends TestCase
     {
         config()->set('statuspage.name', 'Example Status');
         config()->set('statuspage.title', 'Example - Service Status');
-        config()->set('statuspage.footer_text', 'Example Company');
+        config()->set('statuspage.org_name', 'Example Company');
         config()->set('statuspage.theme_color', '#123456');
         config()->set('statuspage.favicon_url', 'https://status.example.com/favicon.svg');
         config()->set('statuspage.custom_css_urls', [

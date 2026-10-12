@@ -95,7 +95,7 @@ This repo is in decent shape already: it has a clear Laravel structure, focused 
     - `PushSubscriptionController`
   - This will make request validation and tests easier to navigate.
 
-- [ ] Move Artisan closure commands into command classes.
+- [x] Move Artisan closure commands into command classes.
   - `routes/console.php` contains several substantial commands.
   - Command classes would make `webpush:*` and `statuspage:poll` easier to test and maintain.
 

@@ -4,7 +4,9 @@
             <h2>{{ $section['title'] }}</h2>
         </div>
 
-        <button class="section-toggle" type="button" data-section-toggle="{{ $section['key'] }}">Show all</button>
+        @unless ($wallboard ?? false)
+            <button class="section-toggle" type="button" data-section-toggle="{{ $section['key'] }}">Show all</button>
+        @endunless
     </div>
 
     <div class="grid">
@@ -13,6 +15,7 @@
                 'forceDisaster' => $forceDisaster ?? false,
                 'section' => $section,
                 'service' => $service,
+                'wallboard' => $wallboard ?? false,
             ])
         @endforeach
     </div>

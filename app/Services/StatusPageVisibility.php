@@ -13,7 +13,7 @@ class StatusPageVisibility
 
     public function filter(array $statusPage, string|array|null $clientIps): array
     {
-        if ($this->canSeePrivateSections($clientIps)) {
+        if ($this->isTrustedVisitor($clientIps)) {
             return $statusPage;
         }
 
@@ -36,6 +36,11 @@ class StatusPageVisibility
         $statusPage['summary'] = $this->summary->build($statusPage['services']);
 
         return $statusPage;
+    }
+
+    public function isTrustedVisitor(string|array|null $clientIps): bool
+    {
+        return $this->canSeePrivateSections($clientIps);
     }
 
     public function debug(

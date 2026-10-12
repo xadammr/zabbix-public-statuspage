@@ -30,12 +30,37 @@ $statusPageViewData = function (CachedStatusPage $statusPage, StatusPageVisibili
     ];
 };
 
+$wallboardViewData = function (CachedStatusPage $statusPage, StatusPageVisibility $visibility, Request $request): array {
+    $clientIps = $visibility->candidateIps(
+        $request->ip(),
+        $request->headers->get('X-Real-IP'),
+        $request->headers->get('CF-Connecting-IP'),
+        $request->headers->get('X-Forwarded-For'),
+        $request->server('REMOTE_ADDR'),
+    );
+
+    abort_unless($visibility->isTrustedVisitor($clientIps), 403);
+
+    return [
+        'statusPage' => $statusPage->current(),
+        'wallboard' => true,
+    ];
+};
+
 Route::get('/', function (CachedStatusPage $statusPage, StatusPageVisibility $visibility, Request $request) use ($statusPageViewData) {
     return view('status.index', $statusPageViewData($statusPage, $visibility, $request));
 });
 
 Route::get('/status-fragment', function (CachedStatusPage $statusPage, StatusPageVisibility $visibility, Request $request) use ($statusPageViewData) {
     return view('status.partials.page-content', $statusPageViewData($statusPage, $visibility, $request));
+});
+
+Route::get('/wallboard', function (CachedStatusPage $statusPage, StatusPageVisibility $visibility, Request $request) use ($wallboardViewData) {
+    return view('status.wallboard', $wallboardViewData($statusPage, $visibility, $request));
+});
+
+Route::get('/wallboard/status-fragment', function (CachedStatusPage $statusPage, StatusPageVisibility $visibility, Request $request) use ($wallboardViewData) {
+    return view('status.partials.page-content', $wallboardViewData($statusPage, $visibility, $request));
 });
 
 Route::get('/push/vapid-public-key', function () {

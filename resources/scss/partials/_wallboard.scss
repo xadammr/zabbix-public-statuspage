@@ -1,0 +1,214 @@
+.wallboard {
+    overflow-y: scroll;
+}
+
+.wallboard main {
+    margin: 0 auto !important;
+    padding: 8px 0 12px;
+    width: calc(100% - 16px) !important;
+}
+
+.wallboard .wallboard-header {
+    align-items: center;
+    display: grid;
+    gap: 6px;
+    grid-template-columns: minmax(0, 1fr) minmax(260px, 1.2fr);
+    margin-bottom: 8px;
+}
+
+.wallboard .wallboard-header > div:first-child {
+    align-items: center;
+    display: flex;
+    gap: 10px;
+}
+
+.wallboard h1 {
+    font-size: 1.05rem;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.wallboard .refresh-controls {
+    margin: 0 auto;
+}
+
+.wallboard .last-update {
+    font-size: 0.7rem;
+}
+
+.wallboard .push-toggle {
+    display: none;
+}
+
+.wallboard .summary {
+    align-items: center;
+    display: flex;
+    gap: 8px;
+    margin: 0;
+    max-width: none;
+    min-height: 42px;
+    padding: 5px 8px;
+}
+
+.wallboard .summary h2 {
+    font-size: 0.85rem;
+    margin: 0 auto 0 0;
+    white-space: nowrap;
+}
+
+.wallboard .badges {
+    flex-wrap: nowrap;
+    gap: 4px;
+    margin: 0;
+}
+
+.wallboard .badge {
+    height: 32px;
+    justify-content: center;
+    padding: 2px 7px;
+    width: auto;
+}
+
+.wallboard .badge span.count {
+    font-size: 0.9rem;
+    line-height: 1;
+    padding: 0;
+}
+
+.wallboard .badge span.label {
+    font-size: 0.58rem;
+    line-height: 1;
+}
+
+.wallboard .stale-cache-warning {
+    grid-column: 1 / -1;
+    margin: 0;
+    padding: 5px 8px;
+    width: 100%;
+}
+
+.wallboard .section {
+    margin-top: 8px;
+    padding-top: 6px;
+}
+
+.wallboard .wallboard-alerts {
+    border: 1px solid color-mix(in srgb, var(--danger) 65%, var(--line));
+    border-radius: 6px;
+    margin-top: 0;
+    padding: 6px;
+}
+
+.wallboard .wallboard-alerts .section-header h2 {
+    color: #f97066;
+}
+
+.wallboard .section-header {
+    display: block;
+    margin-bottom: 4px;
+    text-align: center;
+}
+
+.wallboard .section-header h2 {
+    font-size: 0.8rem;
+    letter-spacing: 0.04em;
+    margin: 0;
+    text-transform: uppercase;
+}
+
+.wallboard .grid {
+    gap: 5px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.wallboard .card {
+    border-radius: 5px;
+    padding: 7px;
+}
+
+.wallboard .card-header {
+    gap: 5px;
+    margin-bottom: 4px;
+}
+
+.wallboard .card h3 {
+    font-size: 0.76rem;
+    line-height: 1.1;
+}
+
+.wallboard .card-header .muted {
+    display: none;
+}
+
+.wallboard .state {
+    font-size: 0.6rem;
+    padding: 2px 5px;
+}
+
+.wallboard .service-link {
+    height: 1.2rem;
+    width: 1.2rem;
+}
+
+.wallboard .service-details > summary::before {
+    display: none;
+}
+
+.wallboard .service-details-content,
+.wallboard .metric,
+.wallboard .selected-metric,
+.wallboard .latency-chart summary,
+.wallboard .problem-row {
+    font-size: 0.66rem;
+}
+
+.wallboard .service-details[open] > summary.card-header,
+.wallboard .service-details[open].severity-high > summary.card-header,
+.wallboard .service-details[open].severity-disaster > summary.card-header {
+    border-radius: 4px 4px 0 0;
+    margin: -7px -7px 3px;
+    padding: 7px;
+}
+
+.wallboard .service-details[open] .service-details-content,
+.wallboard .service-details[open].severity-high .service-details-content,
+.wallboard .service-details[open].severity-disaster .service-details-content {
+    gap: 4px;
+    margin-top: 4px;
+}
+
+.wallboard .metrics,
+.wallboard .selected-metrics {
+    gap: 3px;
+}
+
+.wallboard .metric,
+.wallboard .selected-metrics,
+.wallboard .latency-chart summary {
+    padding-top: 3px;
+}
+
+.wallboard .problem-row {
+    padding: 4px 7px;
+}
+
+.wallboard .problems {
+    gap: 3px;
+    margin-left: -7px;
+    margin-right: -7px;
+}
+
+.wallboard .problem-priority {
+    font-size: 0.55rem;
+    padding: 1px 4px;
+}
+
+@media (max-width: 620px) {
+    .wallboard .wallboard-header {
+        grid-template-columns: 1fr;
+    }
+
+    .wallboard .grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}

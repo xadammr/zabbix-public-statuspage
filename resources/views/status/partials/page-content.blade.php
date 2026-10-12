@@ -1,6 +1,8 @@
-<header>
+<header @class(['wallboard-header' => $wallboard ?? false])>
     <div>
-        <h1>Service Status</h1>
+        @unless ($wallboard ?? false)
+            <h1>Service Status</h1>
+        @endunless
         @php
             $generatedAt = $statusPage['generated_at']->copy()->timezone(config('app.timezone'));
             $generatedAtIso = $generatedAt->toIso8601String();
@@ -19,21 +21,24 @@
                 ></span>
                 <time
                     data-last-updated-at="{{ $generatedAtIso }}"
+                    data-last-updated-prefix="{{ ($wallboard ?? false) ? '' : 'Last updated: ' }}"
                     datetime="{{ $generatedAtIso }}"
                     title="{{ $generatedAt->format('Y-m-d H:i:s') }}"
                 >
-                    Last updated:
+                    {{ ($wallboard ?? false) ? 'Just now' : 'Last updated:' }}
                 </time>
             </p>
-            <button
-                class="refresh-toggle"
-                type="button"
-                data-refresh-toggle
-                aria-label="Pause automatic refresh"
-                title="Pause automatic refresh"
-            >
-                <span aria-hidden="true" data-refresh-toggle-icon>||</span>
-            </button>
+            @unless ($wallboard ?? false)
+                <button
+                    class="refresh-toggle"
+                    type="button"
+                    data-refresh-toggle
+                    aria-label="Pause automatic refresh"
+                    title="Pause automatic refresh"
+                >
+                    <span aria-hidden="true" data-refresh-toggle-icon>||</span>
+                </button>
+            @endunless
             <button
                 class="push-toggle"
                 type="button"
@@ -92,13 +97,68 @@
     ])
 </header>
 
+@php
+    $wallboardAlertingServices = collect();
+
+    if ($wallboard ?? false) {
+        $severityOrder = [
+            'disaster' => 6,
+            'high' => 5,
+            'average' => 4,
+            'warning' => 3,
+            'information' => 2,
+            'not-classified' => 1,
+            'ok' => 0,
+        ];
+        $wallboardAlertingServices = collect($statusPage['services'])
+            ->filter(fn (array $service) => $forceDisaster || ($service['severity']['class'] ?? 'ok') !== 'ok')
+            ->sortByDesc(fn (array $service) => $severityOrder[$service['severity']['class'] ?? 'ok'] ?? 0)
+            ->values();
+    }
+@endphp
+
+@if ($wallboardAlertingServices->isNotEmpty())
+    <section class="section wallboard-alerts" data-section-key="alerting">
+        <div class="section-header">
+            <div>
+                <h2>Alerting now</h2>
+            </div>
+        </div>
+        <div class="grid">
+            @foreach ($wallboardAlertingServices as $service)
+                @include('status.partials.service-card', [
+                    'forceDisaster' => $forceDisaster,
+                    'service' => $service,
+                    'wallboard' => true,
+                ])
+            @endforeach
+        </div>
+    </section>
+@endif
+
 @foreach ($statusPage['sections'] as $section)
-    @include('status.partials.section', [
-        'forceDisaster' => $forceDisaster,
-        'section' => $section,
-    ])
+    @php
+        $visibleSection = $section;
+
+        if ($wallboard ?? false) {
+            $alertingServiceIds = $wallboardAlertingServices->pluck('hostid')->all();
+            $visibleSection['services'] = collect($section['services'])
+                ->reject(fn (array $service) => in_array($service['hostid'], $alertingServiceIds, true))
+                ->values()
+                ->all();
+        }
+    @endphp
+
+    @if (! ($wallboard ?? false) || count($visibleSection['services']) > 0)
+        @include('status.partials.section', [
+            'forceDisaster' => $forceDisaster,
+            'section' => $visibleSection,
+            'wallboard' => $wallboard ?? false,
+        ])
+    @endif
 @endforeach
 
+@unless ($wallboard ?? false)
 <footer>
     <p class="muted">
         &copy; {{ date('Y') }} SPD Ltd. All rights reserved.
@@ -149,3 +209,4 @@
         </p>
     @endisset
 </footer>
+@endunless

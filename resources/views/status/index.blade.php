@@ -25,7 +25,7 @@
         @vite(['resources/scss/app.scss', 'resources/js/app.js'])
     </head>
     <body>
-        <main data-status-page-content>
+        <main data-status-page-content data-status-fragment-url="/status-fragment">
             @include('status.partials.page-content', [
                 'statusDebug' => $statusDebug ?? null,
                 'statusPage' => $statusPage,

@@ -176,7 +176,7 @@ const updateLastUpdatedAges = () => {
             return;
         }
 
-        element.textContent = `Last updated: ${relativeTime(updatedAt)}`;
+        element.textContent = `${element.dataset.lastUpdatedPrefix ?? 'Last updated: '}${relativeTime(updatedAt)}`;
     });
 };
 
@@ -494,7 +494,7 @@ const refreshStatusFragment = async () => {
     console.info('[statuspage] Fetching updated status fragment.', new Date().toISOString());
 
     try {
-        const response = await fetch('/status-fragment', {
+        const response = await fetch(container.dataset.statusFragmentUrl || '/status-fragment', {
             cache: 'no-store',
             credentials: 'same-origin',
             headers: {

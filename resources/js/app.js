@@ -122,6 +122,7 @@ const bindStatusPageControls = () => {
     bindServiceDetails();
     bindSectionToggles();
     bindRefreshToggle();
+    bindPageReload();
     bindPushToggle();
 };
 
@@ -256,6 +257,7 @@ const syncRefreshToggle = () => {
             icon.textContent = statusRefreshPaused ? '>' : '||';
         }
     });
+
 };
 
 const bindRefreshToggle = () => {
@@ -275,6 +277,17 @@ const bindRefreshToggle = () => {
     });
 
     syncRefreshToggle();
+};
+
+const bindPageReload = () => {
+    document.querySelectorAll('[data-page-reload]').forEach((button) => {
+        if (button.dataset.bound === 'true') {
+            return;
+        }
+
+        button.dataset.bound = 'true';
+        button.addEventListener('click', () => window.location.reload());
+    });
 };
 
 const csrfToken = () => document.querySelector('meta[name="csrf-token"]')?.content ?? '';

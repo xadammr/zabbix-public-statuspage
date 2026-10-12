@@ -18,6 +18,7 @@
 >
     <summary class="card-header">
         @include('status.partials.service-card-header', [
+            'hideLink' => $wallboard ?? false,
             'hideState' => $wallboardAlert ?? false,
             'service' => $displayService,
         ])

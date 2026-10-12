@@ -12,7 +12,7 @@
         </span>
     @endunless
 
-    @if ($service['public_url'] ?? null)
+    @if (! ($hideLink ?? false) && ($service['public_url'] ?? null))
         <a
             class="service-link"
             href="{{ $service['public_url'] }}"

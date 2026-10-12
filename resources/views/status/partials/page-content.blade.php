@@ -39,6 +39,17 @@
                     <span aria-hidden="true" data-refresh-toggle-icon>||</span>
                 </button>
             @endunless
+            @if ($wallboard ?? false)
+                <button
+                    class="refresh-now"
+                    type="button"
+                    data-page-reload
+                    aria-label="Reload wallboard"
+                    title="Reload wallboard"
+                >
+                    Refresh
+                </button>
+            @endif
             <button
                 class="push-toggle"
                 type="button"

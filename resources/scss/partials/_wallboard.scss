@@ -40,6 +40,24 @@
     display: none;
 }
 
+.wallboard .refresh-now {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 999px;
+    color: var(--text);
+    cursor: pointer;
+    font: inherit;
+    font-size: 0.65rem;
+    font-weight: 700;
+    line-height: 1;
+    padding: 0.45rem 0.65rem;
+}
+
+.wallboard .refresh-now:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
 .wallboard .summary {
     align-items: center;
     display: flex;
@@ -124,17 +142,40 @@
 
 .wallboard .wallboard-alerts .section-header h2 {
     color: var(--alert-band-color);
+    font-size: 0.95rem;
 }
 
 .wallboard .wallboard-alerts .card-header {
-    border-radius: 4px;
+    border-radius: 4px 4px 0 0;
     flex-wrap: wrap;
     overflow: hidden;
 }
 
+.wallboard .wallboard-alerts .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.wallboard .wallboard-alerts .card {
+    padding: 9px 12px;
+}
+
+.wallboard .wallboard-alerts .card h3 {
+    font-size: 1.05rem;
+}
+
+.wallboard .wallboard-alerts .problem-row {
+    align-items: center;
+    font-size: 0.92rem;
+}
+
+.wallboard .wallboard-alerts .problem-priority {
+    font-size: 0.72rem;
+    padding: 3px 8px;
+}
+
 .wallboard .wallboard-alerts .service-details:not([open]) > summary.card-header {
-    margin: -7px -10px;
-    padding: 7px 10px;
+    margin: -9px -12px 0 calc(-12px + var(--service-rail-width));
+    padding: 9px 12px 9px calc(12px - var(--service-rail-width));
 }
 
 .wallboard .service-details > summary.card-header > .wallboard-alert-problems {
@@ -143,11 +184,17 @@
 }
 
 .wallboard .wallboard-alert-problems .problems {
+    margin-left: calc(-12px + var(--service-rail-width));
+    margin-right: -12px;
     margin-top: 3px;
 }
 
+.wallboard .wallboard-alerts .service-details[open] .wallboard-alert-problems .problems {
+    margin-left: -12px;
+}
+
 .wallboard .wallboard-alerts .service-details:not([open]) .wallboard-alert-problems .problems {
-    margin-bottom: -7px;
+    margin-bottom: -9px;
 }
 
 .wallboard .section-header {
@@ -228,6 +275,11 @@
 
 .wallboard .service-details[open].severity-disaster > summary.card-header {
     box-shadow: inset 3px 0 0 #d92d20;
+}
+
+.wallboard .wallboard-alerts .service-details[open] > summary.card-header {
+    margin: -9px -12px 3px;
+    padding: 9px 12px;
 }
 
 .wallboard .service-details[open] .service-details-content,

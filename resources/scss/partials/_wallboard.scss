@@ -46,6 +46,9 @@
     grid-template-columns: minmax(0, 1fr) minmax(260px, 1.2fr);
     margin-bottom: 16px;
     padding: 8px 8px 14px 8px;
+}
+
+.wallboard:has(.wallboard-alerts) .wallboard-header {
     border-bottom: 1px outset var(--muted);
 }
 

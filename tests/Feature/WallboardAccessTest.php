@@ -78,6 +78,25 @@ class WallboardAccessTest extends TestCase
             ->assertForbidden();
     }
 
+    public function test_trigger_subject_through_first_colon_is_bold(): void
+    {
+        $this->withoutVite();
+        Config::set('zabbix.statuspage_private_ips', ['203.0.113.0/24']);
+        $payload = $this->statusPagePayload();
+        $payload['services'][0]['triggers'][0]['description'] = 'Customer portal: API: response time is high';
+        $payload['sections'][0]['services'][0] = $payload['services'][0];
+
+        $this->mock(CachedStatusPage::class, function ($mock) use ($payload): void {
+            $mock->shouldReceive('current')->once()->andReturn($payload);
+        });
+
+        $this->withServerVariables(['REMOTE_ADDR' => '203.0.113.10'])
+            ->get('/wallboard')
+            ->assertOk()
+            ->assertSee('<strong>Customer portal:</strong> API: response time is high', false)
+            ->assertDontSee('<strong>Customer portal: API:</strong>', false);
+    }
+
     public function test_all_clear_wallboard_has_no_alert_cards(): void
     {
         $this->withoutVite();

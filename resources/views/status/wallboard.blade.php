@@ -11,9 +11,11 @@
             <link rel="icon" href="{{ config('statuspage.favicon_url') }}">
         @endif
         @vite(['resources/scss/app.scss', 'resources/js/app.js'])
-        @foreach (config('statuspage.custom_css_urls') as $customCssUrl)
-            <link rel="stylesheet" href="{{ $customCssUrl }}">
-        @endforeach
+        @if (config('statuspage.use_custom_css_in_wallboard'))
+            @foreach (config('statuspage.custom_css_urls') as $customCssUrl)
+                <link rel="stylesheet" href="{{ $customCssUrl }}">
+            @endforeach
+        @endif
     </head>
     <body class="wallboard">
         <main data-status-page-content data-status-fragment-url="/wallboard/status-fragment">

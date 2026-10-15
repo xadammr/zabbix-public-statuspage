@@ -306,9 +306,10 @@ Optional deployment-specific stylesheets can be loaded after the built applicati
 
 ```env
 STATUSPAGE_CUSTOM_CSS_URLS="https://cdn.example.com/base.css,https://cdn.example.com/brand.css"
+STATUSPAGE_USE_CUSTOM_CSS_IN_WALLBOARD=false
 ```
 
-Only absolute HTTP and HTTPS URLs are accepted. Leave the setting empty to use only the built-in status-page styles. Custom stylesheets load last so they can override the built-in theme.
+Only absolute HTTP and HTTPS URLs are accepted. Leave the URL setting empty to use only the built-in status-page styles. Custom stylesheets load last so they can override the built-in theme. They are excluded from the wallboard by default; set `STATUSPAGE_USE_CUSTOM_CSS_IN_WALLBOARD=true` to load them there as well.
 
 ### Branding
 
@@ -324,6 +325,7 @@ STATUSPAGE_THEME_COLOR="#1a1a1a"
 STATUSPAGE_FAVICON_URL="https://status.example.com/favicon.svg"
 STATUSPAGE_WALLBOARD_ICON_URL="https://status.example.com/wallboard-icon.png"
 STATUSPAGE_CUSTOM_CSS_URLS="https://cdn.example.com/status-brand.css"
+STATUSPAGE_USE_CUSTOM_CSS_IN_WALLBOARD=false
 ```
 
 Both image settings accept a root-relative or absolute HTTP(S) URL. `STATUSPAGE_FAVICON_URL` supplies the browser, web app manifest, and push-notification icon. `STATUSPAGE_WALLBOARD_ICON_URL` supplies the all-clear wallboard artwork; when it is empty, the wallboard uses a glowing status dot.

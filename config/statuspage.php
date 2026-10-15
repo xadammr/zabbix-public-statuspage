@@ -14,4 +14,5 @@ return [
     'favicon_url' => StatusPageConfig::assetUrl(env('STATUSPAGE_FAVICON_URL')),
     'wallboard_icon_url' => StatusPageConfig::assetUrl(env('STATUSPAGE_WALLBOARD_ICON_URL')),
     'custom_css_urls' => StatusPageConfig::stylesheetUrls(env('STATUSPAGE_CUSTOM_CSS_URLS')),
+    'use_custom_css_in_wallboard' => env('STATUSPAGE_USE_CUSTOM_CSS_IN_WALLBOARD', false),
 ];

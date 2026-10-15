@@ -78,6 +78,40 @@ class WallboardAccessTest extends TestCase
             ->assertForbidden();
     }
 
+    public function test_wallboard_excludes_custom_css_by_default(): void
+    {
+        $this->withoutVite();
+        Config::set('zabbix.statuspage_private_ips', ['203.0.113.0/24']);
+        Config::set('statuspage.custom_css_urls', ['https://cdn.example.com/brand.css']);
+        Config::set('statuspage.use_custom_css_in_wallboard', false);
+
+        $this->mock(CachedStatusPage::class, function ($mock): void {
+            $mock->shouldReceive('current')->once()->andReturn($this->statusPagePayload());
+        });
+
+        $this->withServerVariables(['REMOTE_ADDR' => '203.0.113.10'])
+            ->get('/wallboard')
+            ->assertOk()
+            ->assertDontSee('https://cdn.example.com/brand.css', false);
+    }
+
+    public function test_wallboard_can_include_custom_css_when_enabled(): void
+    {
+        $this->withoutVite();
+        Config::set('zabbix.statuspage_private_ips', ['203.0.113.0/24']);
+        Config::set('statuspage.custom_css_urls', ['https://cdn.example.com/brand.css']);
+        Config::set('statuspage.use_custom_css_in_wallboard', true);
+
+        $this->mock(CachedStatusPage::class, function ($mock): void {
+            $mock->shouldReceive('current')->once()->andReturn($this->statusPagePayload());
+        });
+
+        $this->withServerVariables(['REMOTE_ADDR' => '203.0.113.10'])
+            ->get('/wallboard')
+            ->assertOk()
+            ->assertSee('<link rel="stylesheet" href="https://cdn.example.com/brand.css">', false);
+    }
+
     public function test_trigger_subject_through_first_colon_is_bold(): void
     {
         $this->withoutVite();

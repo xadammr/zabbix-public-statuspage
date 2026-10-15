@@ -9,6 +9,12 @@
     }
 
     $activeTriggers = collect($service['triggers'])->where('value', '1');
+    $detailActiveTriggers = ($wallboardAlert ?? false) ? collect() : $activeTriggers;
+    $hasExpandableContent = $detailActiveTriggers->isNotEmpty()
+        || $service['latency']
+        || $service['api_health']
+        || count($service['public_metrics']) > 0
+        || (config('zabbix.statuspage_fetch_available_items') && count($service['available_items']) > 0);
     $alertStartedAt = $activeTriggers
         ->pluck('lastchange')
         ->filter(fn ($lastChange) => is_numeric($lastChange) && (int) $lastChange > 0)
@@ -19,9 +25,10 @@
 <details
     class="card service-details severity-{{ $displayService['severity']['class'] }}"
     data-service-id="{{ $service['hostid'] }}"
+    data-expandable="{{ $hasExpandableContent ? 'true' : 'false' }}"
     @if ($activeTriggers->isNotEmpty()) data-has-active-triggers @endif
 >
-    <summary class="card-header">
+    <summary class="card-header" @unless ($hasExpandableContent) aria-disabled="true" @endunless>
         @include('status.partials.service-card-header', [
             'hideLink' => $wallboard ?? false,
             'hideState' => $wallboardAlert ?? false,
@@ -45,12 +52,14 @@
         @endif
     </summary>
 
-    <div class="service-details-body" data-details-body>
-        <div class="service-details-content">
-            @include('status.partials.service-card-body', [
-                'activeTriggers' => ($wallboardAlert ?? false) ? collect() : $activeTriggers,
-                'service' => $service,
-            ])
+    @if ($hasExpandableContent)
+        <div class="service-details-body" data-details-body>
+            <div class="service-details-content">
+                @include('status.partials.service-card-body', [
+                    'activeTriggers' => $detailActiveTriggers,
+                    'service' => $service,
+                ])
+            </div>
         </div>
-    </div>
+    @endif
 </details>

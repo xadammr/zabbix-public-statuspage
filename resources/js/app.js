@@ -9,6 +9,10 @@ const clearServiceDetailsBodyStyles = (body) => {
 };
 
 const setServiceDetailsOpen = (details, shouldOpen) => {
+    if (details.dataset.expandable !== 'true') {
+        return;
+    }
+
     const body = details.querySelector('[data-details-body]');
 
     window.clearTimeout(details._serviceDetailsAnimation);
@@ -69,7 +73,7 @@ const pushPublicKeyStorageKey = 'statuspage.pushPublicKey';
 
 const syncSectionToggleLabel = (button) => {
     const section = document.querySelector(`[data-section-key="${button.dataset.sectionToggle}"]`);
-    const details = Array.from(section?.querySelectorAll('.service-details') ?? []);
+    const details = Array.from(section?.querySelectorAll('.service-details[data-expandable="true"]') ?? []);
 
     button.textContent = details.length > 0 && details.every((detail) => detail.open)
         ? 'Hide all'
@@ -89,6 +93,11 @@ const bindServiceDetails = () => {
             }
 
             event.preventDefault();
+
+            if (summary.parentElement.dataset.expandable !== 'true') {
+                return;
+            }
+
             setServiceDetailsOpen(summary.parentElement, ! summary.parentElement.open);
         });
     });
@@ -104,7 +113,7 @@ const bindSectionToggles = () => {
         button.dataset.bound = 'true';
         button.addEventListener('click', () => {
             const section = document.querySelector(`[data-section-key="${button.dataset.sectionToggle}"]`);
-            const details = Array.from(section?.querySelectorAll('.service-details') ?? []);
+            const details = Array.from(section?.querySelectorAll('.service-details[data-expandable="true"]') ?? []);
             const shouldOpen = details.some((detail) => !detail.open);
 
             details.forEach((detail) => {

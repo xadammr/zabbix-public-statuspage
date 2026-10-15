@@ -97,6 +97,29 @@ class WallboardAccessTest extends TestCase
             ->assertDontSee('<strong>Customer portal: API:</strong>', false);
     }
 
+    public function test_wallboard_card_without_additional_details_cannot_expand(): void
+    {
+        $this->withoutVite();
+        Config::set('zabbix.statuspage_private_ips', ['203.0.113.0/24']);
+        $payload = $this->statusPagePayload();
+        $payload['services'][0]['latency'] = null;
+        $payload['services'][0]['api_health'] = null;
+        $payload['services'][0]['public_metrics'] = [];
+        $payload['services'][0]['available_items'] = [];
+        $payload['sections'][0]['services'][0] = $payload['services'][0];
+
+        $this->mock(CachedStatusPage::class, function ($mock) use ($payload): void {
+            $mock->shouldReceive('current')->once()->andReturn($payload);
+        });
+
+        $this->withServerVariables(['REMOTE_ADDR' => '203.0.113.10'])
+            ->get('/wallboard')
+            ->assertOk()
+            ->assertSee('data-expandable="false"', false)
+            ->assertSee('aria-disabled="true"', false)
+            ->assertDontSee('data-details-body', false);
+    }
+
     public function test_all_clear_wallboard_has_no_alert_cards(): void
     {
         $this->withoutVite();

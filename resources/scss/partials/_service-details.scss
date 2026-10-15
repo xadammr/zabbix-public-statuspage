@@ -6,11 +6,18 @@
 
 .service-details > summary.card-header {
     align-items: center;
-    cursor: pointer;
     justify-content: flex-start;
     list-style: none;
     margin-bottom: 0;
     transition: margin-bottom 0.18s ease;
+}
+
+.service-details[data-expandable="true"] > summary.card-header {
+    cursor: pointer;
+}
+
+.service-details[data-expandable="false"] > summary.card-header {
+    cursor: not-allowed;
 }
 
 .service-details > summary.card-header > div {
@@ -81,6 +88,10 @@
     font-weight: 800;
     line-height: 1.3;
     transition: transform 0.15s ease;
+}
+
+.service-details[data-expandable="false"] > summary.card-header::before {
+    display: none;
 }
 
 .service-details[open] > summary.card-header::before {

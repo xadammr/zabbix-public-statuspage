@@ -40,6 +40,12 @@ class StatusPageBuilder
             fn () => $this->fetchTriggers($hostIds),
             ['hosts' => count($hostIds)],
         ));
+        $problems = collect($this->timed(
+            'zabbix.problem.get',
+            fn () => $this->fetchProblems($hostIds),
+            ['hosts' => count($hostIds)],
+        ));
+        $triggers = $this->withoutSuppressedTriggers($triggers, $problems);
         $macros = collect($this->timed(
             'zabbix.usermacro.get',
             fn () => $this->fetchMacros($hostIds),
@@ -278,6 +284,36 @@ class StatusPageBuilder
             ],
             'expandDescription' => true,
         ]);
+    }
+
+    protected function fetchProblems(array $hostIds): array
+    {
+        if ($hostIds === []) {
+            return [];
+        }
+
+        return $this->zabbix->request('problem.get', [
+            'hostids' => $hostIds,
+            'recent' => false,
+            'output' => [
+                'objectid',
+                'suppressed',
+            ],
+        ]);
+    }
+
+    protected function withoutSuppressedTriggers(Collection $triggers, Collection $problems): Collection
+    {
+        $problemsByTrigger = $problems->groupBy('objectid');
+
+        return $triggers
+            ->reject(function (array $trigger) use ($problemsByTrigger): bool {
+                $triggerProblems = $problemsByTrigger->get($trigger['triggerid'], collect());
+
+                return $triggerProblems->isNotEmpty()
+                    && $triggerProblems->every(fn (array $problem) => (string) ($problem['suppressed'] ?? '0') === '1');
+            })
+            ->values();
     }
 
     protected function fetchItems(array $hostIds, string $key): array

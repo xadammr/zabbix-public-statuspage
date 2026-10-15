@@ -438,7 +438,7 @@
 }
 
 .wallboard .wallboard-alerts .card h3 {
-    font-size: 1.75rem;
+    font-size: 2rem;
     padding-top: 2px;
     padding-bottom: 4px;
 }
@@ -475,8 +475,12 @@
     background: #3a3a3a;
     border-color: rgba(255, 255, 255, 0.14);
     color: #fff;
-    font-size: 1.25rem;
+    font-size: 1.35rem;
     padding-left: 8px;
+}
+
+.wallboard .wallboard-alerts .problem-row:not(:last-child) {
+    border-bottom: 1px solid color-mix(in srgb, var(--muted) 35%, transparent);
 }
 
 .wallboard .wallboard-alerts .problem-priority {

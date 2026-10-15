@@ -507,10 +507,6 @@
     margin-top: 3px;
 }
 
-.wallboard .wallboard-alerts .service-details[open] .wallboard-alert-problems .problems {
-    margin-left: -12px;
-}
-
 .wallboard .wallboard-alerts .service-details:not([open]) .wallboard-alert-problems .problems {
     margin-bottom: 0;
 }
@@ -596,8 +592,13 @@
 }
 
 .wallboard .wallboard-alerts .service-details[open] > summary.card-header {
-    margin: -9px -12px 3px;
-    padding: 9px 12px;
+    box-shadow: none;
+    margin: -9px -12px 0 calc(-12px + var(--service-rail-width));
+    padding: 9px 12px 0 calc(12px - var(--service-rail-width));
+}
+
+.wallboard .wallboard-alerts .service-details[open] .service-details-content {
+    margin-top: 0;
 }
 
 .wallboard .service-details[open] .service-details-content,

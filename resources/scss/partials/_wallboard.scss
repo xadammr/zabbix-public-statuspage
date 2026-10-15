@@ -45,7 +45,8 @@
     gap: 12px;
     grid-template-columns: minmax(0, 1fr) minmax(260px, 1.2fr);
     margin-bottom: 16px;
-    padding: 0px 8px 0px 8px;
+    padding: 0px 8px 14px 8px;
+    border-bottom: 1px outset var(--muted);
 }
 
 .wallboard .wallboard-header > div:first-child {

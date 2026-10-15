@@ -6,6 +6,19 @@ footer {
     text-align: center;
 }
 
+html body:not(.wallboard) main[data-status-page-content] > footer {
+    bottom: auto !important;
+    clear: both !important;
+    float: none !important;
+    left: auto !important;
+    position: relative !important;
+    right: auto !important;
+    top: auto !important;
+    transform: none !important;
+    width: auto !important;
+    z-index: auto !important;
+}
+
 .footer-debug {
     align-items: center;
     display: flex;

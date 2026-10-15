@@ -28,40 +28,40 @@
     color: inherit;
 }
 
-.problem-row.not-classified,
-.problem-row.information {
+.problem-row.not-classified {
     border: 1px solid var(--line);
     border-left: 0;
     border-right: 0;
-    background: rgba(255, 255, 255, 0.15);
-    color: var(--muted);
+    background: var(--severity-not-classified);
+    color: var(--severity-text);
 }
 
-.problem-row.not-classified .problem-priority,
-.problem-row.information .problem-priority {
-    background: rgba(255, 255, 255, 0.2);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    color: var(--text);
+.problem-row.information {
+    background: var(--severity-information);
+    color: var(--severity-text);
 }
 
-.problem-row.warning,
+.problem-row.warning {
+    background: var(--severity-warning);
+    color: var(--severity-text);
+}
+
 .problem-row.average {
-    background: var(--warn-bg);
-    color: var(--warn);
+    background: var(--severity-average);
+    color: var(--severity-text);
 }
 
 .problem-row.high {
-    background: #f04438;
-    color: #fff;
+    background: var(--severity-high);
+    color: var(--severity-text);
 }
 
 .problem-row.disaster {
-    background: #d92d20;
-    color: #fff;
+    background: var(--severity-disaster);
+    color: var(--severity-text);
 }
 
-.problem-row.high .problem-priority,
-.problem-row.disaster .problem-priority {
+.problem-row .problem-priority {
     background: rgba(255, 255, 255, 0.2);
     color: inherit;
 }

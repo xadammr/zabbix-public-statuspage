@@ -53,11 +53,11 @@
 }
 
 .service-details[open].severity-high > summary.card-header {
-    background: color-mix(in srgb, #d92d20 30%, var(--panel));
+    background: color-mix(in srgb, var(--severity-high) 30%, var(--panel));
 }
 
 .service-details[open].severity-disaster > summary.card-header {
-    background: color-mix(in srgb, #b42318 42%, var(--panel));
+    background: color-mix(in srgb, var(--severity-disaster) 42%, var(--panel));
 }
 
 .service-details-content {
@@ -103,31 +103,48 @@
     transition: border-color 0.18s ease, background-color 0.18s ease;
 }
 
-.service-details.severity-warning,
+.service-details.severity-not-classified {
+    --service-rail-width: 3px;
+    border-color: color-mix(in srgb, var(--severity-not-classified) 52%, var(--line));
+    box-shadow: inset 3px 0 0 var(--severity-not-classified);
+}
+
+.service-details.severity-information {
+    --service-rail-width: 3px;
+    border-color: color-mix(in srgb, var(--severity-information) 52%, var(--line));
+    box-shadow: inset 3px 0 0 var(--severity-information);
+}
+
+.service-details.severity-warning {
+    --service-rail-width: 3px;
+    border-color: color-mix(in srgb, var(--severity-warning) 52%, var(--line));
+    box-shadow: inset 3px 0 0 var(--severity-warning);
+}
+
 .service-details.severity-average {
     --service-rail-width: 3px;
-    border-color: color-mix(in srgb, var(--warn-bg) 52%, var(--line));
-    box-shadow: inset 3px 0 0 var(--warn-bg);
+    border-color: color-mix(in srgb, var(--severity-average) 52%, var(--line));
+    box-shadow: inset 3px 0 0 var(--severity-average);
 }
 
 .service-details.severity-high {
     --service-rail-width: 3px;
-    box-shadow: inset 3px 0 0 #f04438;
+    box-shadow: inset 3px 0 0 var(--severity-high);
 }
 
 .service-details.severity-disaster {
     --service-rail-width: 3px;
-    box-shadow: inset 3px 0 0 #d92d20;
+    box-shadow: inset 3px 0 0 var(--severity-disaster);
 }
 
 .service-details:not([open]).severity-high {
-    background: color-mix(in srgb, #d92d20 30%, var(--panel));
-    border-color: color-mix(in srgb, #f97066 70%, var(--line));
+    background: color-mix(in srgb, var(--severity-high) 30%, var(--panel));
+    border-color: color-mix(in srgb, var(--severity-high) 70%, var(--line));
 }
 
 .service-details:not([open]).severity-disaster {
-    background: color-mix(in srgb, #b42318 42%, var(--panel));
-    border-color: color-mix(in srgb, #f04438 86%, var(--line));
+    background: color-mix(in srgb, var(--severity-disaster) 42%, var(--panel));
+    border-color: color-mix(in srgb, var(--severity-disaster) 86%, var(--line));
 }
 
 .service-details[open] {
@@ -135,17 +152,20 @@
     background: color-mix(in srgb, var(--panel) 92%, white);
 }
 
-.service-details[open].severity-warning,
+.service-details[open].severity-warning {
+    border-color: color-mix(in srgb, var(--severity-warning) 52%, var(--line));
+}
+
 .service-details[open].severity-average {
-    border-color: color-mix(in srgb, var(--warn-bg) 52%, var(--line));
+    border-color: color-mix(in srgb, var(--severity-average) 52%, var(--line));
 }
 
 .service-details[open].severity-high {
-    border-color: color-mix(in srgb, #f97066 70%, var(--line));
+    border-color: color-mix(in srgb, var(--severity-high) 70%, var(--line));
 }
 
 .service-details[open].severity-disaster {
-    border-color: color-mix(in srgb, #f04438 86%, var(--line));
+    border-color: color-mix(in srgb, var(--severity-disaster) 86%, var(--line));
 }
 
 .service-details-body {

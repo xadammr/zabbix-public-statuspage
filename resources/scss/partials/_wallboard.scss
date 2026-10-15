@@ -128,22 +128,20 @@
     text-transform: uppercase;
 }
 
-.wallboard .summary-severity-pill.warning,
-.wallboard .summary-severity-pill.average {
-    background: var(--warn-bg);
-    color: var(--warn);
-}
-
-.wallboard .summary-severity-pill.high,
-.wallboard .summary-severity-pill.disaster {
-    background: var(--danger-bg);
-    color: var(--danger);
-}
+.wallboard .summary-severity-pill.not-classified { background: var(--severity-not-classified); }
+.wallboard .summary-severity-pill.information { background: var(--severity-information); }
+.wallboard .summary-severity-pill.warning { background: var(--severity-warning); }
+.wallboard .summary-severity-pill.average { background: var(--severity-average); }
+.wallboard .summary-severity-pill.high { background: var(--severity-high); }
+.wallboard .summary-severity-pill.disaster { background: var(--severity-disaster); }
 
 .wallboard .summary-severity-pill.not-classified,
-.wallboard .summary-severity-pill.information {
-    background: rgba(255, 255, 255, 0.08);
-    color: var(--muted);
+.wallboard .summary-severity-pill.information,
+.wallboard .summary-severity-pill.warning,
+.wallboard .summary-severity-pill.average,
+.wallboard .summary-severity-pill.high,
+.wallboard .summary-severity-pill.disaster {
+    color: var(--severity-text);
 }
 
 .wallboard .summary-all-normal {
@@ -359,14 +357,14 @@
     margin-bottom: 8px;
 }
 
-.wallboard .wallboard-alerts.severity-high {
-    --alert-band-color: #f04438;
-    background: color-mix(in srgb, var(--alert-band-color) 14%, var(--bg));
-    border-color: color-mix(in srgb, var(--alert-band-color) 85%, var(--line));
-}
+.wallboard .wallboard-alerts.severity-not-classified { --alert-band-color: var(--severity-not-classified); }
+.wallboard .wallboard-alerts.severity-information { --alert-band-color: var(--severity-information); }
+.wallboard .wallboard-alerts.severity-warning { --alert-band-color: var(--severity-warning); }
+.wallboard .wallboard-alerts.severity-average { --alert-band-color: var(--severity-average); }
+.wallboard .wallboard-alerts.severity-high { --alert-band-color: var(--severity-high); }
+.wallboard .wallboard-alerts.severity-disaster { --alert-band-color: var(--severity-disaster); }
 
-.wallboard .wallboard-alerts.severity-disaster {
-    --alert-band-color: #d92d20;
+.wallboard .wallboard-alerts[class*="severity-"] {
     background: color-mix(in srgb, var(--alert-band-color) 14%, var(--bg));
     border-color: color-mix(in srgb, var(--alert-band-color) 85%, var(--line));
 }
@@ -378,27 +376,39 @@
 .wallboard .wallboard-alerts .card-header {
     background: var(--wallboard-alert-color, var(--panel));
     border-radius: 4px 4px 0 0;
-    color: #fff;
+    color: var(--wallboard-alert-text, #fff);
     flex-wrap: wrap;
     overflow: hidden;
 }
 
-.wallboard .wallboard-alerts .service-details.severity-not-classified,
-.wallboard .wallboard-alerts .service-details.severity-information {
-    --wallboard-alert-color: #475467;
+.wallboard .wallboard-alerts .service-details.severity-not-classified {
+    --wallboard-alert-color: var(--severity-not-classified);
+    --wallboard-alert-text: var(--severity-text);
 }
 
-.wallboard .wallboard-alerts .service-details.severity-warning,
+.wallboard .wallboard-alerts .service-details.severity-information {
+    --wallboard-alert-color: var(--severity-information);
+    --wallboard-alert-text: var(--severity-text);
+}
+
+.wallboard .wallboard-alerts .service-details.severity-warning {
+    --wallboard-alert-color: var(--severity-warning);
+    --wallboard-alert-text: var(--severity-text);
+}
+
 .wallboard .wallboard-alerts .service-details.severity-average {
-    --wallboard-alert-color: #b54708;
+    --wallboard-alert-color: var(--severity-average);
+    --wallboard-alert-text: var(--severity-text);
 }
 
 .wallboard .wallboard-alerts .service-details.severity-high {
-    --wallboard-alert-color: #f04438;
+    --wallboard-alert-color: var(--severity-high);
+    --wallboard-alert-text: var(--severity-text);
 }
 
 .wallboard .wallboard-alerts .service-details.severity-disaster {
-    --wallboard-alert-color: #d92d20;
+    --wallboard-alert-color: var(--severity-disaster);
+    --wallboard-alert-text: var(--severity-text);
 }
 
 .wallboard .wallboard-alerts .grid {
@@ -420,10 +430,10 @@
 
 .wallboard .wallboard-alerts .alert-duration {
     align-items: center;
-    background: rgba(0, 0, 0, 0.2);
-    border: 1px solid rgba(255, 255, 255, 0.18);
+    background: rgba(255, 255, 255, 0.25);
+    border: 1px solid rgba(0, 0, 0, 0.15);
     border-radius: 999px;
-    color: var(--text);
+    color: inherit;
     display: inline-flex;
     font-family: Monaco, Consolas, 'Courier New', Courier, monospace;
     font-size: 0.9rem;
@@ -460,27 +470,34 @@
     padding: 4px 10px;
 }
 
-.wallboard .wallboard-alerts .problem-row.not-classified .problem-priority,
-.wallboard .wallboard-alerts .problem-row.information .problem-priority {
-    background: #475467;
-    color: #fff;
+.wallboard .wallboard-alerts .problem-row.not-classified .problem-priority {
+    background: var(--severity-not-classified);
+    color: var(--severity-text);
 }
 
-.wallboard .wallboard-alerts .problem-row.warning .problem-priority,
+.wallboard .wallboard-alerts .problem-row.information .problem-priority {
+    background: var(--severity-information);
+    color: var(--severity-text);
+}
+
+.wallboard .wallboard-alerts .problem-row.warning .problem-priority {
+    background: var(--severity-warning);
+    color: var(--severity-text);
+}
+
 .wallboard .wallboard-alerts .problem-row.average .problem-priority {
-    background: var(--warn-bg);
-    border-color: color-mix(in srgb, var(--warn) 30%, transparent);
-    color: var(--warn);
+    background: var(--severity-average);
+    color: var(--severity-text);
 }
 
 .wallboard .wallboard-alerts .problem-row.high .problem-priority {
-    background: #f04438;
-    color: #fff;
+    background: var(--severity-high);
+    color: var(--severity-text);
 }
 
 .wallboard .wallboard-alerts .problem-row.disaster .problem-priority {
-    background: #d92d20;
-    color: #fff;
+    background: var(--severity-disaster);
+    color: var(--severity-text);
 }
 
 .wallboard .wallboard-alerts .service-details-content,
@@ -578,17 +595,20 @@
     padding: 7px 10px;
 }
 
-.wallboard .service-details[open].severity-warning > summary.card-header,
+.wallboard .service-details[open].severity-warning > summary.card-header {
+    box-shadow: inset 3px 0 0 var(--severity-warning);
+}
+
 .wallboard .service-details[open].severity-average > summary.card-header {
-    box-shadow: inset 3px 0 0 var(--warn-bg);
+    box-shadow: inset 3px 0 0 var(--severity-average);
 }
 
 .wallboard .service-details[open].severity-high > summary.card-header {
-    box-shadow: inset 3px 0 0 #f04438;
+    box-shadow: inset 3px 0 0 var(--severity-high);
 }
 
 .wallboard .service-details[open].severity-disaster > summary.card-header {
-    box-shadow: inset 3px 0 0 #d92d20;
+    box-shadow: inset 3px 0 0 var(--severity-disaster);
 }
 
 .wallboard .wallboard-alerts .service-details[open] > summary.card-header {

@@ -72,21 +72,32 @@
     color: var(--ok);
 }
 
-.state.not-classified,
+.state.not-classified {
+    background: var(--severity-not-classified);
+    color: var(--severity-text);
+}
+
 .state.information {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 255, 255, 0.2);
-    color: var(--muted);
+    background: var(--severity-information);
+    color: var(--severity-text);
 }
 
-.state.warning,
+.state.warning {
+    background: var(--severity-warning);
+    color: var(--severity-text);
+}
+
 .state.average {
-    background: var(--warn-bg);
-    color: var(--warn);
+    background: var(--severity-average);
+    color: var(--severity-text);
 }
 
-.state.high,
+.state.high {
+    background: var(--severity-high);
+    color: var(--severity-text);
+}
+
 .state.disaster {
-    background: var(--danger-bg);
-    color: var(--danger);
+    background: var(--severity-disaster);
+    color: var(--severity-text);
 }

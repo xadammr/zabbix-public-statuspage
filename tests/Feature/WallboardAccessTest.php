@@ -97,6 +97,35 @@ class WallboardAccessTest extends TestCase
             ->assertDontSee('<strong>Customer portal: API:</strong>', false);
     }
 
+    public function test_problem_rows_are_ordered_by_highest_severity_first(): void
+    {
+        $this->withoutVite();
+        Config::set('zabbix.statuspage_private_ips', ['203.0.113.0/24']);
+        $payload = $this->statusPagePayload();
+        $baseTrigger = $payload['services'][0]['triggers'][0];
+        $payload['services'][0]['triggers'] = [
+            [...$baseTrigger, 'triggerid' => '1', 'description' => 'Warning problem', 'priority' => '2', 'priority_label' => 'Warning', 'priority_class' => 'warning'],
+            [...$baseTrigger, 'triggerid' => '2', 'description' => 'Disaster problem', 'priority' => '5', 'priority_label' => 'Disaster', 'priority_class' => 'disaster'],
+            [...$baseTrigger, 'triggerid' => '3', 'description' => 'Information problem', 'priority' => '1', 'priority_label' => 'Information', 'priority_class' => 'information'],
+            [...$baseTrigger, 'triggerid' => '4', 'description' => 'High problem', 'priority' => '4', 'priority_label' => 'High', 'priority_class' => 'high'],
+        ];
+        $payload['sections'][0]['services'][0] = $payload['services'][0];
+
+        $this->mock(CachedStatusPage::class, function ($mock) use ($payload): void {
+            $mock->shouldReceive('current')->once()->andReturn($payload);
+        });
+
+        $this->withServerVariables(['REMOTE_ADDR' => '203.0.113.10'])
+            ->get('/wallboard')
+            ->assertOk()
+            ->assertSeeInOrder([
+                'Disaster problem',
+                'High problem',
+                'Warning problem',
+                'Information problem',
+            ]);
+    }
+
     public function test_wallboard_card_without_additional_details_cannot_expand(): void
     {
         $this->withoutVite();

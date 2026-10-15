@@ -1,5 +1,11 @@
+@php
+    $sortedTriggers = collect($triggers)
+        ->sortByDesc(fn (array $trigger) => (int) ($trigger['priority'] ?? -1))
+        ->values();
+@endphp
+
 <div class="problems">
-    @foreach ($triggers as $trigger)
+    @foreach ($sortedTriggers as $trigger)
         @php
             $description = $trigger['description'];
             $delimiterPosition = strpos($description, ':');

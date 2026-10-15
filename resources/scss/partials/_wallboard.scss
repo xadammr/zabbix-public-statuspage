@@ -42,9 +42,10 @@
 .wallboard .wallboard-header {
     align-items: center;
     display: grid;
-    gap: 6px;
+    gap: 12px;
     grid-template-columns: minmax(0, 1fr) minmax(260px, 1.2fr);
-    margin-bottom: 8px;
+    margin-bottom: 16px;
+    padding: 0px 8px 0px 8px;
 }
 
 .wallboard .wallboard-header > div:first-child {
@@ -353,7 +354,7 @@
     border-bottom: 0;
     border-top: 0;
     margin: 0 -8px;
-    padding: 8px 8px 20px;
+    padding: 0 16px 16px 16px;
     margin-bottom: 8px;
 }
 
@@ -430,7 +431,7 @@
     gap: 15px;
     grid-template-columns: minmax(0, 1fr);
     margin: 0 auto;
-    width: 90%;
+    width: 100%;
 }
 
 .wallboard .wallboard-alerts .card {

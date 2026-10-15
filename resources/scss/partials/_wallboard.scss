@@ -345,7 +345,7 @@
 
 .wallboard .wallboard-alerts {
     --alert-band-color: var(--muted);
-    background: color-mix(in srgb, var(--panel) 72%, var(--bg));
+    background: transparent;
     border: 1px solid var(--line);
     border-left: 0;
     border-radius: 0;
@@ -365,7 +365,6 @@
 .wallboard .wallboard-alerts.severity-disaster { --alert-band-color: var(--severity-disaster); }
 
 .wallboard .wallboard-alerts[class*="severity-"] {
-    background: color-mix(in srgb, var(--alert-band-color) 14%, var(--bg));
     border-color: color-mix(in srgb, var(--alert-band-color) 85%, var(--line));
 }
 

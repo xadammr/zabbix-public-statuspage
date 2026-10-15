@@ -381,6 +381,22 @@
     overflow: hidden;
 }
 
+.wallboard .wallboard-alerts .card-header > div:not(.wallboard-alert-problems) {
+    text-shadow: var(--wallboard-alert-text-shadow);
+}
+
+.wallboard .wallboard-alerts .service-details.severity-not-classified,
+.wallboard .wallboard-alerts .service-details.severity-information,
+.wallboard .wallboard-alerts .service-details.severity-warning,
+.wallboard .wallboard-alerts .service-details.severity-average {
+    --wallboard-alert-text-shadow: 0 1px 1px rgba(0, 0, 0, 0.35);
+}
+
+.wallboard .wallboard-alerts .service-details.severity-high,
+.wallboard .wallboard-alerts .service-details.severity-disaster {
+    --wallboard-alert-text-shadow: 0 1px 1px rgba(255, 255, 255, 0.45);
+}
+
 .wallboard .wallboard-alerts .service-details.severity-not-classified {
     --wallboard-alert-color: var(--severity-not-classified);
     --wallboard-alert-text: var(--severity-text);
@@ -612,7 +628,9 @@
 }
 
 .wallboard .wallboard-alerts .service-details[open] > summary.card-header {
+    background: var(--wallboard-alert-color, var(--panel));
     box-shadow: none;
+    color: var(--wallboard-alert-text, #fff);
     margin: -9px -12px 0 calc(-12px + var(--service-rail-width));
     padding: 9px 12px 0 calc(12px - var(--service-rail-width));
 }

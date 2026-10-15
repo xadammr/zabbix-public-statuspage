@@ -16,10 +16,7 @@ class StatusPageBuildProfileLogsTest extends TestCase
     {
         Config::set('zabbix.statuspage_profile_log', true);
         Config::set('zabbix.statuspage_sections', [
-            'public' => [
-                'title' => 'Public services',
-                'description' => 'Customer-facing services monitored by Zabbix.',
-            ],
+            'public' => 'Public services',
         ]);
 
         Log::shouldReceive('info')

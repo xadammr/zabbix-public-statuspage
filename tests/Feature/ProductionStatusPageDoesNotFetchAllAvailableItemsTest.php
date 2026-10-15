@@ -16,10 +16,7 @@ class ProductionStatusPageDoesNotFetchAllAvailableItemsTest extends TestCase
         Config::set('app.env', 'local');
         Config::set('zabbix.statuspage_fetch_available_items', false);
         Config::set('zabbix.statuspage_sections', [
-            'public' => [
-                'title' => 'Public services',
-                'description' => 'Customer-facing services monitored by Zabbix.',
-            ],
+            'public' => 'Public services',
         ]);
 
         $zabbix = new class extends ZabbixClient
@@ -59,10 +56,7 @@ class ProductionStatusPageDoesNotFetchAllAvailableItemsTest extends TestCase
         Config::set('app.env', 'production');
         Config::set('zabbix.statuspage_fetch_available_items', false);
         Config::set('zabbix.statuspage_sections', [
-            'public' => [
-                'title' => 'Public services',
-                'description' => 'Customer-facing services monitored by Zabbix.',
-            ],
+            'public' => 'Public services',
         ]);
 
         $zabbix = new class extends ZabbixClient

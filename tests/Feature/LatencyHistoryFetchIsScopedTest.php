@@ -14,14 +14,8 @@ class LatencyHistoryFetchIsScopedTest extends TestCase
     {
         Config::set('zabbix.latency_sections', ['public']);
         Config::set('zabbix.statuspage_sections', [
-            'public' => [
-                'title' => 'Public services',
-                'description' => 'Customer-facing services monitored by Zabbix.',
-            ],
-            'infrastructure' => [
-                'title' => 'Infrastructure',
-                'description' => 'Supporting services and infrastructure dependencies.',
-            ],
+            'public' => 'Public services',
+            'infrastructure' => 'Infrastructure',
         ]);
 
         $zabbix = new class extends ZabbixClient
@@ -155,10 +149,7 @@ class LatencyHistoryFetchIsScopedTest extends TestCase
     {
         Config::set('zabbix.latency_sections', ['public']);
         Config::set('zabbix.statuspage_sections', [
-            'public' => [
-                'title' => 'Public services',
-                'description' => 'Customer-facing services monitored by Zabbix.',
-            ],
+            'public' => 'Public services',
         ]);
 
         $zabbix = new class extends ZabbixClient

@@ -14,10 +14,7 @@ class PublicMetricChangesAreFormattedTest extends TestCase
     public function test_public_metric_changes_are_formatted_from_previous_item_value(): void
     {
         Config::set('zabbix.statuspage_sections', [
-            'public' => [
-                'title' => 'Public services',
-                'description' => 'Customer-facing services monitored by Zabbix.',
-            ],
+            'public' => 'Public services',
         ]);
 
         $zabbix = new class extends ZabbixClient
@@ -83,10 +80,7 @@ class PublicMetricChangesAreFormattedTest extends TestCase
     public function test_public_metric_changes_are_omitted_without_previous_item_value(): void
     {
         Config::set('zabbix.statuspage_sections', [
-            'public' => [
-                'title' => 'Public services',
-                'description' => 'Customer-facing services monitored by Zabbix.',
-            ],
+            'public' => 'Public services',
         ]);
 
         $zabbix = new class extends ZabbixClient

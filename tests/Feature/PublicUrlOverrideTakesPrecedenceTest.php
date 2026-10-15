@@ -13,10 +13,7 @@ class PublicUrlOverrideTakesPrecedenceTest extends TestCase
     public function test_public_url_override_takes_precedence(): void
     {
         Config::set('zabbix.statuspage_sections', [
-            'public' => [
-                'title' => 'Public services',
-                'description' => 'Customer-facing services monitored by Zabbix.',
-            ],
+            'public' => 'Public services',
         ]);
 
         $zabbix = new class extends ZabbixClient

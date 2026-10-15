@@ -20,6 +20,8 @@ This repo is in decent shape already: it has a clear Laravel structure, focused 
 - [x] Add a license file.
   - Added the MIT license declared by `composer.json`.
 
+- [ ] Fix footer -- in prod footer is a normal footer, in dev footer is floating above page elements. 
+
 - [ ] Add a GitHub-ready project hygiene set.
   - Add `CONTRIBUTING.md` or a short contributor section in `README.md`.
   - Add `SECURITY.md` with private vulnerability reporting instructions.

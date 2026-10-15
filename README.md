@@ -113,11 +113,25 @@ statuspage=internal
 statuspage=infrastructure
 ```
 
-The default sections are configured in [config/zabbix.php](config/zabbix.php):
+The default sections are:
 
 - `public`: external/customer-facing services
 - `internal`: internal application services
 - `infrastructure`: supporting infrastructure dependencies
+
+Define custom sections, in display order, with a JSON object in `.env`. Each object key is the value used by the Zabbix `statuspage` tag:
+
+```env
+STATUSPAGE_SECTIONS='{"public":"External Services","databases":"Databases"}'
+```
+
+Each key is a Zabbix tag value and each value is the section's displayed title. Keys may contain letters, numbers, hyphens, and underscores. If the variable is absent or invalid, the default sections above are used. After changing it in a deployment that caches configuration, run `php artisan config:clear` (or rebuild the config cache).
+
+Choose which sections collect and display response-time history separately:
+
+```env
+STATUSPAGE_LATENCY_SECTIONS=public,databases
+```
 
 ## Private Sections
 

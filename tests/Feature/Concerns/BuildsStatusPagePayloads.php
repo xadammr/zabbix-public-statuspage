@@ -35,7 +35,6 @@ trait BuildsStatusPagePayloads
                 [
                     'key' => 'public',
                     'title' => 'Public services',
-                    'description' => 'Customer-facing services monitored by Zabbix.',
                     'services' => [
                         [
                             ...$this->servicePayload(),
@@ -82,7 +81,6 @@ trait BuildsStatusPagePayloads
         $payload['sections'][] = [
             'key' => 'internal',
             'title' => 'Internal Services',
-            'description' => 'Internal services monitored by Zabbix.',
             'services' => [$internalService],
         ];
         $payload['summary']['total'] = 2;

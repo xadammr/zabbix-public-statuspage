@@ -102,10 +102,9 @@ class StatusPageBuilder
         $serviceSections = $this->timed(
             'statuspage.sections',
             fn () => $sections
-                ->map(fn (array $sectionConfig, string $section) => [
+                ->map(fn (string $title, string $section) => [
                     'key' => $section,
-                    'title' => $sectionConfig['title'],
-                    'description' => $sectionConfig['description'],
+                    'title' => $title,
                     'services' => $services
                         ->where('section', $section)
                         ->values()

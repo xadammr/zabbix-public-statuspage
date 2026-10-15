@@ -8,6 +8,35 @@ use PHPUnit\Framework\TestCase;
 
 class StatusPageConfigTest extends TestCase
 {
+    public function test_sections_are_loaded_from_json_in_their_defined_order(): void
+    {
+        $sections = StatusPageConfig::sections(json_encode([
+            'databases' => ' Databases ',
+            'customer-portals' => 'Customer Portals',
+        ]), []);
+
+        $this->assertSame([
+            'databases' => 'Databases',
+            'customer-portals' => 'Customer Portals',
+        ], $sections);
+    }
+
+    public function test_invalid_sections_json_falls_back_to_defaults(): void
+    {
+        $defaults = ['public' => 'External Services'];
+
+        $this->assertSame($defaults, StatusPageConfig::sections('not-json', $defaults));
+        $this->assertSame($defaults, StatusPageConfig::sections('{"bad key":"Invalid"}', $defaults));
+    }
+
+    public function test_section_lists_are_loaded_from_comma_separated_values(): void
+    {
+        $this->assertSame(
+            ['public', 'databases'],
+            StatusPageConfig::sectionList(' public, databases,public, '),
+        );
+    }
+
     public function test_stylesheet_urls_are_trimmed_deduplicated_and_limited_to_http_schemes(): void
     {
         $urls = StatusPageConfig::stylesheetUrls(implode(',', [

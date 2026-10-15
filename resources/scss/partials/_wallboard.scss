@@ -376,9 +376,29 @@
 }
 
 .wallboard .wallboard-alerts .card-header {
+    background: var(--wallboard-alert-color, var(--panel));
     border-radius: 4px 4px 0 0;
+    color: #fff;
     flex-wrap: wrap;
     overflow: hidden;
+}
+
+.wallboard .wallboard-alerts .service-details.severity-not-classified,
+.wallboard .wallboard-alerts .service-details.severity-information {
+    --wallboard-alert-color: #475467;
+}
+
+.wallboard .wallboard-alerts .service-details.severity-warning,
+.wallboard .wallboard-alerts .service-details.severity-average {
+    --wallboard-alert-color: #b54708;
+}
+
+.wallboard .wallboard-alerts .service-details.severity-high {
+    --wallboard-alert-color: #f04438;
+}
+
+.wallboard .wallboard-alerts .service-details.severity-disaster {
+    --wallboard-alert-color: #d92d20;
 }
 
 .wallboard .wallboard-alerts .grid {
@@ -393,9 +413,9 @@
 }
 
 .wallboard .wallboard-alerts .card h3 {
-    font-size: 1.5rem;
+    font-size: 1.75rem;
     padding-top: 2px;
-    padding-bottom: 2px;
+    padding-bottom: 4px;
 }
 
 .wallboard .wallboard-alerts .alert-duration {
@@ -427,13 +447,40 @@
 
 .wallboard .wallboard-alerts .problem-row {
     align-items: center;
+    background: #3a3a3a;
+    border-color: rgba(255, 255, 255, 0.14);
+    color: #fff;
     font-size: 1.25rem;
     padding-left: 8px;
 }
 
 .wallboard .wallboard-alerts .problem-priority {
+    border: 1px solid rgba(255, 255, 255, 0.22);
     font-size: 0.85rem;
     padding: 4px 10px;
+}
+
+.wallboard .wallboard-alerts .problem-row.not-classified .problem-priority,
+.wallboard .wallboard-alerts .problem-row.information .problem-priority {
+    background: #475467;
+    color: #fff;
+}
+
+.wallboard .wallboard-alerts .problem-row.warning .problem-priority,
+.wallboard .wallboard-alerts .problem-row.average .problem-priority {
+    background: var(--warn-bg);
+    border-color: color-mix(in srgb, var(--warn) 30%, transparent);
+    color: var(--warn);
+}
+
+.wallboard .wallboard-alerts .problem-row.high .problem-priority {
+    background: #f04438;
+    color: #fff;
+}
+
+.wallboard .wallboard-alerts .problem-row.disaster .problem-priority {
+    background: #d92d20;
+    color: #fff;
 }
 
 .wallboard .wallboard-alerts .service-details-content,

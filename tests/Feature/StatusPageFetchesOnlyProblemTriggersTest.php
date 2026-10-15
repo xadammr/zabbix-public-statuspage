@@ -13,10 +13,7 @@ class StatusPageFetchesOnlyProblemTriggersTest extends TestCase
     public function test_status_page_fetches_only_problem_triggers(): void
     {
         Config::set('zabbix.statuspage_sections', [
-            'public' => [
-                'title' => 'Public services',
-                'description' => 'Customer-facing services monitored by Zabbix.',
-            ],
+            'public' => 'Public services',
         ]);
 
         $zabbix = new class extends ZabbixClient

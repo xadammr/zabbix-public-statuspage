@@ -13,14 +13,8 @@ class StatusPageFetchesHostsOnceTest extends TestCase
     public function test_status_page_fetches_hosts_once_and_assigns_sections_from_tags(): void
     {
         Config::set('zabbix.statuspage_sections', [
-            'public' => [
-                'title' => 'Public services',
-                'description' => 'Customer-facing services monitored by Zabbix.',
-            ],
-            'internal' => [
-                'title' => 'Internal services',
-                'description' => 'Internal services monitored by Zabbix.',
-            ],
+            'public' => 'Public services',
+            'internal' => 'Internal services',
         ]);
 
         $zabbix = new class extends ZabbixClient

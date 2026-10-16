@@ -267,6 +267,7 @@ class StatusPageBuilder
         return $this->zabbix->request('trigger.get', [
             'hostids' => $hostIds,
             'maintenance' => false,
+            'monitored' => true,
             'only_true' => true,
             'skipDependent' => true,
             'output' => [

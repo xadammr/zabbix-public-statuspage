@@ -10,7 +10,7 @@ use Tests\TestCase;
 
 class StatusPageFetchesOnlyProblemTriggersTest extends TestCase
 {
-    public function test_status_page_fetches_only_problem_triggers(): void
+    public function test_status_page_fetches_only_monitored_problem_triggers(): void
     {
         Config::set('zabbix.statuspage_sections', [
             'public' => 'Public services',
@@ -46,6 +46,7 @@ class StatusPageFetchesOnlyProblemTriggersTest extends TestCase
 
         $this->assertSame(['1'], $triggerCall['params']['hostids']);
         $this->assertFalse($triggerCall['params']['maintenance']);
+        $this->assertTrue($triggerCall['params']['monitored']);
         $this->assertTrue($triggerCall['params']['only_true']);
         $this->assertTrue($triggerCall['params']['skipDependent']);
 

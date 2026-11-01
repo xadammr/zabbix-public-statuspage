@@ -88,13 +88,10 @@ This repo is in decent shape already: it has a clear Laravel structure, focused 
   - Added composable item identity, state, previous-value, and metric-field constants.
   - The four item fetch methods retain their original field sets and ordering.
 
-- [ ] Move route closures into controllers.
-  - `routes/web.php` is readable, but it now contains page assembly plus push subscription persistence.
-  - Suggested controllers:
-    - `StatusPageController`
-    - `StatusFragmentController`
-    - `PushSubscriptionController`
-  - This will make request validation and tests easier to navigate.
+- [x] Move route closures into controllers.
+  - `StatusPageController` owns full-page, fragment, and trusted wallboard responses without duplicating visibility logic.
+  - `PushSubscriptionController` owns the public-key and subscription lifecycle endpoints.
+  - The web app manifest is served by the invokable `WebManifestController`.
 
 - [x] Move Artisan closure commands into command classes.
   - `routes/console.php` contains several substantial commands.

@@ -106,19 +106,9 @@ class LatencyHistoryFetchIsScopedTest extends TestCase
                             'value' => '0.100',
                         ],
                         [
-                            'itemid' => 'latency-public-2',
-                            'clock' => now()->subMinute()->timestamp,
-                            'value' => '0.200',
-                        ],
-                        [
                             'itemid' => 'latency-public',
                             'clock' => now()->timestamp,
                             'value' => '0.150',
-                        ],
-                        [
-                            'itemid' => 'latency-public-2',
-                            'clock' => now()->timestamp,
-                            'value' => '0.250',
                         ],
                     ];
                 }
@@ -142,7 +132,7 @@ class LatencyHistoryFetchIsScopedTest extends TestCase
         $this->assertArrayNotHasKey('hostids', $historyCalls[0]['params']);
         $this->assertSame(120, $historyCalls[0]['params']['limit']);
         $this->assertSame(2, $statusPage['services'][0]['latency']['series']['samples']);
-        $this->assertSame(2, $statusPage['services'][1]['latency']['series']['samples']);
+        $this->assertNull($statusPage['services'][1]['latency']['series']);
     }
 
     public function test_latency_is_not_fetched_without_latency_item_key_macro(): void

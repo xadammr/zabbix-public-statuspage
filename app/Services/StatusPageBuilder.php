@@ -259,7 +259,7 @@ class StatusPageBuilder
 
         foreach ($latencyItems as $item) {
             $series = $seriesByItem[$item['itemid']] ?? [];
-            $latest = $series[array_key_last($series)] ?? null;
+            $latest = $series === [] ? null : $series[array_key_last($series)];
 
             if ($latest !== null) {
                 $history[] = [

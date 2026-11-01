@@ -84,9 +84,9 @@ This repo is in decent shape already: it has a clear Laravel structure, focused 
   - Preserve the existing profiling labels and batched request behavior.
   - Keep suppression filtering and final service assembly in `StatusPageBuilder` unless a clearer boundary emerges.
 
-- [ ] Remove repeated Zabbix item output definitions.
-  - `fetchItems`, `fetchAvailableItems`, `fetchPublicMetricItems`, and `fetchLatencyItems` repeat similar `output` lists.
-  - Recommended fix: define small private constants or helper methods for common item fields.
+- [x] Remove repeated Zabbix item output definitions.
+  - Added composable item identity, state, previous-value, and metric-field constants.
+  - The four item fetch methods retain their original field sets and ordering.
 
 - [ ] Move route closures into controllers.
   - `routes/web.php` is readable, but it now contains page assembly plus push subscription persistence.

@@ -8,6 +8,37 @@ use Throwable;
 
 class StatusPageBuilder
 {
+    private const ITEM_OUTPUT_IDENTITY = [
+        'itemid',
+        'hostid',
+        'name',
+        'key_',
+        'lastvalue',
+    ];
+
+    private const ITEM_OUTPUT_STATE = [
+        'lastclock',
+        'status',
+        'state',
+    ];
+
+    private const ITEM_OUTPUT_BASE = [
+        ...self::ITEM_OUTPUT_IDENTITY,
+        ...self::ITEM_OUTPUT_STATE,
+    ];
+
+    private const ITEM_OUTPUT_WITH_PREVIOUS_VALUE = [
+        ...self::ITEM_OUTPUT_IDENTITY,
+        'prevvalue',
+        ...self::ITEM_OUTPUT_STATE,
+    ];
+
+    private const ITEM_OUTPUT_WITH_METRIC_FIELDS = [
+        ...self::ITEM_OUTPUT_WITH_PREVIOUS_VALUE,
+        'value_type',
+        'units',
+    ];
+
     protected array $profileEvents = [];
 
     protected int $profileStartedAt = 0;
@@ -294,17 +325,7 @@ class StatusPageBuilder
 
         return $this->zabbix->request('item.get', [
             'hostids' => $hostIds,
-            'output' => [
-                'itemid',
-                'hostid',
-                'name',
-                'key_',
-                'lastvalue',
-                'prevvalue',
-                'lastclock',
-                'status',
-                'state',
-            ],
+            'output' => self::ITEM_OUTPUT_WITH_PREVIOUS_VALUE,
             'filter' => [
                 'key_' => $key,
             ],
@@ -321,19 +342,7 @@ class StatusPageBuilder
 
         return $this->zabbix->request('item.get', [
             'hostids' => $hostIds,
-            'output' => [
-                'itemid',
-                'hostid',
-                'name',
-                'key_',
-                'lastvalue',
-                'prevvalue',
-                'lastclock',
-                'status',
-                'state',
-                'value_type',
-                'units',
-            ],
+            'output' => self::ITEM_OUTPUT_WITH_METRIC_FIELDS,
             'sortfield' => [
                 'name',
                 'key_',
@@ -357,19 +366,7 @@ class StatusPageBuilder
 
         return $this->zabbix->request('item.get', [
             'hostids' => $hostIds,
-            'output' => [
-                'itemid',
-                'hostid',
-                'name',
-                'key_',
-                'lastvalue',
-                'prevvalue',
-                'lastclock',
-                'status',
-                'state',
-                'value_type',
-                'units',
-            ],
+            'output' => self::ITEM_OUTPUT_WITH_METRIC_FIELDS,
             'filter' => [
                 'key_' => $metricKeys,
             ],
@@ -420,16 +417,7 @@ class StatusPageBuilder
         $items = $this->zabbix->request('item.get', [
             'hostids' => $hostIds,
             'webitems' => true,
-            'output' => [
-                'itemid',
-                'hostid',
-                'name',
-                'key_',
-                'lastvalue',
-                'lastclock',
-                'status',
-                'state',
-            ],
+            'output' => self::ITEM_OUTPUT_BASE,
             'filter' => [
                 'key_' => $keys,
             ],

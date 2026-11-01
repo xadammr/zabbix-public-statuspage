@@ -97,13 +97,9 @@ This repo is in decent shape already: it has a clear Laravel structure, focused 
   - `routes/console.php` contains several substantial commands.
   - Command classes would make `webpush:*` and `statuspage:poll` easier to test and maintain.
 
-- [ ] Tidy `resources/js/app.js` into small modules once the public API is stable.
-  - The file is understandable, but it combines details animation, refresh polling, relative time, and push notifications.
-  - Suggested modules:
-    - `details.js`
-    - `refresh.js`
-    - `push.js`
-    - `relative-time.js`
+- [x] Tidy `resources/js/app.js` into small modules once the public API is stable.
+  - Extracted details animation, refresh polling, push notifications, and relative-time display into focused modules.
+  - `app.js` is now a small entry point, while refresh-driven DOM replacement still rebinds every interactive control.
 
 - [ ] Replace text glyph controls with inline SVG/icon markup.
   - The refresh toggle uses `||` and `>`.

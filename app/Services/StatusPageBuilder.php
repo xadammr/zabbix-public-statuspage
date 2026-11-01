@@ -8,37 +8,6 @@ use Throwable;
 
 class StatusPageBuilder
 {
-    private const ITEM_OUTPUT_IDENTITY = [
-        'itemid',
-        'hostid',
-        'name',
-        'key_',
-        'lastvalue',
-    ];
-
-    private const ITEM_OUTPUT_STATE = [
-        'lastclock',
-        'status',
-        'state',
-    ];
-
-    private const ITEM_OUTPUT_BASE = [
-        ...self::ITEM_OUTPUT_IDENTITY,
-        ...self::ITEM_OUTPUT_STATE,
-    ];
-
-    private const ITEM_OUTPUT_WITH_PREVIOUS_VALUE = [
-        ...self::ITEM_OUTPUT_IDENTITY,
-        'prevvalue',
-        ...self::ITEM_OUTPUT_STATE,
-    ];
-
-    private const ITEM_OUTPUT_WITH_METRIC_FIELDS = [
-        ...self::ITEM_OUTPUT_WITH_PREVIOUS_VALUE,
-        'value_type',
-        'units',
-    ];
-
     protected array $profileEvents = [];
 
     protected int $profileStartedAt = 0;
@@ -51,6 +20,8 @@ class StatusPageBuilder
 
     protected StatusPageMacroParser $macros;
 
+    protected StatusPageDataFetcher $data;
+
     public function __construct(
         protected ZabbixClient $zabbix,
         protected StatusPageSummary $summary,
@@ -58,11 +29,13 @@ class StatusPageBuilder
         ?StatusPageMetricFormatter $metrics = null,
         ?StatusPageLatencyFormatter $latency = null,
         ?StatusPageMacroParser $macros = null,
+        ?StatusPageDataFetcher $data = null,
     ) {
         $this->macros = $macros ?? new StatusPageMacroParser;
         $this->hostDiscovery = $hostDiscovery ?? new StatusPageHostDiscovery($zabbix);
         $this->metrics = $metrics ?? new StatusPageMetricFormatter($this->macros);
         $this->latency = $latency ?? new StatusPageLatencyFormatter($this->macros);
+        $this->data = $data ?? new StatusPageDataFetcher($zabbix, $this->macros);
     }
 
     public function build(): array
@@ -83,37 +56,37 @@ class StatusPageBuilder
         $hostIds = $hosts->pluck('hostid')->values()->all();
         $triggers = collect($this->timed(
             'zabbix.trigger.get',
-            fn () => $this->fetchTriggers($hostIds),
+            fn () => $this->data->triggers($hostIds),
             ['hosts' => count($hostIds)],
         ));
         $problems = collect($this->timed(
             'zabbix.problem.get',
-            fn () => $this->fetchProblems($hostIds),
+            fn () => $this->data->problems($hostIds),
             ['hosts' => count($hostIds)],
         ));
         $triggers = $this->withoutSuppressedTriggers($triggers, $problems);
         $macros = collect($this->timed(
             'zabbix.usermacro.get',
-            fn () => $this->fetchMacros($hostIds),
+            fn () => $this->data->macros($hostIds),
             ['hosts' => count($hostIds)],
         ));
         $availableItems = collect($this->timed(
             'zabbix.item.get.available',
-            fn () => $this->shouldFetchAvailableItems() ? $this->fetchAvailableItems($hostIds) : [],
+            fn () => $this->shouldFetchAvailableItems() ? $this->data->availableItems($hostIds) : [],
             ['hosts' => count($hostIds), 'enabled' => $this->shouldFetchAvailableItems()],
         ));
         $publicMetricItems = $availableItems->isNotEmpty()
             ? $availableItems
             : collect($this->timed(
                 'zabbix.item.get.public_metrics',
-                fn () => $this->fetchPublicMetricItems($hostIds, $macros),
+                fn () => $this->data->publicMetricItems($hostIds, $macros),
                 ['hosts' => count($hostIds)],
             ));
         $publicMetricItems = $this->metrics->withChanges($publicMetricItems, $macros);
         $availableItems = $this->metrics->mergeChanges($availableItems, $publicMetricItems);
         $apiHealthItems = collect($this->timed(
             'zabbix.item.get.api_health',
-            fn () => $this->fetchItems($hostIds, config('zabbix.api_health_item_key')),
+            fn () => $this->data->itemsByKey($hostIds, config('zabbix.api_health_item_key')),
             ['hosts' => count($hostIds), 'key' => config('zabbix.api_health_item_key')],
         ));
         $latencyHosts = $hosts
@@ -122,7 +95,7 @@ class StatusPageBuilder
             ->values();
         $latencyItems = collect($this->timed(
             'zabbix.item.get.latency',
-            fn () => $this->fetchLatencyItems($latencyHosts, $macros),
+            fn () => $this->data->latencyItems($latencyHosts, $macros),
             ['hosts' => $latencyHosts->count()],
         ));
         $latencyHistory = collect($this->timed(
@@ -258,51 +231,6 @@ class StatusPageBuilder
         return (hrtime(true) - $startedAt) / 1_000_000;
     }
 
-    protected function fetchTriggers(array $hostIds): array
-    {
-        if ($hostIds === []) {
-            return [];
-        }
-
-        return $this->zabbix->request('trigger.get', [
-            'hostids' => $hostIds,
-            'maintenance' => false,
-            'monitored' => true,
-            'only_true' => true,
-            'skipDependent' => true,
-            'output' => [
-                'triggerid',
-                'description',
-                'lastchange',
-                'priority',
-                'status',
-                'value',
-            ],
-            'selectHosts' => [
-                'hostid',
-                'host',
-                'name',
-            ],
-            'expandDescription' => true,
-        ]);
-    }
-
-    protected function fetchProblems(array $hostIds): array
-    {
-        if ($hostIds === []) {
-            return [];
-        }
-
-        return $this->zabbix->request('problem.get', [
-            'hostids' => $hostIds,
-            'recent' => false,
-            'output' => [
-                'objectid',
-                'suppressed',
-            ],
-        ]);
-    }
-
     protected function withoutSuppressedTriggers(Collection $triggers, Collection $problems): Collection
     {
         $problemsByTrigger = $problems->groupBy('objectid');
@@ -317,131 +245,17 @@ class StatusPageBuilder
             ->values();
     }
 
-    protected function fetchItems(array $hostIds, string $key): array
-    {
-        if ($hostIds === []) {
-            return [];
-        }
-
-        return $this->zabbix->request('item.get', [
-            'hostids' => $hostIds,
-            'output' => self::ITEM_OUTPUT_WITH_PREVIOUS_VALUE,
-            'filter' => [
-                'key_' => $key,
-            ],
-            'selectValueMap' => 'extend',
-            'sortfield' => 'name',
-        ]);
-    }
-
-    protected function fetchAvailableItems(array $hostIds): array
-    {
-        if ($hostIds === []) {
-            return [];
-        }
-
-        return $this->zabbix->request('item.get', [
-            'hostids' => $hostIds,
-            'output' => self::ITEM_OUTPUT_WITH_METRIC_FIELDS,
-            'sortfield' => [
-                'name',
-                'key_',
-            ],
-            'selectValueMap' => 'extend',
-        ]);
-    }
-
-    protected function fetchPublicMetricItems(array $hostIds, Collection $macros): array
-    {
-        $metricKeys = $macros
-            ->where('macro', '{$PUBLIC_METRICS}')
-            ->flatMap(fn (array $macro) => $this->macros->metricKeys($macro['value'] ?? ''))
-            ->unique()
-            ->values()
-            ->all();
-
-        if ($hostIds === [] || $metricKeys === []) {
-            return [];
-        }
-
-        return $this->zabbix->request('item.get', [
-            'hostids' => $hostIds,
-            'output' => self::ITEM_OUTPUT_WITH_METRIC_FIELDS,
-            'filter' => [
-                'key_' => $metricKeys,
-            ],
-            'sortfield' => [
-                'name',
-                'key_',
-            ],
-            'selectValueMap' => 'extend',
-        ]);
-    }
-
-    protected function fetchMacros(array $hostIds): array
-    {
-        if ($hostIds === []) {
-            return [];
-        }
-
-        return $this->zabbix->request('usermacro.get', [
-            'hostids' => $hostIds,
-            'output' => [
-                'hostmacroid',
-                'hostid',
-                'macro',
-                'value',
-                'type',
-            ],
-        ]);
-    }
-
-    protected function fetchLatencyItems(Collection $hosts, Collection $macros): array
-    {
-        if ($hosts->isEmpty()) {
-            return [];
-        }
-
-        $hostIds = $hosts->pluck('hostid')->values()->all();
-        $keys = $hosts
-            ->map(fn (array $host) => $this->macros->string($macros->where('hostid', $host['hostid']), '{$PUBLIC_LATENCY_ITEM_KEY}'))
-            ->filter()
-            ->unique()
-            ->values()
-            ->all();
-
-        if ($keys === []) {
-            return [];
-        }
-
-        $items = $this->zabbix->request('item.get', [
-            'hostids' => $hostIds,
-            'webitems' => true,
-            'output' => self::ITEM_OUTPUT_BASE,
-            'filter' => [
-                'key_' => $keys,
-            ],
-            'sortfield' => 'name',
-        ]);
-
-        $keysByHost = $hosts
-            ->mapWithKeys(fn (array $host) => [
-                $host['hostid'] => $this->macros->string($macros->where('hostid', $host['hostid']), '{$PUBLIC_LATENCY_ITEM_KEY}'),
-            ]);
-
-        return collect($items)
-            ->filter(fn (array $item) => ($keysByHost[$item['hostid']] ?? null) === ($item['key_'] ?? null))
-            ->values()
-            ->all();
-    }
-
     protected function fetchLatencyHistory(Collection $latencyItems, int $minutes): array
     {
         $history = [];
-        $seriesByItem = $this->fetchLatencySeriesForItems(
-            $latencyItems->pluck('itemid')->values()->all(),
-            $minutes,
-        );
+        $itemIds = $latencyItems->pluck('itemid')->values()->all();
+        $seriesByItem = $itemIds === []
+            ? []
+            : $this->timed(
+                'zabbix.history.get.latency_items',
+                fn () => $this->data->latencySeries($itemIds, $minutes),
+                ['items' => count($itemIds), 'limit' => StatusPageLatencyFormatter::HISTORY_LIMIT * count($itemIds)],
+            );
 
         foreach ($latencyItems as $item) {
             $series = $seriesByItem[$item['itemid']] ?? [];
@@ -460,53 +274,6 @@ class StatusPageBuilder
         }
 
         return $history;
-    }
-
-    protected function fetchLatencySeriesForItems(array $itemIds, int $minutes): array
-    {
-        if ($itemIds === []) {
-            return [];
-        }
-
-        $values = $this->timed(
-            'zabbix.history.get.latency_items',
-            fn () => $this->zabbix->request('history.get', [
-                'itemids' => $itemIds,
-                'history' => 0,
-                'time_from' => now()->subMinutes($minutes)->timestamp,
-                'sortfield' => 'clock',
-                'sortorder' => 'ASC',
-                'limit' => StatusPageLatencyFormatter::HISTORY_LIMIT * count($itemIds),
-            ]),
-            ['items' => count($itemIds), 'limit' => StatusPageLatencyFormatter::HISTORY_LIMIT * count($itemIds)],
-        );
-
-        return collect($values)
-            ->filter(function (array $value): bool {
-                $seconds = (float) $value['value'];
-
-                return $seconds > 0 && $seconds < 30;
-            })
-            ->map(function (array $value): array {
-                $seconds = (float) $value['value'];
-
-                return [
-                    'itemid' => $value['itemid'],
-                    'clock' => (int) $value['clock'],
-                    'seconds' => $seconds,
-                    'milliseconds' => (int) round($seconds * 1000),
-                ];
-            })
-            ->groupBy('itemid')
-            ->map(fn (Collection $series) => $series
-                ->map(fn (array $point) => [
-                    'clock' => $point['clock'],
-                    'seconds' => $point['seconds'],
-                    'milliseconds' => $point['milliseconds'],
-                ])
-                ->values()
-                ->all())
-            ->all();
     }
 
     protected function buildService(

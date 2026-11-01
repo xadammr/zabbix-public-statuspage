@@ -79,10 +79,10 @@ This repo is in decent shape already: it has a clear Laravel structure, focused 
   - Extracted host discovery, macro parsing, metric formatting, and latency formatting while keeping the public output array stable.
   - `StatusPageBuilder` now coordinates fetching, profiling, service assembly, and section assembly.
 
-- [ ] Extract `StatusPageDataFetcher` from `StatusPageBuilder`.
-  - Move the remaining Zabbix trigger, problem, macro, item, and latency-history requests behind one data-fetching collaborator.
-  - Preserve the existing profiling labels and batched request behavior.
-  - Keep suppression filtering and final service assembly in `StatusPageBuilder` unless a clearer boundary emerges.
+- [x] Extract `StatusPageDataFetcher` from `StatusPageBuilder`.
+  - Trigger, problem, macro, item, and latency-history requests now live behind one data-fetching collaborator.
+  - Profiling labels and batched request behavior remain in `StatusPageBuilder`.
+  - Suppression filtering, latency-history assembly, and final service assembly remain in the builder.
 
 - [x] Remove repeated Zabbix item output definitions.
   - Added composable item identity, state, previous-value, and metric-field constants.

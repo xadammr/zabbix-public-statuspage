@@ -50,6 +50,28 @@ class StatusPageDataFetcherTest extends TestCase
         $this->assertSame(['10', '12'], collect($fetcher->latencyItems($hosts, $macros))->pluck('itemid')->all());
     }
 
+    public function test_public_metrics_include_web_scenario_items(): void
+    {
+        $zabbix = Mockery::mock(ZabbixClient::class);
+        $zabbix->shouldReceive('request')
+            ->once()
+            ->with('item.get', Mockery::on(fn (array $params) => $params['hostids'] === ['1']
+                && $params['webitems'] === true
+                && $params['filter']['key_'] === [
+                    'web.test.time[Calendar,Team,resp]',
+                    'web.test.time[Calendar,Venue,resp]',
+                ]))
+            ->andReturn([]);
+        $fetcher = new StatusPageDataFetcher($zabbix, new StatusPageMacroParser);
+        $macros = collect([[
+            'hostid' => '1',
+            'macro' => '{$PUBLIC_METRICS}',
+            'value' => 'web.test.time[Calendar,Team,resp],web.test.time[Calendar,Venue,resp]',
+        ]]);
+
+        $this->assertSame([], $fetcher->publicMetricItems(['1'], $macros));
+    }
+
     public function test_latency_history_remains_one_batched_request_with_the_combined_limit(): void
     {
         Carbon::setTestNow('2026-11-01 12:00:00');

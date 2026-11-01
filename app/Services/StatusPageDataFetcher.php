@@ -96,6 +96,7 @@ class StatusPageDataFetcher
 
         return $this->zabbix->request('item.get', [
             'hostids' => $hostIds,
+            'webitems' => true,
             'output' => self::ITEM_OUTPUT_WITH_METRIC_FIELDS,
             'sortfield' => ['name', 'key_'],
             'selectValueMap' => 'extend',
@@ -117,6 +118,7 @@ class StatusPageDataFetcher
 
         return $this->zabbix->request('item.get', [
             'hostids' => $hostIds,
+            'webitems' => true,
             'output' => self::ITEM_OUTPUT_WITH_METRIC_FIELDS,
             'filter' => ['key_' => $metricKeys],
             'sortfield' => ['name', 'key_'],

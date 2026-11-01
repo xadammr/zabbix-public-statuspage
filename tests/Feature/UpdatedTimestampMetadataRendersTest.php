@@ -31,6 +31,8 @@ class UpdatedTimestampMetadataRendersTest extends TestCase
             $this->get('/')
                 ->assertStatus(200)
                 ->assertSee('Last updated:')
+                ->assertSee('data-page-reload', false)
+                ->assertSee('aria-label="Reload status page"', false)
                 ->assertSee('data-last-updated-at="2026-06-07T07:32:47+00:00"', false)
                 ->assertSee('datetime="2026-06-07T07:32:47+00:00"', false)
                 ->assertSee('title="2026-06-07 07:32:47"', false)

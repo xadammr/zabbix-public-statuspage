@@ -75,15 +75,14 @@ This repo is in decent shape already: it has a clear Laravel structure, focused 
 
 ## Refactor Candidates
 
-- [ ] Split `StatusPageBuilder` after release-critical cleanup.
-  - This class is doing discovery, Zabbix fetching, macro parsing, metric formatting, latency chart shaping, and service assembly.
-  - It is not lazy-dev spaghetti, but it has grown into a "god service".
-  - Suggested extractions:
-    - `StatusPageHostDiscovery`
-    - `StatusPageMetricFormatter`
-    - `StatusPageLatencyFormatter`
-    - `StatusPageMacroParser`
-  - Keep the public output array stable while extracting.
+- [x] Split `StatusPageBuilder` after release-critical cleanup.
+  - Extracted host discovery, macro parsing, metric formatting, and latency formatting while keeping the public output array stable.
+  - `StatusPageBuilder` now coordinates fetching, profiling, service assembly, and section assembly.
+
+- [ ] Extract `StatusPageDataFetcher` from `StatusPageBuilder`.
+  - Move the remaining Zabbix trigger, problem, macro, item, and latency-history requests behind one data-fetching collaborator.
+  - Preserve the existing profiling labels and batched request behavior.
+  - Keep suppression filtering and final service assembly in `StatusPageBuilder` unless a clearer boundary emerges.
 
 - [ ] Remove repeated Zabbix item output definitions.
   - `fetchItems`, `fetchAvailableItems`, `fetchPublicMetricItems`, and `fetchLatencyItems` repeat similar `output` lists.

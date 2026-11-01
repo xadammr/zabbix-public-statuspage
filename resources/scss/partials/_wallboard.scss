@@ -76,14 +76,7 @@
 
 .wallboard .last-update {
     background: var(--panel);
-    color: var(--muted);
-    cursor: pointer;
     font-size: 0.7rem;
-}
-
-.wallboard .last-update:hover {
-    border-color: rgba(255, 255, 255, 0.3);
-    color: var(--text);
 }
 
 .wallboard .push-toggle {

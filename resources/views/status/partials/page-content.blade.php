@@ -8,18 +8,14 @@
             $generatedAtIso = $generatedAt->toIso8601String();
         @endphp
         <div class="refresh-controls">
-            @if ($wallboard ?? false)
-                <button
-                    class="last-update muted"
-                    type="button"
-                    data-refresh-highlight
-                    data-page-reload
-                    aria-label="Reload wallboard"
-                    title="Reload wallboard"
-                >
-            @else
-                <p class="last-update muted" data-refresh-highlight>
-            @endif
+            <button
+                class="last-update muted"
+                type="button"
+                data-refresh-highlight
+                data-page-reload
+                aria-label="{{ ($wallboard ?? false) ? 'Reload wallboard' : 'Reload status page' }}"
+                title="{{ ($wallboard ?? false) ? 'Reload wallboard' : 'Reload status page' }}"
+            >
                 <span
                     class="refresh-progress"
                     data-page-refresh-progress
@@ -38,11 +34,7 @@
                 >
                     {{ ($wallboard ?? false) ? 'Just now' : 'Last updated:' }}
                 </time>
-            @if ($wallboard ?? false)
-                </button>
-            @else
-                </p>
-            @endif
+            </button>
             @unless ($wallboard ?? false)
                 <button
                     class="refresh-toggle"
